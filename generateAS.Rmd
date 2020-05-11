@@ -1,0 +1,101 @@
+---
+title: "Generate Actions and States"
+author: "Hera Shi"
+date: "2020/5/11"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require(tidyverse)
+require(data.table)
+require(kableExtra)
+set.seed(0808)
+```
+
+
+## Functions
+
+### expit function
+
+```{r}
+expit = function(a){
+  return(exp(a) / (1 + exp(a)))
+}
+```
+
+
+### Action and State generating function:
+
++ Action generating function, $A_t \in \{ 0,1 \}$
+
+$$
+p_t(1|H_t) = \text{expit} (\eta_1A_{t-1}+\eta_2S_t)
+$$
+
+```{r}
+Action = function(eta_1,eta_2,A_tm1,S_t){
+  p_t = expit(eta_1*A_tm1 + eta_2*S_t)
+  if (p_t == 0.5){
+    A_t = as.numeric(rbernoulli(1))
+  }else {
+    A_t = ifelse(p_t>0.5,1,0)
+  }
+  return(A_t)
+}
+```
+
++ State generating function, $S_t \in \{ -1,1 \}$
+
+
+$$
+Pr(S_t=1|A_{t-1},H_{t-1}) = \text{expit} (\xi A_{t-1})
+$$
+
+```{r}
+State = function(xi,A_tm1){
+  p_t = expit(xi*A_tm1)
+  if (p_t == 0.5){
+    S_t = ifelse(as.numeric(rbernoulli(1))==1, 1, -1)
+  }else {
+    S_t = ifelse(p_t>0.5,1,-1)
+  }
+  
+  return(S_t)
+}
+```
+
+
+### Generating sequences of actions and states. 
+
+The sequence for certain person should look like : $\{ A_0, S_1, A_1, S_2,A_2, \dots,S_T,A_T \}$, and by assumption, $A_0 = 0$ for everyone.
+
+```{r}
+# just for practice 
+
+Act_State = function(n,T,xi,eta_1,eta_2){
+  df = matrix(NA,nrow = n, ncol = 2*T+1)
+  df[,1] = rep(0,n)
+  for (i in 1:n){
+    for (j in 1:T){
+        df[i,2*j] = State(xi,df[i,2*j-1])
+        df[i,2*j+1] = Action(eta_1,eta_2,df[i,2*j-1],df[i,2*j])
+    }
+  }
+  df = as.data.frame(df)
+  colnames(df)[seq(1, 2*T+1, 2)] = paste(rep("A", T+1), 0:T, sep = "_")
+  colnames(df)[seq(2, 2*T, 2)] = paste(rep("S", T), 1:T, sep = "_")
+  return(df)
+}
+```
+
+
+## Implementation
+
+```{r}
+df = Act_State(n = 30,T = 30,xi = 0,eta_1 = -0.8,eta_2 = 0.8)
+df[1:10,1:11] %>% 
+  kable(caption = "Action State table (first 10 rows & 11 columns)", align = "c") %>%
+  kable_styling("striped")
+```
