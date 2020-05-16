@@ -1,12 +1,4 @@
----
-title: "Generate Actions and States"
-knit: (function(input_file, encoding) {
-  out_dir <- 'docs';
-  rmarkdown::render(input_file,
- encoding=encoding,
- output_file=file.path(dirname(input_file), out_dir, 'generateAS.html'))})
----
-
+# Generate Actions and States
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
