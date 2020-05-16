@@ -1,7 +1,6 @@
----
-title: "generateY"
-output: html_document
----
+
+# generateY
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -51,6 +50,7 @@ $$
 Pr(S_t=1|A_{t-1},H_{t-1}) = \text{expit} (\xi A_{t-1})
 $$
 
+
 ```{r}
 State = function(xi,A_tm1){
   p_t = expit(xi*A_tm1)
@@ -80,10 +80,12 @@ $$
 ```{r}
 Outcome = function(j,S_t,A_t,xi,A_tm1,eta_1,eta_2,A_tm2,S_tm1,theta_1,theta_2,beta_10,beta_11){
   if (j ==1){
-    y_tp1 = theta_1*(S_t - (2 *State(xi,A_tm1)[2]- 1))+      (A_t-Action(eta_1,eta_2,A_tm1,S_t)[2])*(beta_10+beta_11*S_t)
+    y_tp1 = theta_1*(S_t - (2 *State(xi,A_tm1)[2]- 1))+
+    (A_t-Action(eta_1,eta_2,A_tm1,S_t)[2])*(beta_10+beta_11*S_t)
   } else{
     y_tp1 = theta_1*(S_t - (2 *State(xi,A_tm1)[2]- 1))+ 
-    theta_2*(A_tm1 - Action(eta_1,eta_2,A_tm2,S_tm1)[2]) +      (A_t-Action(eta_1,eta_2,A_tm1,S_t)[2])*(beta_10+beta_11*S_t)
+    theta_2*(A_tm1 - Action(eta_1,eta_2,A_tm2,S_tm1)[2]) +
+    (A_t-Action(eta_1,eta_2,A_tm1,S_t)[2])*(beta_10+beta_11*S_t)
   }
   return(y_tp1)
 }
@@ -110,7 +112,10 @@ sim_ASY = function(n,T,xi,eta_1,eta_2,theta_1,theta_2,beta_10,beta_11){
     for (j in 2:(T+1)){
         df[i*(T+1)+j,"S_t"] = State(xi,df[i*(T+1)+j-1,"A_t"])[1]
         df[i*(T+1)+j,"A_t"] = Action(eta_1,eta_2,df[i*(T+1)+j-1,"A_t"],df[i*(T+1)+j,"S_t"])[1]
-        df[i*(T+1)+j,"Y_(t+1)"] = Outcome(j-1,df[i*(T+1)+j,"S_t"],df[i*(T+1)+j,"A_t"],xi,df[i*(T+1)+j-1,"A_t"],eta_1,eta_2,df[i*(T+1)+j-2,"A_t"],df[i*(T+1)+j-1,"S_t"],theta_1,theta_2,beta_10,beta_11)
+        df[i*(T+1)+j,"Y_(t+1)"] = Outcome(j-1,df[i*(T+1)+j,"S_t"],
+                                          df[i*(T+1)+j,"A_t"],xi,df[i*(T+1)+j-1,"A_t"],
+                                          eta_1,eta_2,df[i*(T+1)+j-2,"A_t"],df[i*(T+1)+j-1,"S_t"],
+                                          theta_1,theta_2,beta_10,beta_11)
     }
   }
   df = as.data.frame(df)
