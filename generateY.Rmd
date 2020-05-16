@@ -1,7 +1,5 @@
 ---
 title: "generateY"
-author: "Hera Shi"
-date: "2020/5/16"
 output: html_document
 ---
 
