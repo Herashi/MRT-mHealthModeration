@@ -1,5 +1,7 @@
-
-# generateY
+---
+title: "generateY"
+output: html_document
+---
 
 
 ```{r setup, include=FALSE}
