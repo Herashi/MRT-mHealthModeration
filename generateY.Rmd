@@ -1,5 +1,5 @@
 ---
-title: "generateY"
+title: "Generate Outcomes"
 output: html_document
 ---
 
