@@ -11,3 +11,4 @@ File | Description
 [generateAS.Rmd](generateAS.Rmd) | Generating series of actions and states for participants. 
 [generateY.Rmd](generateY.Rmd) | Generating outcomes for participants. 
 [sim.Rmd](sim.Rmd) | Generating and analyzing simulation data. (included codes from Dalmiral)
+[sim_edit.Rmd](sim_edit.Rmd) | Generating and analyzing simulation data. (with notes and minor edits)
