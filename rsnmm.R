@@ -1,5 +1,6 @@
 library(purrr)
 library("zoo")
+library(foreach)
 source("xzoo.R")
 ## load functions needed for variance estimation
 source("xgeepack.R")
@@ -202,3 +203,5 @@ rsnmm.R <- function(n, tmax, control, ...) {
   attributes(d) <- c(attributes(d), control)
   d
 }
+
+
