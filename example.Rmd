@@ -37,9 +37,7 @@ head(d)
 ```
 
 
-### The simulation function
-
-
+### Some models (with weights and centered)
 
 
 ```{r} 

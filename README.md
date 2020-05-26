@@ -11,4 +11,5 @@ File | Description
 [generateAS.Rmd](generateAS.Rmd) | Generating series of actions and states for participants. 
 [generateY.Rmd](generateY.Rmd) | Generating outcomes for participants. 
 [sim_edit.Rmd](sim_edit.Rmd) | Generating and analyzing simulation data. (with notes and minor edits)
-[sim.Rmd](sim.Rmd) | Replicate the analysis results.
+[example.Rmd](example.Rmd) | Example models
+[sim-ar1.Rmd](sim-ar1.Rmd) | Reproducing Table 1
