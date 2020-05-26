@@ -4,6 +4,7 @@ library(foreach)
 source("xzoo.R")
 ## load functions needed for variance estimation
 source("xgeepack.R")
+library(geepack)
 
 
 

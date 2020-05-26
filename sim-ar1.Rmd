@@ -14,7 +14,7 @@ source("rsnmm.R")
 
 ```{r}
 ## set number of Monte Carlo replicates
-M <- 10
+M <- 100
 
 ## set number of threads to use for parallel processing and the random seed
 ## (nb: these two values ensure that the results are replicable)
@@ -67,9 +67,8 @@ sim.ar1 <- function() {
 }
 
 ar1 <- sim.ar1()
-save(ar1, file = "sim-ar1_10.RData")
+save(ar1, file = "sim-ar1_100.RData")
 
 stopCluster(cl)
-
 ```
 
