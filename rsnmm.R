@@ -285,11 +285,14 @@ sim <- function(n = 30, tmax = 30, M = 1000,
     l <- list(x = model.matrix(formula, data = d[r, ]), y = d[r, response])
     if (is.null(args$wn) & is.null(args$wn)) l$w <- rep(1, nrow(d))
     else {
+      #calculate the weights
       l$w <- ifelse(d[, "a"] == 1, d[, args$wn] / d[, args$wd],
                     (1 - d[, args$wn]) / (1 - d[, args$wd]))
       args[c("wn", "wd")] <- NULL
     }
+    # no availability has 0 weight
     l$w <- l$w * d$avail
+    # lag != 0
     if (lag) l$w <- delay(d$id, d$time, l$w, lag)
     l$w <- l$w[r]
     if (!is.null(args$corstr)) {
@@ -316,7 +319,7 @@ sim <- function(n = 30, tmax = 30, M = 1000,
       fit$vcov <- vcov.geeglm(fit)
       est <- estimate(fit)[coef, 1:4, drop = FALSE]
       ## correction for any estimates in weights
-      l <- if (length(prob)) setNames(fita[prob], gsub("^w", "p", names(prob)))
+      l <- if (length(prob)) setNames(fita[prob], gsub("^w", "p", names(prob))) #Vector replacement
       else NULL
       fit$vcov <- NULL
       fit$vcov <- do.call("vcov.geeglm", c(list(x = fit, label = label), l))
