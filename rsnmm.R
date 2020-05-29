@@ -72,7 +72,7 @@ rsnmm = function(n, T,
         theta[2] * statec[i*T + j]+
         theta[3] * availc[i*T + j - 1]+
         theta[4] * statec[i*T + j - 1]
-      # error ????
+      # error 
       err[i*T + j] = err[i*T + j]+ coeferr * err[i*T + j - 1]
       # response 
       y[i*T + j] = ym + err[i*T + j]
@@ -283,6 +283,7 @@ sim <- function(n = 30, tmax = 30, M = 1000,
     else runin <- runin.fity
     r <- which(d$time >= runin)
     l <- list(x = model.matrix(formula, data = d[r, ]), y = d[r, response])
+    #????
     if (is.null(args$wn) & is.null(args$wn)) l$w <- rep(1, nrow(d))
     else {
       #calculate the weights

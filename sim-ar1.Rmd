@@ -12,6 +12,7 @@ source("init.R")
 source("rsnmm.R")
 ```
 
+
 ```{r}
 ## set number of Monte Carlo replicates
 M <- 100

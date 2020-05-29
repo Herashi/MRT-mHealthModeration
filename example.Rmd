@@ -14,7 +14,7 @@ source("rsnmm.R")
 ```
 
 
-### Create the simulation dataset
+### Generate the simulation dataset
 
 ```{r}
 set.seed(0)
@@ -35,6 +35,16 @@ d$lag1varstate <- with(d, delay(id, time, varstate))
 d <- subset(d, time > 0)
 head(d)
 ```
+
+
+### Generate the simulation dataset with correlation
+
+I think one of the most straightforward way is generating correlated **base** with certain pre-defined working matrix.
+
+```{r}
+
+```
+
 
 
 ### Some models (with weights and centered)
