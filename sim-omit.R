@@ -1,22 +1,15 @@
----
-title: "sim_omit"
-output: html_document
----
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
 library("foreach")
 library("doParallel")
 library("parallel")
 source("init.R")
 source("rsnmm.R")
 source("group.R")
-```
 
-```{r}
+
+
 ## set number of Monte Carlo replicates
 
-M <- 5
+M <- 1000
 
 ## set number of threads to use for parallel processing and the random seed
 ## (nb: these two values ensure that the results are replicable)
@@ -72,9 +65,6 @@ sim.omit <- function() {
 }
 
 omit <- sim.omit()
-save(omit, file = "sim-omit.RData")
+save(omit, file = "sim-omit-group.RData")
 
 stopCluster(cl)
-
-```
-

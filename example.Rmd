@@ -11,6 +11,7 @@ source("xzoo.R")
 ## load functions needed for variance estimation
 source("xgeepack.R")
 source("rsnmm.R")
+source("group.R")
 ```
 
 
@@ -18,7 +19,7 @@ source("rsnmm.R")
 
 ```{r}
 set.seed(0)
-d <- rsnmm.R(n = 50, tmax = 200, beta1 = c(-0.1, 0, 0, 0),
+d <- rsnmm.R(n = 30, tmax = 30,group_ls = group_all[["30"]], beta1 = c(-0.1, 0, 0, 0),
            coef.avail = c(log(9), 0, 0, 0))
 
 ## define extra variables, using functions from xzoo.R:

@@ -4,6 +4,8 @@ library(foreach)
 source("xzoo.R")
 ## load functions needed for variance estimation
 source("xgeepack.R")
+library(Matrix)
+library(MASS)
 library(geepack)
 
 
@@ -13,19 +15,46 @@ expit = function(a){
   return(exp(a) / (1 + exp(a)))
 }
 
+group_str = function(group){
+  set.seed(0808)
+  group[["group_size"]] = unname(table(group[["group_id"]]))
+  group[["mlist"]] = list()
+  
+  corrstr  = function(str,n,rho){
+    if (str == "ar1"){
+      exponent <- abs(matrix(1:n - 1, nrow = n, ncol = n, byrow = TRUE) - 
+                        (1:n - 1))
+      rho^exponent
+    }else if (str == "exchangeable"){
+      exponent <- matrix(1, nrow = n, ncol = n)-diag(n)
+      rho^exponent
+    }else{
+      diag(n)
+    }
+  }
+  
+  for (i in 1:length(group[["rho"]])){
+    str = group[["cor structure"]][i]
+    rho_i = group[["rho"]][i]
+    size  = group[["group_size"]][i]
+    Sigma = corrstr(str,size,rho_i)
+    group[["mlist"]][[i]] = Sigma
+  }
+  
+  group[["Cov"]] = as.matrix(bdiag(group[["mlist"]]))
+  group[["group err"]] = matrix(mvrnorm(1, rep(0,group[["n"]]), group[["Cov"]]), ncol = 1)
+  
+  return(group)
+} 
+
 
 rsnmm = function(n, T,
                  ty, tmod, tavail, tstate,
                  beta, eta, mu, theta,
                  coefavail, coefstate, coeferr,
                  avail, base, state, a, prob,
-                 y, err, statec, ac, availc){
-  # int i, j, k, n = *size, T = *tmax;
-  # double r, q, ym;
-  # for (i = 0; i < n; i++) {
-  #  for (j = 1; j < T; j++) {
-  
-  
+                 y, err, statec, ac, availc, group_err){
+  # a list indicating grouping structure
   
   for (i in 0:(n-1)) {
     for (j in 2:T) {
@@ -73,9 +102,9 @@ rsnmm = function(n, T,
         theta[3] * availc[i*T + j - 1]+
         theta[4] * statec[i*T + j - 1]
       # error 
-      err[i*T + j] = err[i*T + j]+ coeferr * err[i*T + j - 1]
+      err[i*T + j] = err[i*T + j]+ coeferr * err[i*T + j - 1] 
       # response 
-      y[i*T + j] = ym + err[i*T + j]
+      y[i*T + j] = ym + err[i*T + j]+ group_err[i+1]
     }
   }
   
@@ -126,7 +155,7 @@ rsnmm.control <- function(origin = 1, sd = 1,
 
 
 
-rsnmm.R <- function(n, tmax, control, ...) {
+rsnmm.R <- function(n, tmax, group_ls, control, ...) {
   control <- if (missing(control)) rsnmm.control(...)
   else do.call("rsnmm.control", control)
   tmax <- tmax + (tmax %% 2) + 1
@@ -149,7 +178,8 @@ rsnmm.R <- function(n, tmax, control, ...) {
                                      coralpha^(abs(row(cormatrix) -
                                                      col(cormatrix)))), tmax, tmax)
   }
-  
+  group = group_str(group_ls)
+  group_err = group[["group err"]]
   
   d <- rsnmm(
     n = as.integer(n) ,
@@ -174,14 +204,15 @@ rsnmm.R <- function(n, tmax, control, ...) {
     err = as.double(err),
     statec = as.double(rep(0, n*tmax)),
     ac = as.double(rep(0, n*tmax)),
-    availc = as.double(rep(0, n*tmax)))
+    availc = as.double(rep(0, n*tmax)),
+    group_err =as.double(group_err))
   
   d <- data.frame(id = rep(1:n, each = tmax), time = time,
                   ty = d$ty, tmod = d$tmod, tavail = d$tavail, tstate = d$tstate,
                   base = d$base, state = d$state, a = d$a, y = d$y, err = d$err,
-                  avail = d$avail, prob = d$p, a.center = d$a.center,
-                  state.center = d$state.center, avail.center = d$avail.center,
-                  one = 1)
+                  group_err = rep(group_err, each = tmax), avail = d$avail, 
+                  prob = d$p, a.center = d$a.center, state.center = d$state.center, 
+                  avail.center = d$avail.center, one = 1)
   
   ## nb: for a given row, y is the proximal response
   d$lag1y <- with(d, delay(id, time, y))
@@ -231,7 +262,9 @@ sim <- function(n = 30, tmax = 30, M = 1000,
                 lag = 0,
                 ## print generative and analysis model details
                 verbose = TRUE,
-                ## control parameters for 'rsnmm'
+                ## group structure
+                group_ls,
+                ## control parameters for 'rsnmm.R'
                 control, ...) {
   control <- if (missing(control)) rsnmm.control(...)
   else control <- do.call("rsnmm.control", control)
@@ -283,8 +316,7 @@ sim <- function(n = 30, tmax = 30, M = 1000,
     else runin <- runin.fity
     r <- which(d$time >= runin)
     l <- list(x = model.matrix(formula, data = d[r, ]), y = d[r, response])
-    #????
-    if (is.null(args$wn) & is.null(args$wn)) l$w <- rep(1, nrow(d))
+    if (is.null(args$wn) & is.null(args$wd)) l$w <- rep(1, nrow(d))
     else {
       #calculate the weights
       l$w <- ifelse(d[, "a"] == 1, d[, args$wn] / d[, args$wd],
@@ -337,7 +369,7 @@ sim <- function(n = 30, tmax = 30, M = 1000,
   ## for each replicate...
   out <- foreach(m = 1:M, .combine = "rbind") %dopar% {
     ## ... generate data
-    d <- rsnmm.R(n, tmax, control = control)
+    d <- rsnmm.R(n, tmax,group_ls, control = control)
     d$pn <- d$pd <- d$prob
     ## ... fit treatment probability models
     if (!is.null(a.formula))
