@@ -10,6 +10,7 @@ File | Description
 ---- | ----
 [generateAS.Rmd](generateAS.Rmd) | Generating series of actions and states for participants. 
 [generateY.Rmd](generateY.Rmd) | Generating outcomes for participants. 
-[sim_edit.Rmd](sim_edit.Rmd) | Generating and analyzing simulation data. (with notes and minor edits)
+[rsnmm.R](rsnmm.R) | Function library
 [example.Rmd](example.Rmd) | Example models
-[sim-ar1.Rmd](sim-ar1.Rmd) | Reproducing Table 1
+[group.R](group.R) | Group structures
+[sim-omit.Rmd](sim-omit.Rmd) | Generating and analyzing correlated data using proposed methods.
