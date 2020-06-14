@@ -16,36 +16,21 @@ expit = function(a){
 }
 
 group_str = function(group){
-  set.seed(0808)
-  group[["group_size"]] = unname(table(group[["group_id"]]))
-  group[["mlist"]] = list()
+  group[["group size"]] = unname(table(group[["group_id"]]))
+  group[["#groups"]] = length(unique(group[["group_id"]]))
+  group[["Cov"]] = diag(group[["rho"]])
   
-  corrstr  = function(str,n,rho){
-    if (str == "ar1"){
-      exponent <- abs(matrix(1:n - 1, nrow = n, ncol = n, byrow = TRUE) - 
-                        (1:n - 1))
-      rho^exponent
-    }else if (str == "exchangeable"){
-      exponent <- matrix(1, nrow = n, ncol = n)-diag(n)
-      rho^exponent
-    }else{
-      diag(n)
-    }
+  err = c()
+  for (i in 1:group[["#groups"]]){
+    e = rnorm(1,mean = 0,sd = sqrt(group[["rho"]][i]))
+    err = c(err,e)
   }
-  
-  for (i in 1:length(group[["rho"]])){
-    str = group[["cor structure"]][i]
-    rho_i = group[["rho"]][i]
-    size  = group[["group_size"]][i]
-    Sigma = corrstr(str,size,rho_i)
-    group[["mlist"]][[i]] = Sigma
-  }
-  
-  group[["Cov"]] = as.matrix(bdiag(group[["mlist"]]))
-  group[["group err"]] = matrix(mvrnorm(1, rep(0,group[["n"]]), group[["Cov"]]), ncol = 1)
+  group[["err"]] = err
+  group[["group err"]] = rep(group[["err"]],group[["group size"]])
   
   return(group)
 } 
+
 
 
 rsnmm = function(n, T,
@@ -234,7 +219,10 @@ rsnmm.R <- function(n, tmax, group_ls, control, ...) {
   d$lag1state.center <- with(d, delay(id, time, state.center))
   rownames(d) <- NULL
   attributes(d) <- c(attributes(d), control)
-  d
+  
+  # cat(n,tmax,mean(unique(d$group_err)),var(unique(d$group_err)),sep = " ","\n")
+  
+  return(d)
 }
 
 
