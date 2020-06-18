@@ -8,26 +8,39 @@ library(Matrix)
 library(MASS)
 library(geepack)
 
-
-
 #define expit(a)
 expit = function(a){
   return(exp(a) / (1 + exp(a)))
 }
 
-group_str = function(group){
+
+
+covstr = function(string,n,rho){
+  if (string == "ar1"){
+    exponent <- abs(matrix(1:n - 1, nrow = n, ncol = n, byrow = TRUE) - 
+                      (1:n - 1))
+    rho^exponent
+  }else{
+    exponent <- matrix(1,nrow = n, ncol = n) -diag(1,nrow = n, ncol = n)
+    rho^exponent
+  }
+}
+
+
+group_str = function(group,tmax){
   group[["group size"]] = unname(table(group[["group_id"]]))
   group[["#groups"]] = length(unique(group[["group_id"]]))
-  group[["Cov"]] = diag(group[["sigma2"]])
+  corr = covstr("ar1",tmax,rho = 0.8)
   
   err = c()
   for (i in 1:group[["#groups"]]){
-    e = rnorm(1,mean = 0,sd = sqrt(group[["sigma2"]][i]))
+    cov= group[["sigma2"]][i]* corr
+    e = mvrnorm(1, mu = rep(0,tmax), Sigma = cov)
+    e = rep(e,times = group[["group size"]][i])
     err = c(err,e)
   }
-  group[["err"]] = err
-  group[["group err"]] = rep(group[["err"]],group[["group size"]])
   
+  group[["group err"]] = err
   return(group)
 } 
 
@@ -89,7 +102,7 @@ rsnmm = function(n, T,
       # error 
       err[i*T + j] = err[i*T + j]+ coeferr * err[i*T + j - 1] 
       # response 
-      y[i*T + j] = ym + err[i*T + j]+ group_err[i+1]
+      y[i*T + j] = ym + err[i*T + j]+ group_err[i*T + j]
     }
   }
   
@@ -163,7 +176,7 @@ rsnmm.R <- function(n, tmax, group_ls, control, ...) {
                                      coralpha^(abs(row(cormatrix) -
                                                      col(cormatrix)))), tmax, tmax)
   }
-  group = group_str(group_ls)
+  group = group_str(group_ls, tmax)
   group_err = group[["group err"]]
   
   d <- rsnmm(
@@ -195,7 +208,7 @@ rsnmm.R <- function(n, tmax, group_ls, control, ...) {
   d <- data.frame(id = rep(1:n, each = tmax), time = time,
                   ty = d$ty, tmod = d$tmod, tavail = d$tavail, tstate = d$tstate,
                   base = d$base, state = d$state, a = d$a, y = d$y, err = d$err,
-                  group_err = rep(group_err, each = tmax), avail = d$avail, 
+                  group_err = group_err, avail = d$avail, 
                   prob = d$p, a.center = d$a.center, state.center = d$state.center, 
                   avail.center = d$avail.center, one = 1)
   

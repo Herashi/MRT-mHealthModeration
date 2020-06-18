@@ -20,7 +20,7 @@ source("group.R")
 ```{r}
 set.seed(0)
 
-d <- rsnmm.R(n = 120, tmax = 30,group_ls = group_all[["120"]])
+d <- rsnmm.R(n = 30, tmax = 50,group_ls = group_all[["30"]])
 
 ## define extra variables, using functions from xzoo.R:
 ## - variation among current and up to the past 2 states

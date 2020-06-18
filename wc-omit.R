@@ -2,14 +2,15 @@ library("foreach")
 library("doParallel")
 library("parallel")
 source("init.R")
-source("rsnmm.R")
+source("function.R")
 source("group.R")
 
 
+# d <- rsnmm.R(n = 100, tmax = 30,group_ls = group_all[["100"]])
 
 ## set number of Monte Carlo replicates
 
-M <- 1000
+M <- 1
 
 ## set number of threads to use for parallel processing and the random seed
 ## (nb: these two values ensure that the results are replicable)
@@ -25,9 +26,9 @@ sim.omit <- function() {
   out <- NULL
   ## low, medium and high degrees of moderation by state
   for (b in c(0.2, 0.5, 0.8)) {
-    for (n in c(30, 100)) {
+    for (n in c(30,100)) {
       group = group_all[[as.character(n)]]
-      for (tmax in c(30, 50)) {
+      for (tmax in c(30,50)) {
         clusterSetRNGStream(cl, seed)
         out <-
           rbind(out,
@@ -36,21 +37,15 @@ sim.omit <- function() {
                           ## regress response on state and proximal treatment,
                           ## ignoring the underlying interaction between the two
                           y.formula = list(w = y ~ state + I(a - pn),
-                                           u.ind = y ~ state + a,
-                                           u.ar1 = y ~ state + a,
-                                           u.exch = y ~ state + a),
+                                           u.ar1 = y ~ state + a),
                           y.names = c(w = "Weighted and centered",
-                                      u.ind = "GEE independence",
-                                      u.ar1 = "GEE AR(1)",
-                                      u.exch = "GEE exchangeable"),
+                                      u.ar1 = "GEE AR(1)"),
                           ## term labels for proximal treatment
                           y.label = list(w = "I(a - pn)",
-                                         u.ind = "a", u.ar1 = "a", u.exch = "a"),
+                                          u.ar1 = "a"),
                           ## specify weights and working correlation structure
                           y.args = list(w = list(wn = "pn", wd = "prob"),
-                                        u.ind = list(),
-                                        u.ar1 = list(corstr = "ar1"),
-                                        u.exch = list(corstr = "exch")),
+                                        u.ar1 = list(corstr = "ar1")),
                           ## specify weight numerator model
                           a.formula = list(pn = a ~ 1),
                           a.names = c(pn = "Intercept-only"),
