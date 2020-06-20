@@ -27,24 +27,6 @@ covstr = function(string,n,rho){
 }
 
 
-group_str = function(group,tmax){
-  group[["group size"]] = unname(table(group[["group_id"]]))
-  group[["#groups"]] = length(unique(group[["group_id"]]))
-  corr = covstr("ar1",tmax,rho = 0.8)
-  
-  err = c()
-  for (i in 1:group[["#groups"]]){
-    cov= group[["sigma2"]][i]* corr
-    e = mvrnorm(1, mu = rep(0,tmax), Sigma = cov)
-    e = rep(e,times = group[["group size"]][i])
-    err = c(err,e)
-  }
-  
-  group[["group err"]] = err
-  return(group)
-} 
-
-
 
 rsnmm = function(n, T,
                  ty, tmod, tavail, tstate,
@@ -176,8 +158,19 @@ rsnmm.R <- function(n, tmax, group_ls, control, ...) {
                                      coralpha^(abs(row(cormatrix) -
                                                      col(cormatrix)))), tmax, tmax)
   }
-  group = group_str(group_ls, tmax)
-  group_err = group[["group err"]]
+  
+  size = unname(table(group_ls[["group_id"]]))
+  ngroup = length(unique(group_ls[["group_id"]]))
+  corr = covstr("ar1",tmax,rho = 0.8)
+    
+  group_err = c()
+    for (i in 1:ngroup){
+      cov= group_ls[["sigma2"]][i]* corr
+      e = mvrnorm(1, mu = rep(0,tmax), Sigma = cov)
+      e = rep(e,times = size[i])
+      group_err = c(group_err,e)
+    }
+
   
   d <- rsnmm(
     n = as.integer(n) ,

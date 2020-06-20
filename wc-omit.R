@@ -1,16 +1,16 @@
+# setwd("/home/herashi/MRT")
+
 library("foreach")
 library("doParallel")
 library("parallel")
 source("init.R")
-source("function.R")
 source("group.R")
 
 
-# d <- rsnmm.R(n = 100, tmax = 30,group_ls = group_all[["100"]])
 
 ## set number of Monte Carlo replicates
 
-M <- 1
+M <- 1000
 
 ## set number of threads to use for parallel processing and the random seed
 ## (nb: these two values ensure that the results are replicable)
