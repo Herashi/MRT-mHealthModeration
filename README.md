@@ -9,6 +9,7 @@ File | Description
 ---- | ----
 [rsnmm.R](rsnmm.R) | Function library (group errors were fixed through time)
 [function.R](function.R) | Function library (group error were set as time series)
+[slope.R](slope.R) | Function library (group errors and random slopes were fixed through time)
 [example.Rmd](example.Rmd) | Loads zoo extensions, generates data and runs an analysis similar to the application presented in the paper
 [group.R](group.R) | Group structures
 [init.R](init.R) | Loads required packages and reads source files

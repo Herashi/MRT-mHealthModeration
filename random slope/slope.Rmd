@@ -1,0 +1,389 @@
+---
+title: "Group-varying treatment effect"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyr)
+require(data.table)
+require(kableExtra)
+library(ggplot2)
+```
+
+
+## Tables
+
+### Group settings: 
+
++ 30 people, 6 groups with 5 people in every group. 
+
++ T = 30 & 50
+
++ Group errors are generated from normal distributions with mean 0, and $\sigma^2 = c(0.1,0.2,0.3,0.4,0.5,0.6)$ for every group.
+
++ Random slope are generated from normal distributions with mean 0, and $\sigma^2$ changing from 0 to 1 by 0.1 for every round of simulation.
+
++ Y is generated as follows : for simplicity, we directly use the group errors as the group-specific random slopes. (**Future work we definitely should set them independently**)
+
+
+$$
+Y_{it} = (-0.2 + \text{slope}_i + \beta_{11}^*S_{it}) \times (A_{it} -p_t(1|H_{it})) + 0.8 S_{it} + \text{group_err}_i +\text{err}_{it}
+$$
+
+```{r include=FALSE}
+cpc = matrix(NA, nrow = 6, ncol = 11)
+```
+
+
+
+#### The variance for random slope is 0
+
+```{r echo=FALSE}
+load("~/MRT/random slope/sim-0.RData")
+all <- omit
+
+all_3030_wc= subset(all, n ==30 & tmax == 30 & method == "Weighted and centered")
+
+all_3030_wc[,c("level","truth","est","sec","cpc","rmse")] %>% 
+  kable(caption = "Weighted and centered with group structure (n=30, T =30)", align = "c") %>%
+  kable_styling("striped")
+```
+
+
+```{r echo=FALSE}
+all_3050_wc= subset(all, n ==30 & tmax == 50 & method == "Weighted and centered")
+
+all_3050_wc[,c("level","truth","est","sec","cpc","rmse")] %>% 
+  kable(caption = "Weighted and centered with group structure (n=30, T =50)", align = "c") %>%
+  kable_styling("striped")
+```
+
+```{r include=FALSE}
+cpc[,1] = all$cpc
+```
+
+
+#### The variance for random slope is 0.1
+
+
+```{r echo=FALSE}
+load("~/MRT/random slope/sim-0.1.RData")
+all <- omit
+
+all_3030_wc= subset(all, n ==30 & tmax == 30 & method == "Weighted and centered")
+
+all_3030_wc[,c("level","truth","est","sec","cpc","rmse")] %>% 
+  kable(caption = "Weighted and centered with group structure (n=30, T =30)", align = "c") %>%
+  kable_styling("striped")
+```
+
+
+
+```{r echo=FALSE}
+all_3050_wc= subset(all, n ==30 & tmax == 50 & method == "Weighted and centered")
+
+all_3050_wc[,c("level","truth","est","sec","cpc","rmse")] %>% 
+  kable(caption = "Weighted and centered with group structure (n=30, T =50)", align = "c") %>%
+  kable_styling("striped")
+```
+
+```{r include=FALSE}
+cpc[,2] = all$cpc
+```
+
+
+#### The variance for random slope is 0.2
+
+
+```{r echo=FALSE}
+load("~/MRT/random slope/sim-0.2.RData")
+all <- omit
+
+all_3030_wc= subset(all, n ==30 & tmax == 30 & method == "Weighted and centered")
+
+all_3030_wc[,c("level","truth","est","sec","cpc","rmse")] %>% 
+  kable(caption = "Weighted and centered with group structure (n=30, T =30)", align = "c") %>%
+  kable_styling("striped")
+```
+
+
+
+```{r echo=FALSE}
+all_3050_wc= subset(all, n ==30 & tmax == 50 & method == "Weighted and centered")
+
+all_3050_wc[,c("level","truth","est","sec","cpc","rmse")] %>% 
+  kable(caption = "Weighted and centered with group structure (n=30, T =50)", align = "c") %>%
+  kable_styling("striped")
+```
+
+```{r include=FALSE}
+cpc[,3] = all$cpc
+```
+
+
+#### The variance for random slope is 0.3
+
+
+```{r echo=FALSE}
+load("~/MRT/random slope/sim-0.3.RData")
+all <- omit
+
+all_3030_wc= subset(all, n ==30 & tmax == 30 & method == "Weighted and centered")
+
+all_3030_wc[,c("level","truth","est","sec","cpc","rmse")] %>% 
+  kable(caption = "Weighted and centered with group structure (n=30, T =30)", align = "c") %>%
+  kable_styling("striped")
+```
+
+
+
+```{r echo=FALSE}
+all_3050_wc= subset(all, n ==30 & tmax == 50 & method == "Weighted and centered")
+
+all_3050_wc[,c("level","truth","est","sec","cpc","rmse")] %>% 
+  kable(caption = "Weighted and centered with group structure (n=30, T =50)", align = "c") %>%
+  kable_styling("striped")
+```
+
+```{r include=FALSE}
+cpc[,4] = all$cpc
+```
+
+
+
+#### The variance for random slope is 0.4
+
+
+```{r echo=FALSE}
+load("~/MRT/random slope/sim-0.4.RData")
+all <- omit
+
+all_3030_wc= subset(all, n ==30 & tmax == 30 & method == "Weighted and centered")
+
+all_3030_wc[,c("level","truth","est","sec","cpc","rmse")] %>% 
+  kable(caption = "Weighted and centered with group structure (n=30, T =30)", align = "c") %>%
+  kable_styling("striped")
+```
+
+
+
+```{r echo=FALSE}
+all_3050_wc= subset(all, n ==30 & tmax == 50 & method == "Weighted and centered")
+
+all_3050_wc[,c("level","truth","est","sec","cpc","rmse")] %>% 
+  kable(caption = "Weighted and centered with group structure (n=30, T =50)", align = "c") %>%
+  kable_styling("striped")
+```
+
+```{r include=FALSE}
+cpc[,5] = all$cpc
+```
+
+
+#### The variance for random slope is 0.5
+
+
+```{r echo=FALSE}
+load("~/MRT/random slope/sim-0.5.RData")
+all <- omit
+
+all_3030_wc= subset(all, n ==30 & tmax == 30 & method == "Weighted and centered")
+
+all_3030_wc[,c("level","truth","est","sec","cpc","rmse")] %>% 
+  kable(caption = "Weighted and centered with group structure (n=30, T =30)", align = "c") %>%
+  kable_styling("striped")
+```
+
+
+
+```{r echo=FALSE}
+all_3050_wc= subset(all, n ==30 & tmax == 50 & method == "Weighted and centered")
+
+all_3050_wc[,c("level","truth","est","sec","cpc","rmse")] %>% 
+  kable(caption = "Weighted and centered with group structure (n=30, T =50)", align = "c") %>%
+  kable_styling("striped")
+```
+
+```{r include=FALSE}
+cpc[,6] = all$cpc
+```
+
+
+#### The variance for random slope is 0.6
+
+
+```{r echo=FALSE}
+load("~/MRT/random slope/sim-0.6.RData")
+all <- omit
+
+all_3030_wc= subset(all, n ==30 & tmax == 30 & method == "Weighted and centered")
+
+all_3030_wc[,c("level","truth","est","sec","cpc","rmse")] %>% 
+  kable(caption = "Weighted and centered with group structure (n=30, T =30)", align = "c") %>%
+  kable_styling("striped")
+```
+
+
+
+```{r echo=FALSE}
+all_3050_wc= subset(all, n ==30 & tmax == 50 & method == "Weighted and centered")
+
+all_3050_wc[,c("level","truth","est","sec","cpc","rmse")] %>% 
+  kable(caption = "Weighted and centered with group structure (n=30, T =50)", align = "c") %>%
+  kable_styling("striped")
+```
+
+```{r include=FALSE}
+cpc[,7] = all$cpc
+```
+
+
+
+#### The variance for random slope is 0.7
+
+
+```{r echo=FALSE}
+load("~/MRT/random slope/sim-0.7.RData")
+all <- omit
+
+all_3030_wc= subset(all, n ==30 & tmax == 30 & method == "Weighted and centered")
+
+all_3030_wc[,c("level","truth","est","sec","cpc","rmse")] %>% 
+  kable(caption = "Weighted and centered with group structure (n=30, T =30)", align = "c") %>%
+  kable_styling("striped")
+```
+
+
+
+```{r echo=FALSE}
+all_3050_wc= subset(all, n ==30 & tmax == 50 & method == "Weighted and centered")
+
+all_3050_wc[,c("level","truth","est","sec","cpc","rmse")] %>% 
+  kable(caption = "Weighted and centered with group structure (n=30, T =50)", align = "c") %>%
+  kable_styling("striped")
+```
+
+```{r include=FALSE}
+cpc[,8] = all$cpc
+```
+
+
+#### The variance for random slope is 0.8
+
+
+```{r echo=FALSE}
+load("~/MRT/random slope/sim-0.8.RData")
+all <- omit
+
+all_3030_wc= subset(all, n ==30 & tmax == 30 & method == "Weighted and centered")
+
+all_3030_wc[,c("level","truth","est","sec","cpc","rmse")] %>% 
+  kable(caption = "Weighted and centered with group structure (n=30, T =30)", align = "c") %>%
+  kable_styling("striped")
+```
+
+
+
+```{r echo=FALSE}
+all_3050_wc= subset(all, n ==30 & tmax == 50 & method == "Weighted and centered")
+
+all_3050_wc[,c("level","truth","est","sec","cpc","rmse")] %>% 
+  kable(caption = "Weighted and centered with group structure (n=30, T =50)", align = "c") %>%
+  kable_styling("striped")
+```
+
+
+```{r include=FALSE}
+cpc[,9] = all$cpc
+```
+
+
+
+#### The variance for random slope is 0.9
+
+
+```{r echo=FALSE}
+load("~/MRT/random slope/sim-0.9.RData")
+all <- omit
+
+all_3030_wc= subset(all, n ==30 & tmax == 30 & method == "Weighted and centered")
+
+all_3030_wc[,c("level","truth","est","sec","cpc","rmse")] %>% 
+  kable(caption = "Weighted and centered with group structure (n=30, T =30)", align = "c") %>%
+  kable_styling("striped")
+```
+
+
+```{r echo=FALSE}
+all_3050_wc= subset(all, n ==30 & tmax == 50 & method == "Weighted and centered")
+
+all_3050_wc[,c("level","truth","est","sec","cpc","rmse")] %>% 
+  kable(caption = "Weighted and centered with group structure (n=30, T =50)", align = "c") %>%
+  kable_styling("striped")
+```
+
+```{r include=FALSE}
+cpc[,10] = all$cpc
+```
+
+#### The variance for random slope is 1
+
+
+```{r echo=FALSE}
+load("~/MRT/random slope/sim-1.RData")
+all <- omit
+
+all_3030_wc= subset(all, n ==30 & tmax == 30 & method == "Weighted and centered")
+
+all_3030_wc[,c("level","truth","est","sec","cpc","rmse")] %>% 
+  kable(caption = "Weighted and centered with group structure (n=30, T =30)", align = "c") %>%
+  kable_styling("striped")
+```
+
+
+
+```{r echo=FALSE}
+all_3050_wc= subset(all, n ==30 & tmax == 50 & method == "Weighted and centered")
+
+all_3050_wc[,c("level","truth","est","sec","cpc","rmse")] %>% 
+  kable(caption = "Weighted and centered with group structure (n=30, T =50)", align = "c") %>%
+  kable_styling("striped")
+```
+
+```{r include=FALSE}
+cpc[,11] = all$cpc
+cpc= cbind(all[,c("level","n","tmax")],cpc)
+```
+
+
+## Plots
+
+```{r echo=FALSE}
+ggplot() +
+  geom_line(mapping=aes(x=0:10/10, y = as.numeric(cpc[1,4:14]),color = "#FF9999"),size = 1)+ 
+  geom_line(mapping=aes(x=0:10/10, y = as.numeric(cpc[3,4:14]),color = "#0072B2"),size = 1)+ 
+  geom_line(mapping=aes(x=0:10/10, y = as.numeric(cpc[5,4:14]),color = "#3300CC"),size = 1)+ 
+  scale_color_identity(name ="Degree of moderation by S_t",
+                       breaks = c("#FF9999", "#0072B2", "#3300CC"), 
+                       labels = c("0.2", "0.5", "0.8"), 
+                       guide = "legend")+ 
+  xlab("Random slope variance")+ ylab("coverage probability")+ ggtitle("n =30, T = 30")
+
+```
+
+
+```{r echo=FALSE}
+ggplot() +
+  geom_line(mapping=aes(x=0:10/10, y = as.numeric(cpc[2,4:14]),color = "#FF9999"),size = 1)+ 
+  geom_line(mapping=aes(x=0:10/10, y = as.numeric(cpc[4,4:14]),color = "#0072B2"),size = 1)+ 
+  geom_line(mapping=aes(x=0:10/10, y = as.numeric(cpc[6,4:14]),color = "#3300CC"),size = 1)+ 
+  scale_color_identity(name ="Degree of moderation by S_t",
+                       breaks = c("#FF9999", "#0072B2", "#3300CC"), 
+                       labels = c("0.2", "0.5", "0.8"), 
+                       guide = "legend")+ 
+  xlab("Random slope variance")+ ylab("coverage probability")+ ggtitle("n =30, T = 50")
+
+```
+

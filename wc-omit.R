@@ -22,12 +22,13 @@ clusterEvalQ(cl, source("init.R"))
 registerDoParallel(cl)
 
 
-sim.omit <- function() {
+sim.omit <- function(k) {
   out <- NULL
   ## low, medium and high degrees of moderation by state
   for (b in c(0.2, 0.5, 0.8)) {
-    for (n in c(30,100)) {
+    for (n in 30) {
       group = group_all[[as.character(n)]]
+      group[["slope sigma2"]] = rep(k,6)
       for (tmax in c(30,50)) {
         clusterSetRNGStream(cl, seed)
         out <-
@@ -36,16 +37,12 @@ sim.omit <- function() {
                       sim(n, tmax, M, 
                           ## regress response on state and proximal treatment,
                           ## ignoring the underlying interaction between the two
-                          y.formula = list(w = y ~ state + I(a - pn),
-                                           u.ar1 = y ~ state + a),
-                          y.names = c(w = "Weighted and centered",
-                                      u.ar1 = "GEE AR(1)"),
+                          y.formula = list(w = y ~ state + I(a - pn)),
+                          y.names = c(w = "Weighted and centered"),
                           ## term labels for proximal treatment
-                          y.label = list(w = "I(a - pn)",
-                                          u.ar1 = "a"),
+                          y.label = list(w = "I(a - pn)"),
                           ## specify weights and working correlation structure
-                          y.args = list(w = list(wn = "pn", wd = "prob"),
-                                        u.ar1 = list(corstr = "ar1")),
+                          y.args = list(w = list(wn = "pn", wd = "prob")),
                           ## specify weight numerator model
                           a.formula = list(pn = a ~ 1),
                           a.names = c(pn = "Intercept-only"),
@@ -60,8 +57,10 @@ sim.omit <- function() {
 }
 
 
+for (k in 0:10/10){
+  omit <- sim.omit(k)
+  save(omit,file = paste0("sim-",k,".RData"))
+}
 
-omit <- sim.omit()
-save(omit,file = "sim-omit-group.RData")
 
 stopCluster(cl)
