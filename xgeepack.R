@@ -319,7 +319,7 @@ which.terms <- function(x, label, stripnames = FALSE) {
     names(w) <- gsub(paste0(label, ":?"), "",
                      gsub(paste0(":?", label), "", names(w), fixed = TRUE),
                      fixed = TRUE)
-    names(w)[1] <- "one"
+    names(w)[1] <- label
   }
   w
 }

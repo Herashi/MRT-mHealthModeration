@@ -8,23 +8,48 @@ library(Matrix)
 library(MASS)
 library(geepack)
 
+
+
 #define expit(a)
 expit = function(a){
   return(exp(a) / (1 + exp(a)))
 }
 
-
-
-covstr = function(string,n,rho){
-  if (string == "ar1"){
-    exponent <- abs(matrix(1:n - 1, nrow = n, ncol = n, byrow = TRUE) - 
-                      (1:n - 1))
-    rho^exponent
-  }else{
-    exponent <- matrix(1,nrow = n, ncol = n) -diag(1,nrow = n, ncol = n)
-    rho^exponent
+group_str = function(group){
+  group[["group size"]] = unname(table(group[["group_id"]]))
+  group[["#groups"]] = length(unique(group[["group_id"]]))
+  X = diag(rep(1,group[["#groups"]]))
+  X = X[rep(seq_len(nrow(X)),group[["group size"]]),]
+  colnames(X) = paste(rep("Group", group[["#groups"]]),seq(1,group[["#groups"]],1), sep = "_")
+  group[["indicator matrix"]] = X
+  
+  
+  err = c()
+  for (i in 1:group[["#groups"]]){
+    e = rnorm(1,mean = 0,sd = sqrt(group[["baseline sigma2"]][i]))
+    err = c(err,e)
   }
-}
+  group[["err"]] = err
+  group[["group err"]] = rep(group[["err"]],group[["group size"]])
+  
+  slope = c()
+  for (i in 1:group[["#groups"]]){
+    e = rnorm(1,mean = 0,sd = sqrt(group[["slope sigma2"]][i]))
+    slope = c(slope,e)
+  }
+  group[["slope"]] = slope
+  group[["random slope"]] = rep(group[["slope"]],group[["group size"]])
+  
+  bg2 = c()
+  for (i in 1:group[["#groups"]]){
+    e = rnorm(1,mean = 0,sd = sqrt(group[["bg2 sigma2"]][i]))
+    bg2 = c(bg2,e)
+  }
+  group[["bg2"]] = bg2
+  group[["beta0 bg2"]] = rep(group[["bg2"]],group[["group size"]])
+  
+  return(group)
+} 
 
 
 
@@ -33,7 +58,8 @@ rsnmm = function(n, T,
                  beta, eta, mu, theta,
                  coefavail, coefstate, coeferr,
                  avail, base, state, a, prob,
-                 y, err, statec, ac, availc, group_err){
+                 y, err, statec, ac, availc, 
+                 group_err, slope, bg2){
   # a list indicating grouping structure
   
   for (i in 0:(n-1)) {
@@ -68,7 +94,9 @@ rsnmm = function(n, T,
       ym = mu[1]+ 
         mu[2] * ty[j]+  # pre-evaluated time function 
         mu[3] * base[i*T + j]+
-        ac[i*T + j] * (beta[1]+
+        ac[i*T + j] * (beta[1]+ 
+                         slope[i+1] + 
+                         bg2[i+1]*(j-1) +
                          beta[2] * tmod[j] + # pre-evaluated time function
                          beta[3] * base[i*T + j]+
                          beta[4] * state[i*T + j]+
@@ -84,7 +112,7 @@ rsnmm = function(n, T,
       # error 
       err[i*T + j] = err[i*T + j]+ coeferr * err[i*T + j - 1] 
       # response 
-      y[i*T + j] = ym + err[i*T + j]+ group_err[i*T + j]
+      y[i*T + j] = ym + err[i*T + j]+ group_err[i+1]
     }
   }
   
@@ -141,6 +169,7 @@ rsnmm.R <- function(n, tmax, group_ls, control, ...) {
   tmax <- tmax + (tmax %% 2) + 1
   time <- rep(0:(tmax - 1), n)
   tfun <- do.call("data.frame", lapply(control$tfun, function(f) f(time, tmax)))
+
   coef.err <- 0
   control$cormatrix <- matrix(control$coralpha, tmax, tmax)
   diag(control$cormatrix) <- 1
@@ -158,19 +187,11 @@ rsnmm.R <- function(n, tmax, group_ls, control, ...) {
                                      coralpha^(abs(row(cormatrix) -
                                                      col(cormatrix)))), tmax, tmax)
   }
-  
-  size = unname(table(group_ls[["group_id"]]))
-  ngroup = length(unique(group_ls[["group_id"]]))
-  corr = covstr("ar1",tmax,rho = 0.8)
-    
-  group_err = c()
-    for (i in 1:ngroup){
-      cov= group_ls[["sigma2"]][i]* corr
-      e = mvrnorm(1, mu = rep(0,tmax), Sigma = cov)
-      e = rep(e,times = size[i])
-      group_err = c(group_err,e)
-    }
-
+  group = group_str(group_ls)
+  group_err = group[["group err"]]
+  slope = group[["random slope"]]
+  bg2 = group[["beta0 bg2"]]
+  X = group[["indicator matrix"]]
   
   d <- rsnmm(
     n = as.integer(n) ,
@@ -196,14 +217,17 @@ rsnmm.R <- function(n, tmax, group_ls, control, ...) {
     statec = as.double(rep(0, n*tmax)),
     ac = as.double(rep(0, n*tmax)),
     availc = as.double(rep(0, n*tmax)),
-    group_err =as.double(group_err))
+    group_err =as.double(group_err),
+    slope = as.double(slope),
+    bg2 = as.double(bg2))
   
   d <- data.frame(id = rep(1:n, each = tmax), time = time,
                   ty = d$ty, tmod = d$tmod, tavail = d$tavail, tstate = d$tstate,
                   base = d$base, state = d$state, a = d$a, y = d$y, err = d$err,
-                  group_err = group_err, avail = d$avail, 
-                  prob = d$p, a.center = d$a.center, state.center = d$state.center, 
-                  avail.center = d$avail.center, one = 1)
+                  group_err = rep(group_err, each = tmax), slope = rep(slope, each = tmax),
+                  bg2 = rep(bg2, each = tmax),avail = d$avail, prob = d$p, 
+                  a.center = d$a.center, state.center = d$state.center, 
+                  avail.center = d$avail.center, one = 1, X[rep(seq_len(nrow(X)),each =tmax),])
   
   ## nb: for a given row, y is the proximal response
   d$lag1y <- with(d, delay(id, time, y))
@@ -232,34 +256,32 @@ rsnmm.R <- function(n, tmax, group_ls, control, ...) {
 }
 
 
-sim <- function(n = 30, tmax = 30, M = 1000,
-                ## response regression models
-                y.formula = list(w = y ~ I(a - pn) * (base + state),
-                                 u = y ~ a * (base + state)),
-                ## names for each regression model
-                y.names = c(w = "Weighted and centered",
-                            u = "GEE AR(1)"),
-                ## labels for regression terms of the treatment effect
-                y.label = list(w = "I(a - pn)"),
-                ## names of the treatment probability models or variables used
-                ## for the weight numerator ('wn') or denominator ('wd') and
-                ## arguments for the estimation routine
-                y.args = list(w = list(wn = "pn", wd = "pd"),
-                              u = list(corstr = "ar1")),
-                ## treatment probability models named in 'y.args'
-                a.formula = list(pn = a ~ lag1a,
-                                 pd = a ~ lag1a + state),
-                ## names for each treatment probability model
-                a.names = c(pn = "Last treatment",
-                            pd = "Last treatment and current state"),
-                ## proximal (0) or delayed (1) treatment effect?
-                lag = 0,
-                ## print generative and analysis model details
-                verbose = TRUE,
-                ## group structure
-                group_ls,
-                ## control parameters for 'rsnmm.R'
-                control, ...) {
+sim_wc <- function(n = 100, tmax = 30, M = 1000,
+                   ## response regression models
+                   y.formula = list(w = y ~ state + I(a - pn)),
+                   contrast_vec = c(0,0,1),
+                   ## names for each regression model
+                   y.names = c(w = "Weighted and centered"),
+                   ## labels for regression terms of the treatment effect
+                   y.label = list(w = "I(a - pn)"),
+                   ## names of the treatment probability models or variables used
+                   ## for the weight numerator ('wn') or denominator ('wd') and
+                   ## arguments for the estimation routine
+                   y.args = list(w = list(wn = "pn", wd = "pd")),
+                   ## treatment probability models named in 'y.args'
+                   a.formula = list(pn = a ~ lag1a,
+                                    pd = a ~ lag1a + state),
+                   ## names for each treatment probability model
+                   a.names = c(pn = "Last treatment",
+                               pd = "Last treatment and current state"),
+                   ## proximal (0) or delayed (1) treatment effect?
+                   lag = 0,
+                   ## print generative and analysis model details
+                   verbose = TRUE,
+                   ## group structure
+                   group_ls, 
+                   ## control parameters for 'rsnmm.R'
+                   control, ...) {
   control <- if (missing(control)) rsnmm.control(...)
   else control <- do.call("rsnmm.control", control)
   ## times to use in the model fit
@@ -271,17 +293,22 @@ sim <- function(n = 30, tmax = 30, M = 1000,
   ##     moderator has conditional mean zero
   y.coef <- mapply(which.terms, x = y.formula, label = y.label,
                    stripnames = TRUE, SIMPLIFY = FALSE)
-  truth <- control[[paste0("beta", lag)]]
-  truth <- truth[Reduce("intersect", lapply(y.coef, names))]
-  y.coef <- lapply(y.coef, function(x) x[names(truth)])
+  # truth <- control[[paste0("beta", lag)]]
+  # truth <- truth[Reduce("intersect", lapply(y.coef, names))]
+  # y.coef <- lapply(y.coef, function(x) x[names(truth)])
+  
+  
   ## corresponding treatment probability models
   ## nb: we avoid delayed evaluation in 'y.args' (e.g. passing a 'weights'
   ##     argument directly) to avoid scoping issues in 'foreach'
   if (!is.null(a.formula)) {
     y.prob <- lapply(y.args, function(x) do.call("c", x[c("wn", "wd")]))
     y.prob <- lapply(y.prob, function(x) x[x %in% names(a.formula)])
-  }
-  else y.prob <- lapply(y.formula, function(x) list())
+  }else{
+    y.prob <- lapply(y.formula, function(x) list())
+  } 
+  
+  
   ## print generative and analysis model properties
   if (verbose) {
     cat("\nGenerative model attributes\n\n")
@@ -306,99 +333,142 @@ sim <- function(n = 30, tmax = 30, M = 1000,
     if (response == "a") {
       args$family <- binomial()
       runin <- runin.fita
-    }
-    else runin <- runin.fity
-    r <- which(d$time >= runin)
-    l <- list(x = model.matrix(formula, data = d[r, ]), y = d[r, response])
-    if (is.null(args$wn) & is.null(args$wd)) l$w <- rep(1, nrow(d))
-    else {
+      r <- which(d$time >= runin)
+      l <- list(x = model.matrix(formula[["pn"]], data = d[r, ]), y = d[r, response])
+    }else{
+      runin <- runin.fity
+      r <- which(d$time >= runin)
+      l <- list(x = model.matrix(formula[["w"]], data = d[r, ]), y = d[r, response])
+    } 
+    
+    if (is.null(args[["w"]][["wn"]]) & is.null(args[["w"]][["wd"]])) {
+      l$w <- rep(1, nrow(d))
+    }else {
       #calculate the weights
-      l$w <- ifelse(d[, "a"] == 1, d[, args$wn] / d[, args$wd],
-                    (1 - d[, args$wn]) / (1 - d[, args$wd]))
-      args[c("wn", "wd")] <- NULL
+      l$w <- ifelse(d[, "a"] == 1, d[, args[["w"]][["wn"]]] / d[, args[["w"]][["wd"]]],
+                    (1 - d[, args[["w"]][["wn"]]]) / (1 - d[, args[["w"]][["wd"]]]))
     }
     # no availability has 0 weight
     l$w <- l$w * d$avail
     # lag != 0
-    if (lag) l$w <- delay(d$id, d$time, l$w, lag)
+    if (lag){
+      l$w <- delay(d$id, d$time, l$w, lag)
+    } 
     l$w <- l$w[r]
+    
     if (!is.null(args$corstr)) {
       fun <- "geese.glm"
       l$id <- d$id[r]
-    }
-    else if (!is.null(args$family)) fun <- "glm.fit"
-    else fun <- "lm.wfit"
-    fit <- do.call(fun, c(l, args))
-    if (!inherits(fit, "geeglm")) {
+    }else if (!is.null(args$family)){
+      fun <- "glm.fit"
+    } else{
+      fun <- "lm.wfit"
+    } 
+    
+    # fit <- do.call(fun, c(l, args))
+    fit <- do.call(fun, l)
+    
+    if (!inherits(fit, "geeglm")){
       fit <- glm2gee(fit, d$id[r])
-      fit$terms <- terms(formula)
       fit$geese$X <- l$x
       fit$y <- l$y
+      if (response == "a"){
+        fit$terms <- terms(formula[["pn"]])
+      }else{
+        fit$terms <- terms(formula[["w"]])
+      }
     }
+    
+    
     if (!is.null(addvar)) {
       newvar <- paste0(c("", "lag1"), addvar)
-      d[, newvar] <<- NA
-      d[r, newvar[1]] <<- fit$fitted.values
-      d[, newvar[2]] <<- delay(d$id, d$time, d[, newvar[1]])
-    }
-    else {
+      d[, newvar] <- NA
+      d[r, newvar[1]] <- fit$fitted.values
+      d[, newvar[2]] <- delay(d$id, d$time, d[, newvar[1]])
+    }else {
       ## usual variance sandwich estimator
       fit$vcov <- vcov.geeglm(fit)
-      est <- estimate(fit)[coef, 1:4, drop = FALSE]
+      est <- estimate(fit, rbind("Average group treatment effect" = contrast_vec))[,1:4]
       ## correction for any estimates in weights
-      l <- if (length(prob)) setNames(fita[prob], gsub("^w", "p", names(prob))) #Vector replacement
-      else NULL
-      fit$vcov <- NULL
-      fit$vcov <- do.call("vcov.geeglm", c(list(x = fit, label = label), l))
-      estc <- estimate(fit)[coef, 1:4, drop = FALSE]
-      fit <- data.frame(moderator = names(coef), truth = truth,
-                        est = est[, "Estimate"], se = est[, "SE"],
-                        lcl = est[, "95% LCL"], ucl = est[, "95% UCL"],
-                        sec = estc[, "SE"], lclc = estc[, "95% LCL"],
-                        uclc = estc[, "95% UCL"], row.names = NULL)
+      
+      if (length(prob)){
+        d[r, args[["w"]][["wn"]]] = fita[["fitted.values"]]
+        l$w <- ifelse(d[r, "a"] == 1, d[r, args[["w"]][["wn"]]]/ d[r, args[["w"]][["wd"]]],
+                      (1 - d[r, args[["w"]][["wn"]]]) / (1 - d[r, args[["w"]][["wd"]]]))
+      } 
+      # refit the model
+      
+      fit <- do.call(fun, l)
+      if (!inherits(fit, "geeglm")){
+        fit <- glm2gee(fit, d$id[r])
+        fit$geese$X <- l$x
+        fit$y <- l$y
+        fit$terms <- terms(formula[["w"]])
+      }
+      
+      fit$vcov <- vcov.geeglm(fit)
+      estc <- estimate(fit, rbind("Average group treatment effect" = contrast_vec))[,1:4]
+      fit <- data.frame(moderator = c("Average group treatment effect"), 
+                        est = est["Estimate"], se = est["SE"],
+                        lcl = est["95% LCL"], ucl = est["95% UCL"],estc = estc["Estimate"],
+                        sec = estc["SE"], lclc = estc["95% LCL"],
+                        uclc = estc["95% UCL"], row.names = NULL)
     }
     fit
   }
   fita <- list()
-  ## for each replicate...
-  out <- foreach(m = 1:M, .combine = "rbind") %dopar% {
-    ## ... generate data
-    d <- rsnmm.R(n, tmax,group_ls, control = control)
-    d$pn <- d$pd <- d$prob
-    ## ... fit treatment probability models
-    if (!is.null(a.formula))
-      fita <- mapply(fitter, formula = a.formula, addvar = names(a.formula),
-                     MoreArgs = list(args = list(), prob = list(),
-                                     coef = list(), label = list(),
-                                     response = "a"), SIMPLIFY = FALSE)
-    ## ... fit response models
-    fity <- mapply(fitter, formula = y.formula, args = y.args, prob = y.prob,
-                   coef = y.coef, label = y.label, SIMPLIFY = FALSE)
-    fity <- mapply(function(nm, d) data.frame(iter = m, method = nm, d,
-                                              row.names = NULL),
-                   nm = y.names[names(fity)], d = fity, SIMPLIFY = FALSE)
-    out <- do.call("rbind", setNames(fity, NULL))
+  
+  out = NULL
+  for (m in 1:M){
+    data <- rsnmm.R(n, tmax,group_ls, control = control)
+    data$pn <- data$pd <- data$prob
+    
+    for (g in unique(group_ls[["group_id"]])){
+      d = subset(data, id %in%  which(group_ls[["group_id"]] == g))
+      g_err = unique(d$slope)
+      
+      ## ... fit treatment probability models
+      if (!is.null(a.formula)){
+        fita <- fitter(formula = a.formula, addvar = names(a.formula),
+                       args = list(), prob = list(),coef = list(), label = list(),
+                       response = "a")
+      }
+      ## ... fit response models
+      
+      fity <- fitter(formula = y.formula, args = y.args, prob = y.prob,
+                     coef = y.coef, label = y.label)
+      fity <- data.frame(iter = m, group = g, g_truth = g_err-0.2,
+                         method = "Weighted and centered",
+                         fity, row.names = NULL)
+      out = rbind(out,fity)
+    }
   }
+  
   out <- data.frame(n, tmax, out)
   ## 95% CI coverage probability using uncorrected SEs
-  out$cp <- with(out, lcl <= truth & truth <= ucl)
+  out$cp <- with(out, lcl <= g_truth & g_truth <= ucl)
   ## coverage probability using SEs corrected for estimates in weights
-  out$cpc <- with(out, lclc <= truth & truth <= uclc)
+  out$cpc <- with(out, lclc <= g_truth & g_truth <= uclc)
   ## root MSE
-  out$rmse <- with(out, (est - truth)^2)
+  out$rmse <- with(out, (estc - g_truth)^2)
+  
+  ## testing part again
+  g <- data.frame(iter = unique(out$iter),
+             g_mean = aggregate(estc~iter,data = out, FUN = mean)$estc,
+             g_se = aggregate(sec~iter, data = out, FUN = function(x) sqrt(mean(x^2)))$sec)
+  g$g_cp <- with(g, g_mean-1.96*g_se <= -0.2 & -0.2 <=g_mean+1.96*g_se)
+  
+  out = merge(out,g[,c("iter","g_cp")], by ="iter")
+  
   ## mean and SD estimate, number of replicates
-  out <- cbind(aggregate(cbind(est, se, sec, cp, cpc, rmse) ~
-                           method + moderator + truth + n + tmax,
+  out <- cbind(aggregate(cbind(est,estc, se, sec, cp, cpc, rmse,lclc, uclc,g_cp) ~
+                           method + moderator +  n + tmax +group,
                          data = out, FUN = mean),
-               sd = aggregate(est ~ method + moderator + truth + n + tmax,
-                              data = out, FUN = sd)$est,
-               iter = aggregate(iter ~ method + moderator + truth + n + tmax,
+               sd = aggregate(estc ~ method + moderator + n + tmax+group,
+                              data = out, FUN= sd)$estc,
+               iter = aggregate(iter ~ method + moderator  + n + tmax+group,
                                 data = out,
                                 FUN = function(x) length(unique(x)))$iter)
   out$rmse <- sqrt(out$rmse)
   out
 }
-
-
-
- 

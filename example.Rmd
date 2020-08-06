@@ -10,7 +10,7 @@ library("zoo")
 source("xzoo.R")
 ## load functions needed for variance estimation
 source("xgeepack.R")
-source("rsnmm.R")
+source("sim.R")
 source("group.R")
 ```
 
@@ -20,7 +20,7 @@ source("group.R")
 ```{r}
 set.seed(0)
 
-d <- rsnmm.R(n = 30, tmax = 50,group_ls = group_all[["30"]])
+d <- rsnmm.R(n = 30, tmax = 30,group_ls = group_all[["30"]])
 
 ## define extra variables, using functions from xzoo.R:
 ## - variation among current and up to the past 2 states
@@ -38,13 +38,7 @@ head(d)
 ```
 
 
-### Generate the simulation dataset with correlation
 
-I think one of the most straightforward way is generating correlated **base** with certain pre-defined working matrix.
-
-```{r}
-
-```
 
 
 
