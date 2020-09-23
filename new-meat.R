@@ -122,8 +122,10 @@ meat.geeglm <- function(x, pn = NULL, pd = pn, lag = 0, wcovinv = NULL,
     meat_all = meat_all + meat/g_size
   }
   
-  m = length(group[["group_id"]]) *meat_all
-  return(m)
+  #m = length(group[["group_id"]]) *meat_all
+  meat_all
+  
+  #return(m)
 }
 
 
