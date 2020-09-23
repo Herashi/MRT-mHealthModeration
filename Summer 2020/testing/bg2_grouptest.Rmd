@@ -1,0 +1,295 @@
+---
+title: "Group effect is changing with time"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyr)
+require(data.table)
+require(kableExtra)
+```
+
+## Tables
+
+### When the group effects remain constants throughout the time
+
+#### Group settings: 
+
++ 100 people, 4 groups with 25 people in every group. 
+
++ Baseline group effects (don't influence treatment effect estimation) follow **N(0,0.5)**, and group random treatment effects follow **N(0,0.1)**.
+
++ T = 30 & 50
+
++ Y is generated as follows : 
+
+
+$$
+Y_{i(t+1)} = (-0.2 + b_g + \beta_{11}^*S_{it}) \times (A_{it} -p_t(1|H_{it})) + 0.8 S_{it} + \text{group_err}_g +\text{err}_{it}
+$$
+
+#### Model
+
+I constructed a model which looks like: 
+
+$$
+\text{y ~ state + I(a - pn)} 
+$$
+
+#### CP  
+
+We tested whether the CI of the coefficient of $\text{I(a - pn)}$ covers $(-0.2 + b_g)$ or not in different groups. 
+
+
+```{r echo=FALSE}
+load("~/MRT/testing/nobg2-group.RData")
+all <- omit
+
+all_10030_wc= subset(all, n ==100 & tmax == 30 & level == '$\\beta_{11}^* = 0.2$')
+
+all_10030_wc[,c("level","group","estc","sec","cpc","g_cp","rmse","sd")] %>% 
+  kable(caption = "Weighted and centered with group structure (n=100, T =30)", align = "c") %>%
+  kable_styling("striped")
+```
+
+```{r echo=FALSE}
+point = mean(all_10030_wc$estc)
+sd =sqrt(sum(all_10030_wc$sd^2))/max(all_10030_wc$group)
+upper = point + 1.96 *sd
+lower = point - 1.96* sd
+cat("The estimation for treatment effect is",round(point, digits = 3), "\n")
+cat("The 95% MC CI for treatment effect is (",lower,",", upper,")", "\n")
+```
+
+```{r echo=FALSE}
+all_10030_wc= subset(all, n ==100 & tmax == 30 & level == '$\\beta_{11}^* = 0.5$')
+
+all_10030_wc[,c("level","group","estc","sec","cpc","g_cp","rmse","sd")] %>% 
+  kable(caption = "Weighted and centered with group structure (n=100, T =30)", align = "c") %>%
+  kable_styling("striped")
+```
+
+```{r echo=FALSE}
+point = mean(all_10030_wc$estc)
+sd =sqrt(sum(all_10030_wc$sd^2))/max(all_10030_wc$group)
+upper = point + 1.96 *sd
+lower = point - 1.96* sd
+cat("The estimation for treatment effect is",round(point, digits = 3), "\n")
+cat("The 95% MC CI for treatment effect is (",lower,",", upper,")", "\n")
+```
+
+
+```{r echo=FALSE}
+all_10030_wc= subset(all, n ==100 & tmax == 30 & level == '$\\beta_{11}^* = 0.8$')
+
+all_10030_wc[,c("level","group","estc","sec","cpc","g_cp","rmse","sd")] %>% 
+  kable(caption = "Weighted and centered with group structure (n=100, T =30)", align = "c") %>%
+  kable_styling("striped")
+```
+
+```{r echo=FALSE}
+point = mean(all_10030_wc$estc)
+sd =sqrt(sum(all_10030_wc$sd^2))/max(all_10030_wc$group)
+upper = point + 1.96 *sd
+lower = point - 1.96* sd
+cat("The estimation for treatment effect is",round(point, digits = 3), "\n")
+cat("The 95% MC CI for treatment effect is (",lower,",", upper,")", "\n")
+```
+
+
+
+```{r echo=FALSE}
+all_10050_wc= subset(all, n ==100 & tmax == 50 & level == '$\\beta_{11}^* = 0.2$')
+
+all_10050_wc[,c("level","group","estc","sec","cpc","g_cp","rmse","sd")] %>% 
+  kable(caption = "Weighted and centered with group structure (n=100, T =50)", align = "c") %>%
+  kable_styling("striped")
+```
+
+```{r echo=FALSE}
+point = mean(all_10050_wc$estc)
+sd =sqrt(sum(all_10050_wc$sd^2))/max(all_10050_wc$group)
+upper = point + 1.96 *sd
+lower = point - 1.96* sd
+cat("The estimation for treatment effect is",round(point, digits = 3), "\n")
+cat("The 95% MC CI for treatment effect is (",lower,",", upper,")", "\n")
+```
+
+```{r echo=FALSE}
+all_10050_wc= subset(all, n ==100 & tmax == 50 & level == '$\\beta_{11}^* = 0.5$')
+
+all_10050_wc[,c("level","group","estc","sec","cpc","g_cp","rmse","sd")] %>% 
+  kable(caption = "Weighted and centered with group structure (n=100, T =50)", align = "c") %>%
+  kable_styling("striped")
+```
+
+
+```{r echo=FALSE}
+point = mean(all_10050_wc$estc)
+sd =sqrt(sum(all_10050_wc$sd^2))/max(all_10050_wc$group)
+upper = point + 1.96 *sd
+lower = point - 1.96* sd
+cat("The estimation for treatment effect is",round(point, digits = 3), "\n")
+cat("The 95% MC CI for treatment effect is (",lower,",", upper,")", "\n")
+```
+
+```{r echo=FALSE}
+all_10050_wc= subset(all, n ==100 & tmax == 50 & level == '$\\beta_{11}^* = 0.8$')
+
+all_10050_wc[,c("level","group","estc","sec","cpc","g_cp","rmse","sd")] %>% 
+  kable(caption = "Weighted and centered with group structure (n=100, T =50)", align = "c") %>%
+  kable_styling("striped")
+```
+
+
+```{r echo=FALSE}
+point = mean(all_10050_wc$estc)
+sd =sqrt(sum(all_10050_wc$sd^2))/max(all_10050_wc$group)
+upper = point + 1.96 *sd
+lower = point - 1.96* sd
+cat("The estimation for treatment effect is",round(point, digits = 3), "\n")
+cat("The 95% MC CI for treatment effect is (",lower,",", upper,")", "\n")
+```
+
+### When the group effects change throughout the time
+
+#### Group settings: 
+
++ 100 people, 4 groups with 25 people in every group. 
+
++ Baseline group effects (don't influence treatment effect estimation) follow **N(0,0.5)**, $b_gs$ follow **N(0,0.1)**, and $b_{g,2}s$ follow **N(0,1e-04)**.
+
++ T = 30 & 50
+
++ Y is generated as follows : 
+
+
+$$
+Y_{i(t+1)} = (-0.2 + b_g + b_{g,2} \times t + \beta_{11}^*S_{it}) \times (A_{it} -p_t(1|H_{it})) + 0.8 S_{it} + \text{group_err}_g +\text{err}_{it}
+$$
+
+#### Model
+
+I constructed a model which looks like: 
+
+$$
+\text{y ~ state + I(a - pn)} 
+$$
+
+#### CP  
+
+We tested whether the CI of the coefficient of $\text{I(a - pn)}$ covers $(-0.2 + b_g)$ or not in different groups. 
+
+
+```{r echo=FALSE}
+load("~/MRT/testing/bg2-group.RData")
+all <- omit
+
+all_10030_wc= subset(all, n ==100 & tmax == 30 & level == '$\\beta_{11}^* = 0.2$')
+
+all_10030_wc[,c("level","group","estc","sec","cpc","g_cp","rmse","sd")] %>% 
+  kable(caption = "Weighted and centered with group structure (n=100, T =30)", align = "c") %>%
+  kable_styling("striped")
+```
+
+
+```{r echo=FALSE}
+point = mean(all_10030_wc$estc)
+sd =sqrt(sum(all_10030_wc$sd^2))/max(all_10030_wc$group)
+upper = point + 1.96 *sd
+lower = point - 1.96* sd
+cat("The estimation for treatment effect is",round(point, digits = 3), "\n")
+cat("The 95% MC CI for treatment effect is (",lower,",", upper,")", "\n")
+```
+
+
+```{r echo=FALSE}
+all_10030_wc= subset(all, n ==100 & tmax == 30 & level == '$\\beta_{11}^* = 0.5$')
+
+all_10030_wc[,c("level","group","estc","sec","cpc","g_cp","rmse","sd")] %>% 
+  kable(caption = "Weighted and centered with group structure (n=100, T =30)", align = "c") %>%
+  kable_styling("striped")
+```
+
+```{r echo=FALSE}
+point = mean(all_10030_wc$estc)
+sd =sqrt(sum(all_10030_wc$sd^2))/max(all_10030_wc$group)
+upper = point + 1.96 *sd
+lower = point - 1.96* sd
+cat("The estimation for treatment effect is",round(point, digits = 3), "\n")
+cat("The 95% MC CI for treatment effect is (",lower,",", upper,")", "\n")
+```
+
+```{r echo=FALSE}
+all_10030_wc= subset(all, n ==100 & tmax == 30 & level == '$\\beta_{11}^* = 0.8$')
+
+all_10030_wc[,c("level","group","estc","sec","cpc","g_cp","rmse","sd")] %>% 
+  kable(caption = "Weighted and centered with group structure (n=100, T =30)", align = "c") %>%
+  kable_styling("striped")
+```
+
+```{r echo=FALSE}
+point = mean(all_10030_wc$estc)
+sd =sqrt(sum(all_10030_wc$sd^2))/max(all_10030_wc$group)
+upper = point + 1.96 *sd
+lower = point - 1.96* sd
+cat("The estimation for treatment effect is",round(point, digits = 3), "\n")
+cat("The 95% MC CI for treatment effect is (",lower,",", upper,")", "\n")
+```
+
+```{r echo=FALSE}
+all_10050_wc= subset(all, n ==100 & tmax == 50 & level == '$\\beta_{11}^* = 0.2$')
+
+all_10050_wc[,c("level","group","estc","sec","cpc","g_cp","rmse","sd")] %>% 
+  kable(caption = "Weighted and centered with group structure (n=100, T =50)", align = "c") %>%
+  kable_styling("striped")
+```
+
+
+```{r echo=FALSE}
+point = mean(all_10050_wc$estc)
+sd =sqrt(sum(all_10050_wc$sd^2))/max(all_10050_wc$group)
+upper = point + 1.96 *sd
+lower = point - 1.96* sd
+cat("The estimation for treatment effect is",round(point, digits = 3), "\n")
+cat("The 95% MC CI for treatment effect is (",lower,",", upper,")", "\n")
+```
+
+```{r echo=FALSE}
+all_10050_wc= subset(all, n ==100 & tmax == 50 & level == '$\\beta_{11}^* = 0.5$')
+
+all_10050_wc[,c("level","group","estc","sec","cpc","g_cp","rmse","sd")] %>% 
+  kable(caption = "Weighted and centered with group structure (n=100, T =50)", align = "c") %>%
+  kable_styling("striped")
+```
+
+
+```{r echo=FALSE}
+point = mean(all_10050_wc$estc)
+sd =sqrt(sum(all_10050_wc$sd^2))/max(all_10050_wc$group)
+upper = point + 1.96 *sd
+lower = point - 1.96* sd
+cat("The estimation for treatment effect is",round(point, digits = 3), "\n")
+cat("The 95% MC CI for treatment effect is (",lower,",", upper,")", "\n")
+```
+
+```{r echo=FALSE}
+all_10050_wc= subset(all, n ==100 & tmax == 50 & level == '$\\beta_{11}^* = 0.8$')
+
+all_10050_wc[,c("level","group","estc","sec","cpc","g_cp","rmse","sd")] %>% 
+  kable(caption = "Weighted and centered with group structure (n=100, T =50)", align = "c") %>%
+  kable_styling("striped")
+```
+
+
+```{r echo=FALSE}
+point = mean(all_10050_wc$estc)
+sd =sqrt(sum(all_10050_wc$sd^2))/max(all_10050_wc$group)
+upper = point + 1.96 *sd
+lower = point - 1.96* sd
+cat("The estimation for treatment effect is",round(point, digits = 3), "\n")
+cat("The 95% MC CI for treatment effect is (",lower,",", upper,")", "\n")
+```

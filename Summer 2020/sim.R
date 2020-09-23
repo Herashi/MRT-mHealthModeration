@@ -455,8 +455,9 @@ sim_wc <- function(n = 100, tmax = 30, M = 1000,
   ## testing part again
   g <- data.frame(iter = unique(out$iter),
              g_mean = aggregate(estc~iter,data = out, FUN = mean)$estc,
-             g_se = aggregate(sec~iter, data = out, FUN = function(x) sqrt(mean(x^2)))$sec)
-  g$g_cp <- with(g, g_mean-1.96*g_se <= -0.2 & -0.2 <=g_mean+1.96*g_se)
+             g_truem = aggregate(g_truth ~iter,data = out, FUN = mean)$g_truth,
+             g_se = aggregate(sec~iter, data = out, FUN = function(x) sqrt(sum(x^2))/length(x))$sec)
+  g$g_cp <- with(g, g_mean-1.96*g_se <= g_truem & g_truem <=g_mean+1.96*g_se)
   
   out = merge(out,g[,c("iter","g_cp")], by ="iter")
   

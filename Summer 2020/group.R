@@ -8,7 +8,7 @@ group_all[["625"]][["n"]] = 625
 group_all[["625"]][["group_id"]] = rep(1:25,each=25)
 group_all[["625"]][["baseline sigma2"]] = rep(0.5,25)
 group_all[["625"]][["slope sigma2"]] = rep(0.1,25)
-group_all[["625"]][["bg2 sigma2"]] = rep(0,25)
+group_all[["625"]][["bg2 sigma2"]] = rep(1e-04,25)
 
 
  

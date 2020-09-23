@@ -1,0 +1,120 @@
+---
+title: "Different group size"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyr)
+require(data.table)
+require(kableExtra)
+library(ggplot2)
+```
+
+
+## Tables
+
+### Group settings: 
+
++ 30 people. 
+
++ T = 30 & 50
+
++ Baseline group effects are generated from normal distributions with mean 0, and $\sigma^2 = 0.5$ for every group.
+
++ Group treatment effects are generated from normal distributions with mean 0, and $\sigma^2$ changing from 0 to 1 by 0.1.
+
++ The group sizes used in the analysis are 1,2,3,5,6,10,15. 
+
++ Y is generated as follows : 
+
+
+$$
+Y_{it} = (-0.2 + b_g + \beta_{11}^*S_{it}) \times (A_{it} -p_t(1|H_{it})) + 0.8 S_{it} + \text{group_err}_g +\text{err}_{it}
+$$
+
+
+
+
+```{r echo=FALSE}
+plot_cp = function(k){
+  out = NULL
+  load(paste0("~/MRT/diff group size/one person per group/sim-",k,".RData"))
+  out = rbind(out, omit)
+  load(paste0("~/MRT/diff group size/two ppl per group/sim-",k,".RData"))
+  out = rbind(out, omit)
+  load(paste0("~/MRT/diff group size/3 ppl per group/sim-",k,".RData"))
+  out = rbind(out, omit)
+  load(paste0("~/MRT/diff group size/5 ppl per group/sim-",k,".RData"))
+  out = rbind(out, omit)
+  load(paste0("~/MRT/diff group size/6 ppl per group/sim-",k,".RData"))
+  out = rbind(out, omit)
+  load(paste0("~/MRT/diff group size/10 ppl per group/sim-",k,".RData"))
+  out = rbind(out, omit)
+  load(paste0("~/MRT/diff group size/15 ppl per group/sim-",k,".RData"))
+  out = rbind(out, omit)
+  
+  p <- ggplot() +
+  geom_line(mapping=aes(x=c(1,2,3,5,6,10,15), y = as.numeric(out[seq(1,37,6),"cpc"]),color = "#FF9999"),size = 1)+ 
+  geom_line(mapping=aes(x=c(1,2,3,5,6,10,15), y = as.numeric(out[seq(3,39,6),"cpc"]),color = "#0072B2"),size = 1)+ 
+  geom_line(mapping=aes(x=c(1,2,3,5,6,10,15), y = as.numeric(out[seq(5,41,6),"cpc"]),color = "#3300CC"),size = 1)+ 
+  scale_color_identity(name ="beta_{11}*",
+                       breaks = c("#FF9999", "#0072B2", "#3300CC"), 
+                       labels = c("0.2", "0.5", "0.8"), 
+                       guide = "legend")+ 
+  xlab("Group Size")+ ylab("coverage probability")+ ggtitle(paste0("n =30, T = 30 with b_gs' variance equals to ",k))
+  
+  
+  p
+}
+  
+plot_cp(0)
+
+```
+
+
+
+```{r echo=FALSE}
+plot_cp(0.1)
+```
+
+```{r echo=FALSE}
+plot_cp(0.2)
+```
+
+```{r echo=FALSE}
+plot_cp(0.3)
+```
+
+
+```{r echo=FALSE}
+plot_cp(0.4)
+```
+
+```{r echo=FALSE}
+plot_cp(0.5)
+```
+
+```{r echo=FALSE}
+plot_cp(0.6)
+```
+
+
+```{r echo=FALSE}
+plot_cp(0.7)
+```
+
+
+```{r echo=FALSE}
+plot_cp(0.8)
+```
+
+```{r echo=FALSE}
+plot_cp(0.9)
+```
+
+```{r echo=FALSE}
+plot_cp(1)
+```
+
