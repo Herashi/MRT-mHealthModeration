@@ -10,7 +10,7 @@ source("group.R")
 
 ## set number of Monte Carlo replicates
 
-M <- 2
+M <- 1000
 
 ## set number of threads to use for parallel processing and the random seed
 ## (nb: these two values ensure that the results are replicable)
@@ -31,6 +31,7 @@ sim.omit <- function() {
       group = group_all[[as.character(n)]]
       for (tmax in c(30,50)) {
         # clusterSetRNGStream(cl, seed)
+        print(paste("At tmax = ", tmax,"and b =", b))
         out <-
           rbind(out,
                 cbind(level = paste("$\\beta_{11}^* = ", b, "$", sep = ""),
@@ -51,6 +52,7 @@ sim.omit <- function() {
                           ## level of moderation by the time-varying state
                           group_ls = group,
                           beta0 = c(-0.2, 0, 0, b, 0))))
+        print(out)
       }
     }
   }
@@ -61,6 +63,8 @@ sim.omit <- function() {
 
 
 omit <- sim.omit()
+omit
 save(omit,file = "test.RData")
+
 
 
