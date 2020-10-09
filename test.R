@@ -1,4 +1,4 @@
-# setwd("/home/herashi/MRT")
+setwd("~/MRT")
 
 library("foreach")
 library("doParallel")
@@ -10,16 +10,16 @@ source("group.R")
 
 ## set number of Monte Carlo replicates
 
-M <- 2
+M <- 3
 
 ## set number of threads to use for parallel processing and the random seed
 ## (nb: these two values ensure that the results are replicable)
-# cores <- 4
-# seed <- 0
+cores <- 4
+seed <- 0
 
-# cl <- makeCluster(getOption("cl.cores", cores))
-# clusterEvalQ(cl, source("init.R"))
-# registerDoParallel(cl)
+cl <- makeCluster(getOption("cl.cores", cores))
+clusterEvalQ(cl, source("init.R"))
+registerDoParallel(cl)
 
 
 
@@ -30,7 +30,7 @@ sim.omit <- function() {
     for (n in 625) {
       group = group_all[[as.character(n)]]
       for (tmax in c(30,50)) {
-        # clusterSetRNGStream(cl, seed)
+        clusterSetRNGStream(cl, seed)
         out <-
           rbind(out,
                 cbind(level = paste("$\\beta_{11}^* = ", b, "$", sep = ""),
@@ -63,4 +63,4 @@ sim.omit <- function() {
 omit <- sim.omit()
 save(omit,file = "test.RData")
 
-
+stopCluster(cl)

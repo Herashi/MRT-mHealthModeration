@@ -60,7 +60,9 @@ rsnmm = function(n, T,
                  coefavail, coefstate, coeferr,
                  avail, base, state, a, prob,
                  y, err, statec, ac, availc, 
-                 group_err, slope, bg2){
+                 group_ls){
+  # group_err, slope, bg2
+  
   # a list indicating grouping structure
   
   for (i in 0:(n-1)) {
@@ -92,6 +94,27 @@ rsnmm = function(n, T,
       a[i*T + j] = as.numeric(rbernoulli(1, prob[i*T + j]))
       ac[i*T + j] = a[i*T + j] - prob[i*T + j]
       # conditional mean response 
+      
+      # error 
+      err[i*T + j] = err[i*T + j]+ coeferr * err[i*T + j - 1] 
+      
+    }
+  }
+  
+  group = group_str(group_ls)
+  group_err = group[["group err"]]
+  slope = group[["random slope"]]
+  bg2 = group[["beta0 bg2"]]
+  ind = group[["group_id"]]
+  
+  
+  for (i in 0:(n-1)){
+    g_id = ind[i+1]
+    g_member =  which(ind==g_id)
+    
+    for (j in 2:T){
+      state_mean = mean(state[(g_member-1)*T+j])
+      
       ym = mu[1]+ 
         mu[2] * ty[j]+  # pre-evaluated time function 
         mu[3] * base[i*T + j]+
@@ -100,7 +123,7 @@ rsnmm = function(n, T,
                          bg2[i+1]*(j-1) +
                          beta[2] * tmod[j] + # pre-evaluated time function
                          beta[3] * base[i*T + j]+
-                         beta[4] * state[i*T + j]+
+                         beta[4] * state_mean +
                          beta[5] * a[i*T + j - 1])+
         ac[i*T + j - 1] * (beta[6]+
                              beta[7] * tmod[j - 1]+
@@ -110,17 +133,21 @@ rsnmm = function(n, T,
         theta[2] * statec[i*T + j]+
         theta[3] * availc[i*T + j - 1]+
         theta[4] * statec[i*T + j - 1]
-      # error 
-      err[i*T + j] = err[i*T + j]+ coeferr * err[i*T + j - 1] 
       # response 
       y[i*T + j] = ym + err[i*T + j]+ group_err[i+1]
+      
     }
   }
   
   d = data.frame(ty = ty, tmod = tmod, tavail = tavail, tstate = tstate,
                  base = base, state = state, a = a, y = y, err = err,
+                 group_err = rep(group_err, each = T), 
+                 slope = rep(slope, each = T),
+                 bg2 = rep(bg2, each = T),
                  avail = avail, p = prob, a.center = ac,
                  state.center = statec, avail.center = availc)
+  
+  
   return(d)
 }
 
@@ -188,11 +215,7 @@ rsnmm.R <- function(n, tmax, group_ls, control, ...) {
                                      coralpha^(abs(row(cormatrix) -
                                                      col(cormatrix)))), tmax, tmax)
   }
-  group = group_str(group_ls)
-  group_err = group[["group err"]]
-  slope = group[["random slope"]]
-  bg2 = group[["beta0 bg2"]]
-  X = group[["indicator matrix"]]
+  
   
   d <- rsnmm(
     n = as.integer(n) ,
@@ -218,17 +241,14 @@ rsnmm.R <- function(n, tmax, group_ls, control, ...) {
     statec = as.double(rep(0, n*tmax)),
     ac = as.double(rep(0, n*tmax)),
     availc = as.double(rep(0, n*tmax)),
-    group_err =as.double(group_err),
-    slope = as.double(slope),
-    bg2 = as.double(bg2))
+    group_ls = group_ls)
   
   d <- data.frame(id = rep(1:n, each = tmax), time = time,
                   ty = d$ty, tmod = d$tmod, tavail = d$tavail, tstate = d$tstate,
                   base = d$base, state = d$state, a = d$a, y = d$y, err = d$err,
-                  group_err = rep(group_err, each = tmax), slope = rep(slope, each = tmax),
-                  bg2 = rep(bg2, each = tmax),avail = d$avail, prob = d$p, 
-                  a.center = d$a.center, state.center = d$state.center, 
-                  avail.center = d$avail.center, one = 1, X[rep(seq_len(nrow(X)),each =tmax),])
+                  group_err = d$group_err, slope = d$slope, bg2 = d$bg2,avail = d$avail, 
+                  prob = d$p, a.center = d$a.center, state.center = d$state.center, 
+                  avail.center = d$avail.center, one = 1)
   
   ## nb: for a given row, y is the proximal response
   d$lag1y <- with(d, delay(id, time, y))
@@ -253,6 +273,8 @@ rsnmm.R <- function(n, tmax, group_ls, control, ...) {
   
   return(d)
 }
+
+
 
 
 sim_wc <- function(n = 100, tmax = 30, M = 1000,
@@ -418,26 +440,30 @@ sim_wc <- function(n = 100, tmax = 30, M = 1000,
   fita <- list()
   
   out = NULL
-  # out <- foreach(m = 1:M, .combine = "rbind") %dopar% {
-  for (m in 1:M){
+  
+  out <- foreach(m = 1:M, .combine = "rbind") %dopar% {
+  #for (m in 1:M){
     d <- rsnmm.R(n, tmax,group_ls, control = control)
     d$pn <- d$pd <- d$prob
-    
-    ## ... fit treatment probability models
+  
+      ## ... fit treatment probability models
     if (!is.null(a.formula)){
-      fita <- fitter(formula = a.formula, addvar = names(a.formula),
-                     args = list(), prob = list(),coef = list(), label = list(),
-                     response = "a")
-    }
-    ## ... fit response models
-    
+        fita <- fitter(formula = a.formula, addvar = names(a.formula),
+                       args = list(), prob = list(),coef = list(), label = list(),
+                       response = "a")
+      }
+      ## ... fit response models
+      
     fity <- fitter(formula = y.formula, args = y.args, prob = y.prob,
-                   coef = y.coef, label = y.label)
+                     coef = y.coef, label = y.label)
     fity <- data.frame(iter = m, true = -0.2,
-                       method = "Weighted and centered",
-                       fity, row.names = NULL)
-    #out <- do.call("rbind", setNames(fity, NULL))
-    out = rbind(out,fity)
+                         method = c("Weighted and centered"),
+                         fity, row.names = NULL)
+    
+    fity
+    
+    # out <- do.call("rbind" ,fity)
+    # out = rbind(out,fity)
     
   }
   
@@ -449,7 +475,7 @@ sim_wc <- function(n = 100, tmax = 30, M = 1000,
   ## root MSE
   out$rmse <- with(out, (estc - (-0.2))^2)
   
-  
+
   ## mean and SD estimate, number of replicates
   out <- cbind(aggregate(cbind(est,estc, se, sec, cp, cpc, rmse,lclc, uclc) ~
                            method + moderator +  n + tmax,

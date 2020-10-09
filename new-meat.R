@@ -119,13 +119,13 @@ meat.geeglm <- function(x, pn = NULL, pd = pn, lag = 0, wcovinv = NULL,
         meat = meat + a %*% t(b)
       }
     }
-    meat_all = meat_all + meat/g_size
+    meat_all = meat_all + meat
   }
   
-  #m = length(group[["group_id"]]) *meat_all
-  meat_all
+  m = meat_all
+  #meat_all
   
-  #return(m)
+  return(m)
 }
 
 
@@ -398,7 +398,7 @@ working.correlation <- function(x, ...) {
 ## coefficients
 vcov.geeglm <- function(x,group  = group_ls, ...) {
   x <- gee.scalars(x)
-  v <- x$vcov
+  v <- NULL #x$vcov
   if (is.null(v)) {
     w <- working.covariance(x, invert = TRUE)
     b <- bread.geeglm(x, wcovinv = w)
@@ -425,12 +425,17 @@ estimate <- function(x, combos = NULL, omnibus = FALSE, null = 0,
   ## apply Mancl and DeRouen's (2001) small sample correction
   if (is.logical(small)) small <- small * 50
   n <- cluster.number(x, overall = FALSE)
+  n <- n / 25 # TEMP FIX!
+  print(paste("cluster number is ", n))
   d1 <- if (omnibus) nrow(combos)
   else apply(combos != 0, 1, sum)
   d2 <- n - length(coef(x))
+  print(paste("d1 is ", d1))
+  print(paste("d2 is ", d2))
   ## apply Hotelling's T-squared test, following Liao et al. (2016)
   if (n <= small & !normal) {
     type <- "Hotelling"
+    print("Hotelling time!")
     adj <- d1 * (d1 + d2 - 1) / d2
     qfun <- function(p) mapply(qf, p = p, df1 = d1, df2 = d2) / adj
     pfun <- function(q) 1 - mapply(pf, q = q * adj, df1 = d1, df2 = d2)
