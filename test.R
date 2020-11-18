@@ -1,5 +1,6 @@
 setwd("~/MRT")
 
+
 library("foreach")
 library("doParallel")
 library("parallel")
@@ -10,7 +11,7 @@ source("group.R")
 
 ## set number of Monte Carlo replicates
 
-M <- 3
+M <- 1000
 
 ## set number of threads to use for parallel processing and the random seed
 ## (nb: these two values ensure that the results are replicable)
@@ -26,7 +27,7 @@ registerDoParallel(cl)
 sim.omit <- function() {
   out <- NULL
   ## low, medium and high degrees of moderation by state
-  for (b in c(0.2,0.5,0.8)) {
+  for (b in 0.2) {
     for (n in 625) {
       group = group_all[[as.character(n)]]
       for (tmax in c(30,50)) {
@@ -35,22 +36,22 @@ sim.omit <- function() {
           rbind(out,
                 cbind(level = paste("$\\beta_{11}^* = ", b, "$", sep = ""),
                       sim_wc(n, tmax, M, 
-                          ## regress response on state and proximal treatment,
-                          ## ignoring the underlying interaction between the two
-                          y.formula = list(w = y ~ state + I(a - pn)),
-                          contrast_vec = c(0,0,1),
-                          y.names = c(w = "Weighted and centered"),
-                          ## term labels for proximal treatment
-                          y.label = list(w = "I(a - pn)"),
-                          ## specify weights and working correlation structure
-                          y.args = list(w = list(wn = "pn", wd = "prob")),
-                          ## specify weight numerator model
-                          a.formula = list(pn = a ~ 1),
-                          a.names = c(pn = "Intercept-only"),
-                          ## use default generative model, but with the specified
-                          ## level of moderation by the time-varying state
-                          group_ls = group,
-                          beta0 = c(-0.2, 0, 0, b, 0))))
+                             ## regress response on state and proximal treatment,
+                             ## ignoring the underlying interaction between the two
+                             y.formula = list(w = y ~ state + indir),
+                             contrast_vec = c(0,0,1),
+                             y.names = c(w = "Weighted and centered"),
+                             ## term labels for proximal treatment
+                             y.label = list(w = "indir"),
+                             ## specify weights and working correlation structure
+                             y.args = list(w = list(wn = "pn", wd = "prob")),
+                             ## specify weight numerator model
+                             a.formula = list(pn = a ~ 1),
+                             a.names = c(pn = "Intercept-only"),
+                             ## use default generative model, but with the specified
+                             ## level of moderation by the time-varying state
+                             group_ls = group,
+                             beta0 = c(-0.2, 0, 0, b, 0))))
       }
     }
   }
