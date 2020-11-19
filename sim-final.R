@@ -418,8 +418,8 @@ sim_wc <- function(n = 100, tmax = 30, M = 1000,
   fita <- list()
   
   out = NULL
-  # out <- foreach(m = 1:M, .combine = "rbind") %dopar% {
-  for (m in 1:M){
+  out <- foreach(m = 1:M, .combine = "rbind") %dopar% {
+    #for (m in 1:M){
     d <- rsnmm.R(n, tmax,group_ls, control = control)
     d$pn <- d$pd <- d$prob
     
@@ -434,10 +434,13 @@ sim_wc <- function(n = 100, tmax = 30, M = 1000,
     fity <- fitter(formula = y.formula, args = y.args, prob = y.prob,
                    coef = y.coef, label = y.label)
     fity <- data.frame(iter = m, true = -0.2,
-                       method = "Weighted and centered",
+                       method = c("Weighted and centered"),
                        fity, row.names = NULL)
-    #out <- do.call("rbind", setNames(fity, NULL))
-    out = rbind(out,fity)
+    
+    fity
+    
+    # out <- do.call("rbind" ,fity)
+    # out = rbind(out,fity)
     
   }
   
