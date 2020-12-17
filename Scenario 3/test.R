@@ -1,4 +1,4 @@
-setwd("~/MRT")
+# setwd("/home/herashi/MRT")
 
 
 library("foreach")
@@ -28,7 +28,7 @@ sim.omit <- function() {
   out <- NULL
   ## low, medium and high degrees of moderation by state
   for (b in 0.2) {
-    for (n in 625) {
+    for (n in 2500) {
       group = group_all[[as.character(n)]]
       for (tmax in c(30,50)) {
         clusterSetRNGStream(cl, seed)
@@ -38,11 +38,11 @@ sim.omit <- function() {
                       sim_wc(n, tmax, M, 
                              ## regress response on state and proximal treatment,
                              ## ignoring the underlying interaction between the two
-                             y.formula = list(w = y ~ state + indir),
+                             y.formula = list(w = y ~ state + I(a - pn)),
                              contrast_vec = c(0,0,1),
                              y.names = c(w = "Weighted and centered"),
                              ## term labels for proximal treatment
-                             y.label = list(w = "indir"),
+                             y.label = list(w = "I(a - pn)"),
                              ## specify weights and working correlation structure
                              y.args = list(w = list(wn = "pn", wd = "prob")),
                              ## specify weight numerator model
@@ -57,7 +57,6 @@ sim.omit <- function() {
   }
   out
 }
-
 
 
 

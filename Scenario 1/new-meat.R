@@ -104,6 +104,7 @@ meat.geeglm <- function(x, pn = NULL, pd = pn, lag = 0, wcovinv = NULL,
   
   group = group_str(group)
   meat_all = 0
+  u = as.data.frame(u)
   
   for (g in unique(group[["group_id"]])){
     meat = 0
@@ -111,12 +112,13 @@ meat.geeglm <- function(x, pn = NULL, pd = pn, lag = 0, wcovinv = NULL,
     row_ind = which(group[["group_id"]]==g)
     
     u_g = u[row_ind,]
+    
     # indicator for groups -> average of the estfunc within the group
     for (i in 1:nrow(u_g)){
       a = as.matrix(u_g[i,])
       for (j in 1:nrow(u_g)){
         b = as.matrix(u_g[j,])
-        meat = meat + a %*% t(b)
+        meat = meat + t(a) %*% b
       }
     }
     meat_all = meat_all + meat
@@ -413,7 +415,7 @@ vcov.geeglm <- function(x,group  = group_ls, ...) {
 ## 'null' gives the value of each combintation under the null hypothesis
 ## 'omnibus' indicates that the specified combinations should be tested
 ##           simultaneously instead of individually
-estimate <- function(x, combos = NULL, omnibus = FALSE, null = 0,
+estimate <- function(x, group= group_ls, combos = NULL, omnibus = FALSE, null = 0,
                      small = TRUE, conf.int = 0.95, normal = FALSE, ...) {
   if (is.null(combos)) {
     combos <- diag(length(coef(x)))
@@ -424,8 +426,7 @@ estimate <- function(x, combos = NULL, omnibus = FALSE, null = 0,
   if (nrow(est) != length(null)) null <- rep(null[1], nrow(est))
   ## apply Mancl and DeRouen's (2001) small sample correction
   if (is.logical(small)) small <- small * 50
-  n <- cluster.number(x, overall = FALSE)
-  n <- n / 25 # TEMP FIX!
+  n <- length(unique(group[["group_id"]]))
   print(paste("cluster number is ", n))
   d1 <- if (omnibus) nrow(combos)
   else apply(combos != 0, 1, sum)
