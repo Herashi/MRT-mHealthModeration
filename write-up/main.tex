@@ -937,61 +937,63 @@ W_{t,j,j\prime} = \frac{\hat p_t (A_{t,j}, A_{t,j^\prime} \mid S_t)}{p(A_{t,j} \
 When the numerators are estimated using the observed data, the variance-covariance must account for this. Throughout we allow for the setting in which individuals are not always available. For completeness we provide results for a more general estimating function which can be used with observational (non-randomized $A_t$) treatments, under the assumption of sequential ignorability and assuming the data analyst is able to correctly model and estimate the treatment probability $p\left(A_{t,j}, A_{t,j^\prime}| H_t\right)$. We indicate how the results are simpliﬁed by use of data from an MRT. 
 
 Denote the parameterized treatment probability by $p_t(a,a' | H_t;\eta)$ (with parameter $\eta$); note $\eta$ is known in an MRT. Denote the parameterized numerator of the weights by $\tilde p_t(a,a'| S_t;\rho)$ (with parameter $\rho$). The proof below allows the data analyst to use a  $\tilde p_t$ with an estimated parameter $\tilde \rho$ or to pre-specify $\rho$ as desired. We use a superscript of $\star$ to denote limiting values of estimated parameters (e.g. $\eta^\star, \rho^\star$). Then the more general version of the estimating equation $U_W(\alpha,\beta;\hat\eta,\hat\rho)$ is:
-\begin{align}
-    \sum_{t=1}^T \left( Y_{t+1,J} - g_t(H_t)^\prime \alpha -  (1-A_{t,J}) (A_{t,J^\prime} - &\tilde p_t^\star (1 \given S_t;\hat\rho) ) f_t (S_t)^\prime \beta \right) I_{t,J}I_{t,J^\prime}W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \hat\eta,\hat\rho) \nonumber\\
+\begin{align*}
+    \sum_{t=1}^T \left( Y_{t+1,J} - g_t(H_t)^\prime \alpha -  (1-A_{t,J}) (A_{t,J^\prime} - \tilde p_t^\star (1 \given S_t;\hat \rho) ) f_t (S_t)^\prime \beta \right) 
+	&I_{t,J}I_{t,J^\prime}W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \hat\eta,\hat\rho) \times \\
     &\begin{pmatrix}
   g_t(H_t) \\ 
   (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t;\hat\rho) ) f_t (S_t)
 \end{pmatrix}
-\end{align}
+\end{align*}
 
 Note $W_{t,J, J^\prime}$ in the body of the paper is replaced here by $W_{t,J, J^\prime}(A_t,H_t; \hat\eta,\hat\rho)$, and $\hat\eta$, $\hat\rho$ are estimators. 
 
 \textbf{Treatment Probability Model:} If the data is observational then we assume: $p_t(a,a'\given{H_t;\eta})$ is a correctly specified model for $\P(a,a'\given{H_t,I_{t,J}=1,I_{t,J^\prime}=1})$. Let $\eta^\star$ be the true value of $\eta$; that is, $Pr(A_{t,J},A_{t,J^\prime}|H_t,I_{t,J}=1,I_{t,J^\prime}=1) = p_t(a,a' \given{H_t;\eta^\star})$ Assume that the estimator of $\eta$, say $\hat\eta$, satisfies $\P_n U_D(\hat\eta)=0$ and $\sqrt{n}(\hat\eta-\eta^\star) =\E \left[\dot U_D (\eta^\star) \right]^{-1}\P_n U_D (\eta^\star) + o_P(1)$. Thus $\sqrt{n}(\hat\eta-\eta^\star)$ converges in distribution to a mean zero, normal random vector with variance-covaraince matrix given by $\E \left[\dot U_D (\eta^\star) \right]^{-1} \E \left[U_D(\eta^\star)^ {\otimes 2} \right]    \left(\E \left[\dot U_D (\eta^\star) \right]^{-1} \right)^\prime$, which has finite entries. Assume that $\P_n(\dot U_D(\hat\eta))$ is a consistent estimator of $\E(\dot U_D(\eta^\star))$. Assume there exists finite constants, $b_D>0$ and $B_D<1$ such that each $b_D < p_t (a,a'|H_t;\eta^\star)<B_D$ a.s.
 
 
-%If the data analyst elects to use a parameterized and estimated $\tilde p_t(1|S_t,\hat \rho)$, then we assume:
-%
-%\textbf{Numerator of Weights Probability Model}: Suppose the estimator $\hat\rho$ solves an estimating equation: $\P_n U_N(\rho)=0$. Assume that, for a finite value of $\rho$, say $\rho^\star$ and $\sqrt{n}(\hat\rho-\rho^\star)= \E \left[\dot U_N (\rho^\star) \right]^{-1}\sqrt{n}(\P_n-P) U_N (\rho^\star) + o_P(1)$ where the matrix, $\E \left[\dot U_N (\rho^\star) \right]$ is positive definite. Assume $\sqrt{n}(\P_n-P) U_N (\rho^\star)$ converges in distribution to a mean zero, normal random vector with variance-covariance matrix given by $\E[U_N(\rho^\star)^ {\otimes 2}]$ which has finite entries. Assume that $\P_n \dot U_N(\hat\rho)$ is a consistent estimator of $\E[\dot U_N(\rho^\star)]$. Assume $0 <\rho^\star <1$.
-%
-%
-%\begin{proof}
-%The solution to $\P_n U_W(\alpha,\beta;\hat\eta,\hat\rho) = 0$ gives the estimator: 
-%\begin{align*}
-%    \begin{pmatrix}
-%  \hat \alpha \\ 
-%  \hat \beta
-%\end{pmatrix} = \left\{ \P_n \dot U_W(\hat\eta,\hat\rho) \right\}^{-1}\P_n \sum_{t=1}^T I_{t,J}I_{t,J^\prime} W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \hat\eta &,\hat\rho) Y_{t+1,J} \nonumber \\
-%&\begin{pmatrix}
-%  g_t(H_t) \\ 
-%  (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t) ) f_t (S_t)
-%\end{pmatrix}
-%\end{align*}
-%
-%
-%where
-%
-%\[
-%\dot U_W(\hat\eta,\hat\rho) = \sum_{t=1}^T I_{t,J}I_{t,J^\prime}W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \hat\eta,\hat\rho) \begin{pmatrix}
-%  g_t(H_t) \\ 
-%  (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t) ) f_t (S_t)
-%\end{pmatrix}^ {\otimes 2}
-%\]
-%
-%Define 
-%
-%\begin{align*}
-%    \begin{pmatrix}
-%  \alpha^\prime \\ 
-%  \beta^\prime
-%\end{pmatrix} = \left\{ \E \left[ \dot U_W(\eta^\star,\rho^\star) \right]\right\}^{-1}  \E \Bigg[ \sum_{t=1}^T I_{t,J}I_{t,J^\prime} W_{t,J, J^\prime}(A_{t,J},&A_{t,J^\prime},H_t; \eta^\star,\rho^\star) Y_{t+1,J} \nonumber \\
-%&\begin{pmatrix}
-%  g_t(H_t) \\ 
-%  (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t) ) f_t (S_t)
-%\end{pmatrix} \Bigg]
-%\end{align*}
-%
-%
+If the data analyst elects to use a parameterized and estimated $\tilde p_t(1|S_t,\hat \rho)$, then we assume:
+
+\textbf{Numerator of Weights Probability Model}: Suppose the estimator $\hat\rho$ solves an estimating equation: $\P_n U_N(\rho)=0$. Assume that, for a finite value of $\rho$, say $\rho^\star$ and $\sqrt{n}(\hat\rho-\rho^\star)= \E \left[\dot U_N (\rho^\star) \right]^{-1}\sqrt{n}(\P_n-P) U_N (\rho^\star) + o_P(1)$ where the matrix, $\E \left[\dot U_N (\rho^\star) \right]$ is positive definite. Assume $\sqrt{n}(\P_n-P) U_N (\rho^\star)$ converges in distribution to a mean zero, normal random vector with variance-covariance matrix given by $\E[U_N(\rho^\star)^ {\otimes 2}]$ which has finite entries. Assume that $\P_n \dot U_N(\hat\rho)$ is a consistent estimator of $\E[\dot U_N(\rho^\star)]$. Assume $0 <\rho^\star <1$.
+
+
+\begin{proof}
+The solution to $\P_n U_W(\alpha,\beta;\hat\eta,\hat\rho) = 0$ gives the estimator: 
+\begin{align*}
+    \begin{pmatrix}
+  \hat \alpha \\ 
+  \hat \beta
+\end{pmatrix} =
+\left\{ \P_n \dot U_W(\hat\eta,\hat\rho) \right \}^{-1} \P_n \sum_{t=1}^T &I_{t,J}I_{t,J^\prime} W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \hat \eta,\hat \rho) Y_{t+1,J} \times \\
+&\begin{pmatrix}
+  g_t(H_t) \\ 
+  (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t) ) f_t (S_t)
+\end{pmatrix}
+\end{align*}
+
+
+where
+
+\[
+\dot U_W(\hat\eta,\hat\rho) = \sum_{t=1}^T I_{t,J}I_{t,J^\prime}W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \hat\eta,\hat\rho) \begin{pmatrix}
+  g_t(H_t) \\ 
+  (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t) ) f_t (S_t)
+\end{pmatrix}^ {\otimes 2}
+\]
+
+Define 
+
+\begin{align*}
+    \begin{pmatrix}
+  \alpha^\prime \\ 
+  \beta^\prime
+\end{pmatrix} = \left\{ \E \left[ \dot U_W(\eta^\star,\rho^\star) \right]\right\}^{-1}  \E \Bigg[ \sum_{t=1}^T I_{t,J}I_{t,J^\prime} W_{t,J, J^\prime}(A_{t,J},&A_{t,J^\prime},H_t; \eta^\star,\rho^\star) Y_{t+1,J} \nonumber \\
+&\begin{pmatrix}
+  g_t(H_t) \\ 
+  (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t) ) f_t (S_t)
+\end{pmatrix} \Bigg]
+\end{align*}
+
+
 %Then standard statistical arguments can be used to show that $\sqrt{n}(\hat\alpha-\alpha^\prime, \hat\beta-\beta^\prime)$ converges in distribution to a normal, mean zero, random vector with variance-covariance matrix given by:
 %\begin{equation*}
 %    \left\{ \E \left[\dot U_W(\eta^\star, \rho^\star) \right]\right\}^{-1} \Sigma_W(\alpha^\prime,\beta^\prime;\eta^\star, \rho^\star) \left\{ \E \left[\dot U_W(\eta^\star, \rho^\star) \right]\right\}^{-1}
@@ -1106,7 +1108,7 @@ Note $W_{t,J, J^\prime}$ in the body of the paper is replaced here by $W_{t,J, J
 %\[
 %\left[\E \dot U_W(\eta^\star,\rho^\star) \right]_{(2,2)} =\E \sum_{t=1}^T  f_t (S_t)f_t (S_t)^T \gamma(\eta^\star,\rho^\star) I_{t,J}I_{t,J^\prime}
 %\]
-%\end{proof}
+\end{proof}
 %Recall Assumption 4.3, we can see from equation \eqref{eq:estimand_beta}, when the model is incorrectly specified, then the choice of $\tilde p_t(1\mid S_t;\rho^\star)$ determines the estimand. In our simulation setting, we chose $\tilde p_t(1\mid S_t;\rho^\star)$ to be a constant, then the limit in probability $\hat\beta$ is given by
 %\begin{align}
 %    \beta^\prime =\left[\E  \sum_{t=1}^T  f_t (S_t)f_t (S_t)^T I_{t,J}I_{t,J^\prime} \right]^{-1} &\E \Bigg[\sum_{t=1}^T  f_t (S_t)  I_{t,J}I_{t,J^\prime}  \E \Big[\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=1, H_t ,I_{t,J}I_{t,J^\prime}=1} \right]  \nonumber \\ 
