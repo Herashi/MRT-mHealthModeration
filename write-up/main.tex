@@ -994,120 +994,120 @@ Define
 \end{align*}
 
 
-%Then standard statistical arguments can be used to show that $\sqrt{n}(\hat\alpha-\alpha^\prime, \hat\beta-\beta^\prime)$ converges in distribution to a normal, mean zero, random vector with variance-covariance matrix given by:
-%\begin{equation*}
-%    \left\{ \E \left[\dot U_W(\eta^\star, \rho^\star) \right]\right\}^{-1} \Sigma_W(\alpha^\prime,\beta^\prime;\eta^\star, \rho^\star) \left\{ \E \left[\dot U_W(\eta^\star, \rho^\star) \right]\right\}^{-1}
-%\end{equation*}
-%where
-%\begin{align*}
-%    \Sigma_W(\alpha,\beta;\eta, \rho) = \E \Big[\Big(U_W(\alpha,\beta;\eta, \rho) + &\Sigma_{W,D}(\alpha,\beta;\eta, \rho) \left\{\E[\dot U_D(\eta)] \right\}^{-1} U_D(\eta) + \nonumber \\ &\Sigma_{W,N}(\alpha,\beta;\eta, \rho)\left\{\E[\dot U_N(\rho)] \right\}^{-1} U_N(\rho) \Big)^ {\otimes 2} \Big]
-%\end{align*}
-%with
-%\begin{align*}
-%    \Sigma_{W,D}&(\alpha,\beta ; \eta, \rho)
-%    = \E \Big[ \sum_{t=1}^T \left( Y_{t+1,J} - g_t(H_t)^\prime \alpha -  (1-A_{t,J})(A_{t,J^\prime} - \tilde p_t^\star (1 \given S_t;\rho) ) f_t (S_t)^\prime \beta \right)I_{t,J}I_{t,J^\prime} \nonumber \\ &W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta,\rho) 
-%    \begin{pmatrix}
-%  g_t(H_t) \\ 
-%  (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t;\rho) ) f_t (S_t)
-%\end{pmatrix}\left(\frac{d \log p^\star_t(A_{t,J^\prime}|H_t;\eta)}{d \eta} \right)^\prime \Big],
-%\end{align*}
-%and
-%\begin{align*}
-%    \Sigma_{W,N}&(\alpha,\beta;\eta, \rho)
-%    = \E \Big[ \sum_{t=1}^T \left( Y_{t+1,J} - g_t(H_t)^\prime \alpha -  (1-A_{t,J})(A_{t,J^\prime} - \tilde p_t^\star (1 \given S_t;\rho) ) f_t (S_t)^\prime \beta \right)I_{t,J}I_{t,J^\prime} \nonumber \\ &W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta,\rho) 
-%    \begin{pmatrix}
-%  g_t(H_t) \\ 
-%  (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t;\rho) ) f_t (S_t)
-%\end{pmatrix}\left(\frac{d \log \tilde p^\star_t(A_{t,J^\prime}|S_t;\rho)}{d \rho} \right)^\prime \Big] \nonumber \\
-%&+\E \Big[ \sum_{t=1}^T \left( Y_{t+1,J} - g_t(H_t)^\prime \alpha -  (1-A_{t,J})(A_{t,J^\prime} - \tilde p_t^\star (1 \given S_t;\rho) ) f_t (S_t)^\prime \beta \right)I_{t,J}I_{t,J^\prime} \nonumber \\ &W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta,\rho) 
-%    \begin{pmatrix}
-%  \textbf{0} \\ 
-%  -(1-A_{t,J})\tilde {p}^\star_t (1 \given S_t;\rho)  f_t (S_t)
-%\end{pmatrix}\left(\frac{d \log \tilde p^\star_t(1|S_t;\rho)}{d \rho} \right)^\prime \Big] \nonumber \\
-%&+\E \Big[ \sum_{t=1}^T (1-A_{t,J}) \tilde p_t^\star (1 \given S_t;\rho)  f_t (S_t)^\prime \beta I_{t,J}I_{t,J^\prime}W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta,\rho)  \nonumber \\ &\begin{pmatrix}
-%  g_t(H_t) \\ 
-%  (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t;\rho) ) f_t (S_t)
-%\end{pmatrix}\left(\frac{d \log \tilde p^\star_t(1|S_t;\rho)}{d \rho} \right)^\prime \Big]
-%\end{align*}
-%
-%In our simulation, an individual's randomization probabilities only depends on their observed history, then $\tilde p_t^\star (1 \mid S_{t,j^\prime}) = \tilde p_t (1 \mid S_{t,j^\prime})$. Since the data is from an MRT (we know $p_t$) and we pre-specify (not estimate) $\tilde p_t$, then $\Sigma_W = \E \left[ \left(U_W(\alpha,\beta)  \right)^ {\otimes 2} \right] $ greatly simplifying the variance-covaraince matrix.
-%
-%A consistent estimator of the variance-covariance matrix is given by:
-%\begin{equation}
-%    \left\{ \P_n \left[\dot U_W(\hat\eta, \hat\rho) \right]\right\}^{-1} \hat\Sigma_W(\hat\alpha,\hat\beta;\hat\eta, \hat\rho) \left\{ \P_n \left[\dot U_W(\hat\eta, \hat\rho) \right]\right\}^{-1}
-%\end{equation}
-%where
-%\begin{align*}
-%    \hat\Sigma_W(\alpha,\beta;\eta, \rho) = \P_n \Big[\Big(U_W(\alpha,\beta;\eta, \rho) + &\hat\Sigma_{W,D}(\alpha,\beta;\eta, \rho) \left\{\P_n[\dot U_D(\eta)] \right\}^{-1} U_D(\eta) + \nonumber \\ &\hat\Sigma_{W,N}(\alpha,\beta;\eta, \rho)\left\{\P_n[\dot U_N(\rho)] \right\}^{-1} U_N(\rho) \Big)^ {\otimes 2} \Big]
-%\end{align*}
-%with
-%\begin{align*}
-%    \hat\Sigma_{W,D}(\alpha,\beta &; \eta, \rho)
-%    = \P_n \Big[ \sum_{t=1}^T \left( Y_{t+1,J} - g_t(H_t)^\prime \alpha -  (1-A_{t,J})(A_{t,J^\prime} - \tilde p_t^\star (1 \given S_t;\rho) ) f_t (S_t)^\prime \beta \right)I_{t,J}I_{t,J^\prime} \nonumber \\ &W_{t,J, J^\prime}(A_t,H_t; \eta,\rho) 
-%    \begin{pmatrix}
-%  g_t(H_t) \\ 
-%  (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t;\rho) ) f_t (S_t)
-%\end{pmatrix}\left(\frac{d \log p^\star_t(A_{t,J^\prime}|H_t;\eta)}{d \eta} \right)^\prime \Big],
-%\end{align*}
-%and
-%\begin{align*}
-%    \hat\Sigma_{W,N}&(\alpha,\beta;\eta, \rho)
-%    = \P_n \Big[ \sum_{t=1}^T \left( Y_{t+1,J} - g_t(H_t)^\prime \alpha -  (1-A_{t,J})(A_{t,J^\prime} - \tilde p_t^\star (1 \given S_t;\rho) ) f_t (S_t)^\prime \beta \right)I_{t,J}I_{t,J^\prime} \nonumber \\ &W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta,\rho) 
-%    \begin{pmatrix}
-%  g_t(H_t) \\ 
-%  (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t;\rho) ) f_t (S_t)
-%\end{pmatrix}\left(\frac{d \log \tilde p^\star_t(A_{t,J^\prime}|S_t;\rho)}{d \rho} \right)^\prime \Big] \nonumber \\
-%&+\P_n \Big[ \sum_{t=1}^T \left( Y_{t+1,J} - g_t(H_t)^\prime \alpha -  (1-A_{t,J})(A_{t,J^\prime} - \tilde p_t^\star (1 \given S_t;\rho) ) f_t (S_t)^\prime \beta \right)I_{t,J}I_{t,J^\prime} \nonumber \\ &W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta,\rho) 
-%    \begin{pmatrix}
-%  \textbf{0} \\ 
-%  -(1-A_{t,J})\tilde {p}^\star_t (1 \given S_t;\rho)  f_t (S_t)
-%\end{pmatrix}\left(\frac{d \log \tilde p^\star_t(1|S_t;\rho)}{d \rho} \right)^\prime \Big] \nonumber \\
-%&+\P_n \Big[ \sum_{t=1}^T (1-A_{t,J}) \tilde p_t^\star (1 \given S_t;\rho)  f_t (S_t)^\prime \beta I_{t,J}I_{t,J^\prime}W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta,\rho)  \nonumber \\ &\begin{pmatrix}
-%  g_t(H_t) \\ 
-%  (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t;\rho) ) f_t (S_t)
-%\end{pmatrix}\left(\frac{d \log \tilde p^\star_t(1|S_t;\rho)}{d \rho} \right)^\prime \Big]
-%\end{align*}
-%
-%It remains to show that $\beta^\prime = \beta^{\star\star}$. Since $\E [U_W(\alpha^\prime,\beta^\prime;\eta^\star,\rho^\star)]=0$,
-%\begin{align*}
-%    0 &= \E \sum_{t=1}^T \left( Y_{t+1,J} - g_t(H_t)^T\alpha^\prime -  (1-A_{t,J}) (A_{t,J^\prime} - \tilde p_t^\star (1 \given S_t;\rho^\star) ) f_t (S_t)^T \beta^\prime \right) I_{t,J}I_{t,J^\prime} \nonumber \\ 
-%    &  ~~~~~~~~~~~~~~~~~~~~  W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta^\star,\rho^\star)(1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t;\rho^\star) ) f_t (S_t) \nonumber \\
-%    &=  \E \sum_{t=1}^T \left(\E \left[Y_{t+1} \given{A_{t,J},A_{t,J^\prime}, H_t ,I_{t,J}I_{t,J^\prime}=1} \right]- g_t(H_t)^T\alpha^\prime-(1-A_{t,J}) (A_{t,J^\prime} - \tilde p_t^\star (1 \given S_t;\rho^\star) ) f_t (S_t)^T \beta^\prime \right) \nonumber \\
-%    &  ~~~~~~~~~~~~~~~~~~~~  I_{t,J}I_{t,J^\prime}W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta^\star,\rho^\star)(1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t;\rho^\star) ) f_t (S_t) \nonumber \\
-%    &= \E \sum_{t=1}^T \sum_{a^\prime \in \{0,1\}} \Big(\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=a^\prime, H_t ,I_{t,J}I_{t,J^\prime}=1} \right]- g_t(H_t)^T\alpha^\prime- \nonumber \\
-%    &  ~~~~~~~~~~~~~~~~~~~~  (a^\prime - \tilde p_t^\star (1 \given S_t;\rho^\star) ) f_t (S_t)^T \beta^\prime \Big) I_{t,J}I_{t,J^\prime}\tilde p_t (0,a^\prime \given S_t;\rho^\star)(a^\prime - \tilde {p}^\star_t (1 \given S_t;\rho^\star) ) f_t (S_t)
-%\end{align*}
-%
-%where the last equality averages out over $A_{t,J^\prime}$. The above simplifies to:
-%
-%\begin{align*}
-%    0 &= \E \sum_{t=1}^T \sum_{a^\prime \in \{0,1\}} \Big(\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=a^\prime, H_t ,I_{t,J}I_{t,J^\prime}=1} \right]- g_t(H_t)^T\alpha^\prime- \nonumber \\
-%    &  ~~~~~~~~~~~~~~~~~~~~  (a^\prime - \tilde p_t^\star (1 \given S_t;\rho^\star) ) f_t (S_t)^T \beta^\prime \Big) I_{t,J}I_{t,J^\prime}\tilde p_t (0,a^\prime \given S_t;\rho^\star)(a^\prime - \tilde {p}^\star_t (1 \given S_t;\rho^\star) ) f_t (S_t) \nonumber \\
-%    &= \E \sum_{t=1}^T  \Big(\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=1, H_t ,I_{t,J}I_{t,J^\prime}=1} \right]- g_t(H_t)^T\alpha^\prime- \nonumber \\
-%    &  ~~~~~~~~~~~~~~~~~~~~  (1 - \tilde p_t^\star (1 \given S_t;\rho^\star) ) f_t (S_t)^T \beta^\prime \Big) I_{t,J}I_{t,J^\prime}\tilde p_t (0,1 \given S_t;\rho^\star)(1 - \tilde {p}^\star_t (1 \given S_t;\rho^\star) ) f_t (S_t) \nonumber \\
-%    & ~~~~ +\E \sum_{t=1}^T \Big(\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=0, H_t ,I_{t,J}I_{t,J^\prime}=1} \right]- g_t(H_t)^T\alpha^\prime- \nonumber \\
-%    &  ~~~~~~~~~~~~~~~~~~~~  ( - \tilde p_t^\star (1 \given S_t;\rho^\star) ) f_t (S_t)^T \beta^\prime \Big) I_{t,J}I_{t,J^\prime}\tilde p_t (0,0 \given S_t;\rho^\star)( - \tilde {p}^\star_t (1 \given S_t;\rho^\star) ) f_t (S_t) \nonumber \\
-%    &= \E \sum_{t=1}^T \Big(\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=1, H_t ,I_{t,J}I_{t,J^\prime}=1} \right] - \E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=0, H_t ,I_{t,J}I_{t,J^\prime}=1} \right]\nonumber \\ 
-%    &  ~~~~~~~~~~~~~~~~~~~~  -f_t (S_t)^T \beta^\prime \Big)  f_t (S_t) \gamma(\eta^\star,\rho^\star) I_{t,J}I_{t,J^\prime} 
-%\end{align*}
-%
-%where $\gamma(\eta^\star,\rho^\star) = \tilde{p}_t (0,1 \mid S_t)(1- \tilde {p}^\star_t (1 \given S_t;\rho^\star)) = \tilde{p}_t (0,0 \mid S_t) \tilde {p}^\star_t (1 \given S_t;\rho^\star) $. From this we obtain:
-%\begin{align*}
-%   0 = \E \sum_{t=1}^T  f_t (S_t) &\gamma(\eta^\star,\rho^\star) I_{t,J}I_{t,J^\prime}   \Big(\E \Big[\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=1, H_t ,I_{t,J}I_{t,J^\prime}=1} \right] - \nonumber \\ 
-%   &\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=0, H_t ,I_{t,J}I_{t,J^\prime}=1} \right] \mid S_t,I_{t,J}I_{t,J^\prime}=1\Big]  -f_t (S_t)^T \beta^\prime \Big) 
-%\end{align*}
-%
-%Thus 
-%\begin{align}
-%\label{eq:estimand_beta}
-%    \beta^\prime =\left[\E \dot U_W(\eta^\star,\rho^\star) \right]_{(2,2)}^{-1} \E \Bigg[\sum_{t=1}^T  f_t (S_t) &\gamma(\eta^\star,\rho^\star) I_{t,J}I_{t,J^\prime}  \E \Big[\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=1, H_t ,I_{t,J}I_{t,J^\prime}=1} \right] - \nonumber \\ 
-%   &\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=0, H_t ,I_{t,J}I_{t,J^\prime}=1} \right] \mid S_t,I_{t,J}I_{t,J^\prime}=1\Big]  \Bigg]
-%\end{align}
-%
-%where
-%\[
-%\left[\E \dot U_W(\eta^\star,\rho^\star) \right]_{(2,2)} =\E \sum_{t=1}^T  f_t (S_t)f_t (S_t)^T \gamma(\eta^\star,\rho^\star) I_{t,J}I_{t,J^\prime}
-%\]
+Then standard statistical arguments can be used to show that $\sqrt{n}(\hat\alpha-\alpha^\prime, \hat\beta-\beta^\prime)$ converges in distribution to a normal, mean zero, random vector with variance-covariance matrix given by:
+\begin{equation*}
+    \left\{ \E \left[\dot U_W(\eta^\star, \rho^\star) \right]\right\}^{-1} \Sigma_W(\alpha^\prime,\beta^\prime;\eta^\star, \rho^\star) \left\{ \E \left[\dot U_W(\eta^\star, \rho^\star) \right]\right\}^{-1}
+\end{equation*}
+where
+\begin{align*}
+    \Sigma_W(\alpha,\beta;\eta, \rho) = \E \Big[\Big(U_W(\alpha,\beta;\eta, \rho) + &\Sigma_{W,D}(\alpha,\beta;\eta, \rho) \left\{\E[\dot U_D(\eta)] \right\}^{-1} U_D(\eta) + \nonumber \\ &\Sigma_{W,N}(\alpha,\beta;\eta, \rho)\left\{\E[\dot U_N(\rho)] \right\}^{-1} U_N(\rho) \Big)^ {\otimes 2} \Big]
+\end{align*}
+with
+\begin{align*}
+    \Sigma_{W,D}&(\alpha,\beta ; \eta, \rho)
+    = \E \Big[ \sum_{t=1}^T \left( Y_{t+1,J} - g_t(H_t)^\prime \alpha -  (1-A_{t,J})(A_{t,J^\prime} - \tilde p_t^\star (1 \given S_t;\rho) ) f_t (S_t)^\prime \beta \right)I_{t,J}I_{t,J^\prime} \nonumber \\ &W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta,\rho) 
+    \begin{pmatrix}
+  g_t(H_t) \\ 
+  (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t;\rho) ) f_t (S_t)
+\end{pmatrix}\left(\frac{d \log p^\star_t(A_{t,J^\prime}|H_t;\eta)}{d \eta} \right)^\prime \Big],
+\end{align*}
+and
+\begin{align*}
+    \Sigma_{W,N}&(\alpha,\beta;\eta, \rho)
+    = \E \Big[ \sum_{t=1}^T \left( Y_{t+1,J} - g_t(H_t)^\prime \alpha -  (1-A_{t,J})(A_{t,J^\prime} - \tilde p_t^\star (1 \given S_t;\rho) ) f_t (S_t)^\prime \beta \right)I_{t,J}I_{t,J^\prime} \nonumber \\ &W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta,\rho) 
+    \begin{pmatrix}
+  g_t(H_t) \\ 
+  (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t;\rho) ) f_t (S_t)
+\end{pmatrix}\left(\frac{d \log \tilde p^\star_t(A_{t,J^\prime}|S_t;\rho)}{d \rho} \right)^\prime \Big] \nonumber \\
+&+\E \Big[ \sum_{t=1}^T \left( Y_{t+1,J} - g_t(H_t)^\prime \alpha -  (1-A_{t,J})(A_{t,J^\prime} - \tilde p_t^\star (1 \given S_t;\rho) ) f_t (S_t)^\prime \beta \right)I_{t,J}I_{t,J^\prime} \nonumber \\ &W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta,\rho) 
+    \begin{pmatrix}
+  \textbf{0} \\ 
+  -(1-A_{t,J})\tilde {p}^\star_t (1 \given S_t;\rho)  f_t (S_t)
+\end{pmatrix}\left(\frac{d \log \tilde p^\star_t(1|S_t;\rho)}{d \rho} \right)^\prime \Big] \nonumber \\
+&+\E \Big[ \sum_{t=1}^T (1-A_{t,J}) \tilde p_t^\star (1 \given S_t;\rho)  f_t (S_t)^\prime \beta I_{t,J}I_{t,J^\prime}W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta,\rho)  \nonumber \\ &\begin{pmatrix}
+  g_t(H_t) \\ 
+  (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t;\rho) ) f_t (S_t)
+\end{pmatrix}\left(\frac{d \log \tilde p^\star_t(1|S_t;\rho)}{d \rho} \right)^\prime \Big]
+\end{align*}
+
+In our simulation, an individual's randomization probabilities only depends on their observed history, then $\tilde p_t^\star (1 \mid S_{t,j^\prime}) = \tilde p_t (1 \mid S_{t,j^\prime})$. Since the data is from an MRT (we know $p_t$) and we pre-specify (not estimate) $\tilde p_t$, then $\Sigma_W = \E \left[ \left(U_W(\alpha,\beta)  \right)^ {\otimes 2} \right] $ greatly simplifying the variance-covaraince matrix.
+
+A consistent estimator of the variance-covariance matrix is given by:
+\begin{equation}
+    \left\{ \P_n \left[\dot U_W(\hat\eta, \hat\rho) \right]\right\}^{-1} \hat\Sigma_W(\hat\alpha,\hat\beta;\hat\eta, \hat\rho) \left\{ \P_n \left[\dot U_W(\hat\eta, \hat\rho) \right]\right\}^{-1}
+\end{equation}
+where
+\begin{align*}
+    \hat\Sigma_W(\alpha,\beta;\eta, \rho) = \P_n \Big[\Big(U_W(\alpha,\beta;\eta, \rho) + &\hat\Sigma_{W,D}(\alpha,\beta;\eta, \rho) \left\{\P_n[\dot U_D(\eta)] \right\}^{-1} U_D(\eta) + \nonumber \\ &\hat\Sigma_{W,N}(\alpha,\beta;\eta, \rho)\left\{\P_n[\dot U_N(\rho)] \right\}^{-1} U_N(\rho) \Big)^ {\otimes 2} \Big]
+\end{align*}
+with
+\begin{align*}
+    \hat\Sigma_{W,D}(\alpha,\beta &; \eta, \rho)
+    = \P_n \Big[ \sum_{t=1}^T \left( Y_{t+1,J} - g_t(H_t)^\prime \alpha -  (1-A_{t,J})(A_{t,J^\prime} - \tilde p_t^\star (1 \given S_t;\rho) ) f_t (S_t)^\prime \beta \right)I_{t,J}I_{t,J^\prime} \nonumber \\ &W_{t,J, J^\prime}(A_t,H_t; \eta,\rho) 
+    \begin{pmatrix}
+  g_t(H_t) \\ 
+  (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t;\rho) ) f_t (S_t)
+\end{pmatrix}\left(\frac{d \log p^\star_t(A_{t,J^\prime}|H_t;\eta)}{d \eta} \right)^\prime \Big],
+\end{align*}
+and
+\begin{align*}
+    \hat\Sigma_{W,N}&(\alpha,\beta;\eta, \rho)
+    = \P_n \Big[ \sum_{t=1}^T \left( Y_{t+1,J} - g_t(H_t)^\prime \alpha -  (1-A_{t,J})(A_{t,J^\prime} - \tilde p_t^\star (1 \given S_t;\rho) ) f_t (S_t)^\prime \beta \right)I_{t,J}I_{t,J^\prime} \nonumber \\ &W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta,\rho) 
+    \begin{pmatrix}
+  g_t(H_t) \\ 
+  (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t;\rho) ) f_t (S_t)
+\end{pmatrix}\left(\frac{d \log \tilde p^\star_t(A_{t,J^\prime}|S_t;\rho)}{d \rho} \right)^\prime \Big] \nonumber \\
+&+\P_n \Big[ \sum_{t=1}^T \left( Y_{t+1,J} - g_t(H_t)^\prime \alpha -  (1-A_{t,J})(A_{t,J^\prime} - \tilde p_t^\star (1 \given S_t;\rho) ) f_t (S_t)^\prime \beta \right)I_{t,J}I_{t,J^\prime} \nonumber \\ &W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta,\rho) 
+    \begin{pmatrix}
+  \textbf{0} \\ 
+  -(1-A_{t,J})\tilde {p}^\star_t (1 \given S_t;\rho)  f_t (S_t)
+\end{pmatrix}\left(\frac{d \log \tilde p^\star_t(1|S_t;\rho)}{d \rho} \right)^\prime \Big] \nonumber \\
+&+\P_n \Big[ \sum_{t=1}^T (1-A_{t,J}) \tilde p_t^\star (1 \given S_t;\rho)  f_t (S_t)^\prime \beta I_{t,J}I_{t,J^\prime}W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta,\rho)  \nonumber \\ &\begin{pmatrix}
+  g_t(H_t) \\ 
+  (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t;\rho) ) f_t (S_t)
+\end{pmatrix}\left(\frac{d \log \tilde p^\star_t(1|S_t;\rho)}{d \rho} \right)^\prime \Big]
+\end{align*}
+
+It remains to show that $\beta^\prime = \beta^{\star\star}$. Since $\E [U_W(\alpha^\prime,\beta^\prime;\eta^\star,\rho^\star)]=0$,
+\begin{align*}
+    0 &= \E \sum_{t=1}^T \left( Y_{t+1,J} - g_t(H_t)^T\alpha^\prime -  (1-A_{t,J}) (A_{t,J^\prime} - \tilde p_t^\star (1 \given S_t;\rho^\star) ) f_t (S_t)^T \beta^\prime \right) I_{t,J}I_{t,J^\prime} \nonumber \\ 
+    &  ~~~~~~~~~~~~~~~~~~~~  W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta^\star,\rho^\star)(1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t;\rho^\star) ) f_t (S_t) \nonumber \\
+    &=  \E \sum_{t=1}^T \left(\E \left[Y_{t+1} \given{A_{t,J},A_{t,J^\prime}, H_t ,I_{t,J}I_{t,J^\prime}=1} \right]- g_t(H_t)^T\alpha^\prime-(1-A_{t,J}) (A_{t,J^\prime} - \tilde p_t^\star (1 \given S_t;\rho^\star) ) f_t (S_t)^T \beta^\prime \right) \nonumber \\
+    &  ~~~~~~~~~~~~~~~~~~~~  I_{t,J}I_{t,J^\prime}W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta^\star,\rho^\star)(1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t;\rho^\star) ) f_t (S_t) \nonumber \\
+    &= \E \sum_{t=1}^T \sum_{a^\prime \in \{0,1\}} \Big(\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=a^\prime, H_t ,I_{t,J}I_{t,J^\prime}=1} \right]- g_t(H_t)^T\alpha^\prime- \nonumber \\
+    &  ~~~~~~~~~~~~~~~~~~~~  (a^\prime - \tilde p_t^\star (1 \given S_t;\rho^\star) ) f_t (S_t)^T \beta^\prime \Big) I_{t,J}I_{t,J^\prime}\tilde p_t (0,a^\prime \given S_t;\rho^\star)(a^\prime - \tilde {p}^\star_t (1 \given S_t;\rho^\star) ) f_t (S_t)
+\end{align*}
+
+where the last equality averages out over $A_{t,J^\prime}$. The above simplifies to:
+
+\begin{align*}
+    0 &= \E \sum_{t=1}^T \sum_{a^\prime \in \{0,1\}} \Big(\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=a^\prime, H_t ,I_{t,J}I_{t,J^\prime}=1} \right]- g_t(H_t)^T\alpha^\prime- \nonumber \\
+    &  ~~~~~~~~~~~~~~~~~~~~  (a^\prime - \tilde p_t^\star (1 \given S_t;\rho^\star) ) f_t (S_t)^T \beta^\prime \Big) I_{t,J}I_{t,J^\prime}\tilde p_t (0,a^\prime \given S_t;\rho^\star)(a^\prime - \tilde {p}^\star_t (1 \given S_t;\rho^\star) ) f_t (S_t) \nonumber \\
+    &= \E \sum_{t=1}^T  \Big(\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=1, H_t ,I_{t,J}I_{t,J^\prime}=1} \right]- g_t(H_t)^T\alpha^\prime- \nonumber \\
+    &  ~~~~~~~~~~~~~~~~~~~~  (1 - \tilde p_t^\star (1 \given S_t;\rho^\star) ) f_t (S_t)^T \beta^\prime \Big) I_{t,J}I_{t,J^\prime}\tilde p_t (0,1 \given S_t;\rho^\star)(1 - \tilde {p}^\star_t (1 \given S_t;\rho^\star) ) f_t (S_t) \nonumber \\
+    & ~~~~ +\E \sum_{t=1}^T \Big(\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=0, H_t ,I_{t,J}I_{t,J^\prime}=1} \right]- g_t(H_t)^T\alpha^\prime- \nonumber \\
+    &  ~~~~~~~~~~~~~~~~~~~~  ( - \tilde p_t^\star (1 \given S_t;\rho^\star) ) f_t (S_t)^T \beta^\prime \Big) I_{t,J}I_{t,J^\prime}\tilde p_t (0,0 \given S_t;\rho^\star)( - \tilde {p}^\star_t (1 \given S_t;\rho^\star) ) f_t (S_t) \nonumber \\
+    &= \E \sum_{t=1}^T \Big(\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=1, H_t ,I_{t,J}I_{t,J^\prime}=1} \right] - \E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=0, H_t ,I_{t,J}I_{t,J^\prime}=1} \right]\nonumber \\ 
+    &  ~~~~~~~~~~~~~~~~~~~~  -f_t (S_t)^T \beta^\prime \Big)  f_t (S_t) \gamma(\eta^\star,\rho^\star) I_{t,J}I_{t,J^\prime} 
+\end{align*}
+
+where $\gamma(\eta^\star,\rho^\star) = \tilde{p}_t (0,1 \mid S_t)(1- \tilde {p}^\star_t (1 \given S_t;\rho^\star)) = \tilde{p}_t (0,0 \mid S_t) \tilde {p}^\star_t (1 \given S_t;\rho^\star) $. From this we obtain:
+\begin{align*}
+   0 = \E \sum_{t=1}^T  f_t (S_t) &\gamma(\eta^\star,\rho^\star) I_{t,J}I_{t,J^\prime}   \Big(\E \Big[\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=1, H_t ,I_{t,J}I_{t,J^\prime}=1} \right] - \nonumber \\ 
+   &\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=0, H_t ,I_{t,J}I_{t,J^\prime}=1} \right] \mid S_t,I_{t,J}I_{t,J^\prime}=1\Big]  -f_t (S_t)^T \beta^\prime \Big) 
+\end{align*}
+
+Thus 
+\begin{align}
+\label{eq:estimand_beta}
+    \beta^\prime =\left[\E \dot U_W(\eta^\star,\rho^\star) \right]_{(2,2)}^{-1} \E \Bigg[\sum_{t=1}^T  f_t (S_t) &\gamma(\eta^\star,\rho^\star) I_{t,J}I_{t,J^\prime}  \E \Big[\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=1, H_t ,I_{t,J}I_{t,J^\prime}=1} \right] - \nonumber \\ 
+   &\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=0, H_t ,I_{t,J}I_{t,J^\prime}=1} \right] \mid S_t,I_{t,J}I_{t,J^\prime}=1\Big]  \Bigg]
+\end{align}
+
+where
+\[
+\left[\E \dot U_W(\eta^\star,\rho^\star) \right]_{(2,2)} =\E \sum_{t=1}^T  f_t (S_t)f_t (S_t)^T \gamma(\eta^\star,\rho^\star) I_{t,J}I_{t,J^\prime}
+\]
 \end{proof}
 %Recall Assumption 4.3, we can see from equation \eqref{eq:estimand_beta}, when the model is incorrectly specified, then the choice of $\tilde p_t(1\mid S_t;\rho^\star)$ determines the estimand. In our simulation setting, we chose $\tilde p_t(1\mid S_t;\rho^\star)$ to be a constant, then the limit in probability $\hat\beta$ is given by
 %\begin{align}
