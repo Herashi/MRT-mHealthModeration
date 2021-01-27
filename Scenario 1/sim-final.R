@@ -3,7 +3,6 @@ library("zoo")
 library(foreach)
 source("xzoo.R")
 ## load functions needed for variance estimation
-# source("xgeepack.R")
 source("new-meat.R")
 library(Matrix)
 library(MASS)
@@ -16,15 +15,20 @@ expit = function(a){
   return(exp(a) / (1 + exp(a)))
 }
 
+
+# create a list containing all the group information
 group_str = function(group){
+  # cluster size (assuming all clusters have the same size)
   group[["group size"]] = unname(table(group[["group_id"]]))
+  # the number of clusters
   group[["#groups"]] = length(unique(group[["group_id"]]))
+  # group indicator
   X = diag(rep(1,group[["#groups"]]))
   X = X[rep(seq_len(nrow(X)),group[["group size"]]),]
   colnames(X) = paste(rep("Group", group[["#groups"]]),seq(1,group[["#groups"]],1), sep = "_")
   group[["indicator matrix"]] = X
   
-  
+  # baseline error term (cluster-level intercept term that does not interact with treatment.)
   err = c()
   for (i in 1:group[["#groups"]]){
     e = rnorm(1,mean = 0,sd = sqrt(group[["baseline sigma2"]][i]))
@@ -33,6 +37,7 @@ group_str = function(group){
   group[["err"]] = err
   group[["group err"]] = rep(group[["err"]],group[["group size"]])
   
+  # random cluster-level intercept term that interacts with treatment 
   slope = c()
   for (i in 1:group[["#groups"]]){
     e = rnorm(1,mean = 0,sd = sqrt(group[["slope sigma2"]][i]))
@@ -41,6 +46,9 @@ group_str = function(group){
   group[["slope"]] = slope
   group[["random slope"]] = rep(group[["slope"]],group[["group size"]])
   
+  
+  # random cluster-level intercept might vary throughout time
+  # set this to 0 in all settings (not inluded in the simulation)
   bg2 = c()
   for (i in 1:group[["#groups"]]){
     e = rnorm(1,mean = 0,sd = sqrt(group[["bg2 sigma2"]][i]))
@@ -292,10 +300,6 @@ sim_wc <- function(n = 100, tmax = 30, M = 1000,
   ##     moderator has conditional mean zero
   y.coef <- mapply(which.terms, x = y.formula, label = y.label,
                    stripnames = TRUE, SIMPLIFY = FALSE)
-  # truth <- control[[paste0("beta", lag)]]
-  # truth <- truth[Reduce("intersect", lapply(y.coef, names))]
-  # y.coef <- lapply(y.coef, function(x) x[names(truth)])
-  
   
   ## corresponding treatment probability models
   ## nb: we avoid delayed evaluation in 'y.args' (e.g. passing a 'weights'
@@ -420,7 +424,6 @@ sim_wc <- function(n = 100, tmax = 30, M = 1000,
   out = NULL
   
   out <- foreach(m = 1:M, .combine = "rbind") %dopar% {
-  #for (m in 1:M){
     d <- rsnmm.R(n, tmax,group_ls, control = control)
     d$pn <- d$pd <- d$prob
   
@@ -439,9 +442,7 @@ sim_wc <- function(n = 100, tmax = 30, M = 1000,
                          fity, row.names = NULL)
     
     fity
-    
-    # out <- do.call("rbind" ,fity)
-    # out = rbind(out,fity)
+
     
   }
   

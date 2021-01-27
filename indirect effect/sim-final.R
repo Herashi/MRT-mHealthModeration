@@ -17,15 +17,19 @@ expit = function(a){
   return(exp(a) / (1 + exp(a)))
 }
 
+# create a list containing all the group information
 group_str = function(group){
+  # cluster size (assuming all clusters have the same size)
   group[["group size"]] = unname(table(group[["group_id"]]))
+  # the number of clusters
   group[["#groups"]] = length(unique(group[["group_id"]]))
+  # group indicator
   X = diag(rep(1,group[["#groups"]]))
   X = X[rep(seq_len(nrow(X)),group[["group size"]]),]
   colnames(X) = paste(rep("Group", group[["#groups"]]),seq(1,group[["#groups"]],1), sep = "_")
   group[["indicator matrix"]] = X
   
-  
+  # baseline error term (cluster-level intercept term that does not interact with treatment.)
   err = c()
   for (i in 1:group[["#groups"]]){
     e = rnorm(1,mean = 0,sd = sqrt(group[["baseline sigma2"]][i]))
@@ -34,6 +38,7 @@ group_str = function(group){
   group[["err"]] = err
   group[["group err"]] = rep(group[["err"]],group[["group size"]])
   
+  # random cluster-level intercept term that interacts with treatment 
   slope = c()
   for (i in 1:group[["#groups"]]){
     e = rnorm(1,mean = 0,sd = sqrt(group[["slope sigma2"]][i]))
@@ -42,6 +47,9 @@ group_str = function(group){
   group[["slope"]] = slope
   group[["random slope"]] = rep(group[["slope"]],group[["group size"]])
   
+  
+  # random cluster-level intercept might vary throughout time
+  # set this to 0 in all settings (not inluded in the simulation)
   bg2 = c()
   for (i in 1:group[["#groups"]]){
     e = rnorm(1,mean = 0,sd = sqrt(group[["bg2 sigma2"]][i]))
@@ -52,6 +60,7 @@ group_str = function(group){
   
   return(group)
 } 
+
 
 
 
@@ -286,6 +295,8 @@ rsnmm.R <- function(n, tmax, group_ls, control, ...) {
   return(d)
 }
 
+
+# calculate the indirect effect as defined. 
 indirect <- function(d, group_ls){
   group = group_str(group_ls)
   n = group_ls[["n"]]
@@ -310,14 +321,14 @@ indirect <- function(d, group_ls){
   }
   d =d[rep(seq_len(nrow(d)),each = unique(group[["group size"]]-1)), ]
   d$ajc = ajc
-  d$indirect = ajc*(1-d$a)
-  d$indir = ajc*d$a
   d$prob_j = prob_j
+  
+  # Define two variables for the regression model. 
+  d$indirect_untreated = ajc*(1-d$a)
+  d$indirect_treated = ajc*d$a
   
   # fita response
   d$aj = ifelse(ajc>0,1,0)
-  
-  
   d
 
 }
@@ -327,12 +338,12 @@ indirect <- function(d, group_ls){
 
 sim_wc <- function(n = 100, tmax = 30, 
                    ## response regression models
-                   y.formula = list(w = y ~ state + indirect  +indir),
+                   y.formula = list(w = y ~ state + indirect_untreated  +indirect_treated),
                    contrast_vec = c(0,0,1,0),
                    ## names for each regression model
                    y.names = c(w = "Weighted and centered"),
                    ## labels for regression terms of the treatment effect
-                   y.label = list(w = "indirect"),
+                   y.label = list(w = "indirect_untreated"),
                    ## names of the treatment probability models or variables used
                    ## for the weight numerator ('wn') or denominator ('wd') and
                    ## arguments for the estimation routine
@@ -362,10 +373,6 @@ sim_wc <- function(n = 100, tmax = 30,
   ##     moderator has conditional mean zero
   y.coef <- mapply(which.terms, x = y.formula, label = y.label,
                    stripnames = TRUE, SIMPLIFY = FALSE)
-  # truth <- control[[paste0("beta", lag)]]
-  # truth <- truth[Reduce("intersect", lapply(y.coef, names))]
-  # y.coef <- lapply(y.coef, function(x) x[names(truth)])
-  
   
   ## corresponding treatment probability models
   ## nb: we avoid delayed evaluation in 'y.args' (e.g. passing a 'weights'
@@ -402,6 +409,8 @@ sim_wc <- function(n = 100, tmax = 30,
     if (response == "a") {
       runin <- runin.fita
       r <- which(d$time >= runin)
+      # treatment pair {(0,0),(0,1),(1,0),(1,1)} forms 4 classes
+      # used for multinomial regression
       d$cl = ifelse(d$a==0,ifelse(d$aj==0,1,2),ifelse(d$aj==0,3,4))
       d$cl = as.factor(d$cl)
       l <- list(x = model.matrix(formula[["pn"]], data = d[r, ]), y = d[r, "cl"])
@@ -426,23 +435,15 @@ sim_wc <- function(n = 100, tmax = 30,
     } 
     l$w <- l$w[r]
     
-    # if (!is.null(args$corstr)) {
-    #   fun <- "geese.glm"
-    #   l$id <- d$id[r]
-    # }else if (!is.null(args$family)){
-    #   fun <- "multinom"
-    # } else{
-    #   fun <- "lm.wfit"
-    # } 
-    
-    if(response=="y"){
-      fun <- "lm.wfit"
-      fit <- do.call(fun, l)
+    # fit the model
+    if(response=="a"){
+      fun <- "multinom"
+      # fit = multinom(cl~1, data = d)
     }else{
-      fit = multinom(cl~1, data = d)
+      fun <- "lm.wfit"
     }
+    fit <- do.call(fun, l)
     
-    # fit <- do.call(fun, c(l, args))
 
     
     if (!inherits(fit, "geeglm")){
@@ -474,6 +475,7 @@ sim_wc <- function(n = 100, tmax = 30,
         wi = NULL
         wj = NULL
         l$w = NULL
+        # calculate the weight W_{t,J,J'}
         wi <- ifelse(d[r, "a"] == 1,  1/d[r, args[["w"]][["wd"]]],
                       1 / (1 - d[r, args[["w"]][["wd"]]]))
         
@@ -506,7 +508,6 @@ sim_wc <- function(n = 100, tmax = 30,
   }
   fita <- list()
   
-  #get rid of the foreach. Instead process each item in it's own job. This is a job array (part2). A subsequent job (part3)  will build the rbind matrix from the individual vectors
   
   d <- rsnmm.R(n, tmax,group_ls, control = control)
   
