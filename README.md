@@ -4,7 +4,7 @@ The directories above correspond to the simulation and case study in the paper *
 
 File | Description
 ---- | ----
-[Scenario 1](https://github.com/Herashi/MRT/tree/master/Scenario%201) | The first  scenario  concerns  the  estimation when  an  importantindividual-level moderator exists and proximal outcomes share a random cluster-level intercept350term that does not interact with treatment.
+[Scenario 1](https://github.com/Herashi/MRT/tree/master/Scenario%201) | The first  scenario  concerns  the  estimation when  an  importantindividual-level moderator exists and proximal outcomes share a random cluster-level intercept term that does not interact with treatment.
 [Scenario 2](https://github.com/Herashi/MRT/tree/master/Scenario%202) | The second scenario extends the above generative model to includea random cluster-level intercept term that interacts with treatment.
 [Scenario 3](https://github.com/Herashi/MRT/tree/master/Scenario%203) | The third scenario assumes the treatment effect for an individualdepends on the average state of all individuals in the cluster.
 [Scenario 4](https://github.com/Herashi/MRT/tree/master/Scenario%204) | The fourth scenario considers the indirect effect.
