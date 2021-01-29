@@ -11,7 +11,7 @@ File | Description
 [xgeepack.R](xgeepack.R) | Extensions for the geepack R package; extract, from a geepack model object, elements (e.g. working covariance, estimating function) needed for variance calculations
 [new-meat.R](new-meat.R) | Extensions for the geepack R package; extract, from a geepack model object, elements (e.g. working covariance, estimating function) needed for variance calculations
 [xzoo.R](xzoo.R) | Extensions for the zoo R package; apply lags, difference, rolling summaries to a sample of time series
-[test.RData](test.RData) Simulation results for 100 clusters with 25 participants every cluster. 
+[test.RData](test.RData) | Simulation results for 100 clusters with 25 participants every cluster. 
 
 
 
