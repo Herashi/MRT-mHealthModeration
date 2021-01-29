@@ -6,13 +6,11 @@ The directories above correspond to the simulation in the paper *Assessing Time-
 
 File | Description
 ---- | ----
-[test.R](test.R) | test file
-[group.R](group.R) | Group structures
-[init.R](init.R) | Loads required packages and reads source files
-[sim-final.R](sim-final.R) | Simulation related functions
-[xgeepack.R](xgeepack.R) | Extensions for the geepack R package; extract, from a geepack model object, elements (e.g. working covariance, estimating function) needed for variance calculations
-[new-meat.R](new-meat.R) | Extensions for the geepack R package; extract, from a geepack model object, elements (e.g. working covariance, estimating function) needed for variance calculations
-[xzoo.R](xzoo.R) | Extensions for the zoo R package; apply lags, difference, rolling summaries to a sample of time series
+[Scenario 1](Scenario 1) | The first  scenario  concerns  the  estimation when  an  importantindividual-level moderator exists and proximal outcomes share a random cluster-level intercept350term that does not interact with treatment.
+[Scenario 2](Scenario 2) | The second scenario extends the above generative model to includea random cluster-level intercept term that interacts with treatment.
+[Scenario 3](Scenario 3) | In the third scenario, we assume the treatment effect for an individualdepends on the average state of all individuals in the cluster.
+[Scenario 4](Scenario 4) | The fourth scenario considers the indirect effect.
+
 
 
 
