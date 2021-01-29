@@ -1,4 +1,4 @@
-### Scenario I
+## Scenario I
 
 The R files above correspond to the simulation **Scenario I** in the paper *Assessing Time-Varying Causal Effects in the Presenceof Cluster-Level Treatment Effect Heterogeneity*. A brief description of the R files needed is listed below.
 

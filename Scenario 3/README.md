@@ -1,4 +1,4 @@
-### Scenario III
+## Scenario III
 
 The R files above correspond to the simulation **Scenario III** in the paper *Assessing Time-Varying Causal Effects in the Presenceof Cluster-Level Treatment Effect Heterogeneity*. A brief description of the R files needed is listed below.
 
