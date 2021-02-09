@@ -1,13 +1,14 @@
 \documentclass[12pt]{article}
 \usepackage{graphicx}
 \usepackage{setspace}
- \DeclareGraphicsExtensions{.eps, .ps}
+%\DeclareGraphicsExtensions{.eps, .ps}
 \usepackage{soul,color}
 \usepackage{amsmath,amsthm,amsfonts}
 \usepackage{newfloat}
 \usepackage{multirow}
 \usepackage{arydshln,hyperref}
 \usepackage[authoryear]{natbib}
+\bibliographystyle{plainnat}
 
 \usepackage[margin = 1in]{geometry}
 \usepackage{setspace}
@@ -65,7 +66,7 @@ In many areas of behavioral science, push notifications in mobile apps that are 
 
 Existing inferential methods for data collected in an MRT rely on two key assumptions. First, an intervention delivered to an individual is assumed to only impact the outcome of that individual, i.e., non-interference. Second, the method assumes no stochastic dependence among outcomes of different subjects. Deviations from these assumptions, however, may occur when individuals naturally form clusters.  Consider, for example, an MRT in which medical interns are recruited from several hospitals and every day potentially receive push notifications designed to improve physical activity, mood, or sleep. First, \textit{interference} may occur when an intern receiving a push notification to increase their steps may then encourage another intern in the same specialty and institution to do the same hence altering the others' outcomes. Second, even if there is no direct interference, interns in the same specialty and institution are likely to have correlated outcomes, induced by variation in unobserved factors shared within each cluster. For example, interns within a specialty and institution may share similar experiences during their residency which will lead to a higher correlation in their weekly mood scores than interns in different specializations or institutions.
 
-The primary contribution of this paper is the significant extension of data analytic methods for MRTs to account for potential cluster-level correlation and the extension of the causal excursion effect to account for potential interference, i.e., we define both a direct and indirect causal excursion effect.  In Section~\ref{section:preliminaries}, we review the MRT design and the existing method's implicit assumptions.  In Section~\ref{section:cond_effects}, we introduce the moderated causal excursion effect using a group-based conceptualization of potential outcomes \citep{Hong2006,Vanderweele2013}.  We then generalize WCLS criterion to a cluster-based WCLS (C-WCLS) criterion to estimate both direct and indirect causal excursion effects in Section~\ref{section:estimation}.  Finally, we demonstrate that when proximal outcomes exhibit within-cluster correlation but there is an absence of between-cluster treatment effect heterogeneity, our proposal agrees with the traditional approach both in terms of the point estimate and the asymptotic variance.  In Section~\ref{section:casestudy}, we illustrate the proposed method by estimating the causal excursion effects of push notifications on mood, sleep, and step count for a cohort of first year medical residents in the United States. The paper concludes with a brief discussion.
+The primary contribution of this paper is the significant extension of data analytic methods for MRTs to account for potential cluster-level correlation and the extension of the causal excursion effect to account for potential interference, i.e., we define both a direct and indirect causal excursion effect.  In Section~\ref{section:preliminaries}, we review the MRT design and the existing method's implicit assumptions.  In Section~\ref{section:cond_effects}, we introduce the moderated causal excursion effect using a cluster-based conceptualization of potential outcomes \citep{Hong2006,Vanderweele2013}.  We then generalize WCLS criterion to a cluster-based WCLS (C-WCLS) criterion to estimate both direct and indirect causal excursion effects in Section~\ref{section:estimation}.  Finally, we demonstrate that when proximal outcomes exhibit within-cluster correlation but there is an absence of between-cluster treatment effect heterogeneity, our proposal agrees with the traditional approach both in terms of the point estimate and the asymptotic variance.  In Section~\ref{section:casestudy}, we illustrate the proposed method by estimating the causal excursion effects of push notifications on mood, sleep, and step count for a cohort of first year medical residents in the United States. The paper concludes with a brief discussion.
 
 \section{Preliminaries}
 \label{section:preliminaries}
@@ -221,7 +222,7 @@ Causal effects \eqref{eq:directavglineareffect} and~\eqref{eq:inddirectavglinear
   \end{itemize}
 \end{assumption}
 
-Sequential ignorability and, assuming all of the randomization probabilities are bounded away from $0$ and $1$, positivity, are guaranteed for a cluster MRT by design. In a standard MRT, the randomization probabilities may depend on the individual's observed history so $\Pr(A_t = a_t \mid H_t = h_t) = \prod_{j=1}^G \Pr(A_{t,j} = a_{t,j} \mid H_{t,j} = h_{t,j})$ and the positivity constraint can be placed on the individual-level randomization probabilities.  Here, we allow for the possibility that the randomization probabilities depend on the joint cluster-level history. Consistency is a necessary assumption for linking the potential outcomes as defined here to the data. Since an individual's outcomes may be influenced by the treatments provided to other individuals in the same cluster, consistency holds due to our use of a group-based conceptualization of potential outcomes as seen in~\cite{Hong2006} and \cite{Vanderweele2013}.
+Sequential ignorability and, assuming all of the randomization probabilities are bounded away from $0$ and $1$, positivity, are guaranteed for a cluster MRT by design. In a standard MRT, the randomization probabilities may depend on the individual's observed history so $\Pr(A_t = a_t \mid H_t = h_t) = \prod_{j=1}^G \Pr(A_{t,j} = a_{t,j} \mid H_{t,j} = h_{t,j})$ and the positivity constraint can be placed on the individual-level randomization probabilities.  Here, we allow for the possibility that the randomization probabilities depend on the joint cluster-level history. Consistency is a necessary assumption for linking the potential outcomes as defined here to the data. Since an individual's outcomes may be influenced by the treatments provided to other individuals in the same cluster, consistency holds due to our use of a cluster-based conceptualization of potential outcomes as seen in~\cite{Hong2006} and \cite{Vanderweele2013}.
 
 \begin{lemma}
   \label{lemma:cond_effect}
@@ -277,6 +278,41 @@ where $\epsilon_{t,j} = Y_{t+1} - g_t(H_t)^\prime \alpha^\star - (A_t - \tilde p
 
 \noindent In practice, plug-in estimates $\hat Q$ and $\hat W$ are used to estimate the covariance structure. Appendix~\ref{app:ssa} presents small sample size adjustments that we use in simulation and analysis in this paper.  It is clear that from Lemma~\ref{lemma:asymnorm} that use of standard MRT data analytic methods, i.e., equation~\eqref{eq:mrtstandard}, will produce biased estimates for the marginal effect of interest.
 
+\begin{remark}[$L_2$ Projection interpretation]
+\label{rmk:l2proj}
+\normalfont
+Importantly, Assumption~\ref{ass:directeffect} is not required.  That is, we can follow~\cite{Neugebauer2007,Rosenblum2010,Kennedy2019,DempseyAOAS} and others in using $f_t (S_t)^\top \beta$ as a working model.  Specifically, instead of making the strong modeling assumption as in~\cite{Boruvkaetal}, the estimate~$\hat \beta$ can be considered a consistent estimator of a parameter $\beta^\star$ which is a solution to the following weighted least squares projection
+$$
+\beta^\star = \arg \min_{\beta} \mathbb{E} \left[ \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T \tilde p_t(1 \mid S_t) \left( 1 - \tilde p_t(1 \mid S_t) \right) \left( \beta(t; S_t) - f_t (S_t)^\top \beta \right)^2 \right].
+$$
+Here, the weight is the variance of the numerator in the weight~$W_{t,j}$.  To interpret as a projection or to make the stronger Assumption~\ref{ass:directeffect} can be viewed as a bias-variance trade-off.  The projection interpretation guarantees well-defined parameter interpretation in practice where Assumption~\ref{ass:directeffect} is unlikely to hold.  See~\cite[Sec. 3.1, pp.9--10]{Kennedy2019} for a great discussion of the use of projectionsin causal versus predictive settings.
+\end{remark}
+
+\subsubsection{Connection to a semiparametric efficient estimators}
+
+A special case of both effects is when $S_t$ is set to the observed history~$H_t$.  In this case, estimators for this fully conditional case can be derived based on semiparametric efficiency theory~\citep{Newey1990,Tsiatis2007}.
+\begin{lemma}
+Under the semiparametric model~\eqref{ass:directeffect} and Assumptions~\ref{consistency}, the semiparametric efficient score for $\beta$ is
+\begin{equation}
+\label{eq:effscore}
+S_{\text{eff}} (\beta) = \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T (Y_{t+1} - \mu (H_t) - (A_t - p_t (1 \mid H_t)) f_t ( H_t)^\top \beta ) K_t (A_t - p_t(1 \mid H_t)) f(H_t)
+\end{equation}
+where
+\begin{align*}
+\mu_t (H_t) = \mathbb{E} &\left[ Y_{t+1} \mid H_t, A_t = 0 \right], \quad \text{and} \quad \sigma^2_{t+1} (H_t, A_t) = \text{Var} \left( Y_{t+1} \mid H_t, A_t \right) \\
+K_t = &\bigg[ \frac{1}{\sigma^2_{t+1,j} (H_{t,j}, 1)} + p_t ( 1 \mid H_{t,j}) \left[  \frac{p_t (1 \mid H_{t,j} )}{\sigma^2_{t+1,j} (H_{t,j}, 1)} + \frac{1-p_t (1 \mid H_t )}{\sigma^2_{t+1,j} (H_{t,j}, 0)} \right] \times \\
+&\left( \frac{1}{\sigma^2_{t+1,j} (H_{t,j}, 1)}  - \frac{1}{\sigma^2_{t+1,j} (H_{t,j}, 0)} \right)
+ \bigg]
+\end{align*}
+\end{lemma}
+
+Semiparametric efficiency theory states that the solution $\hat \beta$ to $\mathbb{P}_n S_{\text{eff}} (\psi) = 0$ achieves the semiparametric efficiency bound~\citep{Newey1990}.  Corollary~\eqref{cor:semiparametricconnection} motivates the C-WCLS criterion for the direct effect given by~\eqref{eq:directwcls} from the semiparametric efficiency perspective under particular working homoskedastic assumptions on the conditional variance~$\sigma^2_{t+1} (H_t, A_t)$ and a working model~$g_t (H_t)^\prime \alpha$ for the unknown quantity~$\mu(H_t)$.
+
+\begin{cor}
+\label{cor:semiparametricconnection}
+Under the assumption $\text{Var}(Y_{t+1} \mid H_t, A_t) := \sigma^2_{t+1}(H_t)$,i.e., is constant in the second argument~$A_t$, then the weight~$K_t$ simplifies and is equal to $(\sigma^2_{t+1}(H_t))^{-1}$ and the semiparametric efficient score~\eqref{eq:effscore} weights each decision time by the corresponding conditional variance.  Under the further assumption that this variance does not depend on the history, i.e., $\sigma^2_{t+1} (H_t) = \sigma^2$, and a working model for the conditional mean $\mu (H_t) := g (H_t)^\top \alpha$, the cluster-based, weighted-centered least squares criterion~\eqref{eq:directwcls} is equivalent to the semiparametric efficient estimate for the fully conditional effect.
+\end{cor}
+
 \subsection{Indirect Effect Estimation}
 \label{section:indirect}
 
@@ -312,7 +348,8 @@ W =  &\mathbb{E} \bigg[ \sum_{t=1}^T W_{t,J,J^\prime} \epsilon_{t,J,J^\prime} (1
 where $\epsilon_{t,j,j^\prime} = Y_{t+1,j} - g_t(H_t)^\prime \alpha^{\star \star} - (1-A_{t,j}) (A_{t,j^\prime} - \tilde p_t^\star (1 \mid S_t) ) f_t (S_t)^\top \beta^{\star \star}$, $\alpha^{\star \star}$ minimizes the least-squares criterion $\mathbb{E}  \left[ \frac{1}{G_m (G_m-1)} \sum_{j \neq j^\prime} \sum_{t=1}^T W_{t,j,j^\prime} \left( Y_{t+1,j} - g_t(H_t)^\prime \alpha \right)^2 \right]$, and both $(J,J^\prime)$ and $(\tilde J, \tilde J^\prime)$ are independently, randomly sampled pairs from the cluster (without replacement).
 \end{lemma}
 
-In Appendix~\ref{app:addindirect}, the above variances are re-derived in the general setting where the numerators $\tilde p_t (a \mid S_t)$ and $\tilde p_t (a, a^\prime \mid S_t)$ are estimated using the observed MRT data.
+In Appendix~\ref{app:addindirect}, the above variances are re-derived in the general setting where the numerators $\tilde p_t (a \mid S_t)$ and $\tilde p_t (a, a^\prime \mid S_t)$ are estimated using the observed MRT data.  Note, a similar $L_2$ projection interpretation can be given to the indirect effect estimate~$\hat \beta^{(IE)}$ as was given to the direct effect in Remark~\ref{rmk:l2proj}.
+
 
 \subsection{Connection to the Standard MRT Analysis}
 \label{section:samesies}
@@ -373,14 +410,14 @@ In the following, we consider four simulation scenarios that extend the generati
 \begin{equation*}
 Y_{t+1,j} = (-0.2 + 0.2 \cdot S_{t,j}) \times (A_{t,j} -p_t(1|H_{t,j})) + 0.8 S_{t,j} + e_g +e_{t+1,j}.
 \end{equation*}
-Table~\ref{tab:simresults} presents the results, which shows both WCLS and the proposed C-WCLS approach achieve unbiasedness and proper coverage. This is in line with our theoretical results in    Section~\ref{section:samesies} stating asymptotic equivalence of the two procedures under no cluster-level treatment heterogeneity.
+Table~\ref{tab:simresults} presents the results, which shows both WCLS and the proposed C-WCLS approach achieve nearly unbiasedness and proper coverage. This is in line with our theoretical results in    Section~\ref{section:samesies} stating asymptotic equivalence of the two procedures under no cluster-level treatment heterogeneity.
 % This demonstrates that the performance of the WCLS approach is not impacted by group-level correlation that does not interact with treatment.
 
 \noindent {\bf Simulation Scenario II}. In the second scenario, we extend the above generative model to include a random cluster-level intercept term that interacts with treatment by considering the linear model
 \begin{equation}
 Y_{t+1,j} = (-0.2 + b_g +  0.2 \cdot S_{t,j}) \times (A_{t,j} -p_t(1|H_{t,j})) + 0.8 \cdot S_{t,j} + e_g + e_{t+1,j}
 \end{equation}
-where $b_g \sim \mathcal{N}(0,0.1)$ is a random-intercept term within the treatment effect per cluster. Table~\ref{tab:simresults} presents the results.  This demonstrates that if cluster-level random effects interact with treatment  (i.e. $b_g \not \equiv 0$), then both methods produce unbiased estimates of $\beta_1$ but only the proposed method achieves the nominal 95\% coverage probability. To further demonstrate this, Figure~\ref{fig:undercoverage} presents nominal coverage as a function of the ratio of the variance of the random effect $b_g$ over the variance of the random effect $e_g$ and group size respectively.  This shows that the coverage probability of the WCLS method decays rapidly while the proposed method achieves the nominal 95\% coverage probability for all choices of the variance of $b_g$ and when the group size increases.  Note that even when group size is $5$ (i.e., small groups), the nominal coverage drops to 80\%.
+where $b_g \sim \mathcal{N}(0,0.1)$ is a random-intercept term within the treatment effect per cluster. Table~\ref{tab:simresults} presents the results.  This demonstrates that if cluster-level random effects interact with treatment  (i.e. $b_g \not \equiv 0$), then both methods produce nearly unbiased estimates of $\beta_1$ but only the proposed method achieves the nominal 95\% coverage probability. To further demonstrate this, Figure~\ref{fig:undercoverage} presents nominal coverage as a function of the ratio of the variance of the random effect $b_g$ over the variance of the random effect $e_g$ and group size respectively.  This shows that the coverage probability of the WCLS method decays rapidly while the proposed method achieves the nominal 95\% coverage probability for all choices of the variance of $b_g$ and when the group size increases.  Note that even when group size is $5$ (i.e., small groups), the nominal coverage drops to 80\%.
 % The estimation function is given by:
 % \begin{equation}
 %     \frac{1}{M} \sum_{m=1}^{M}  \frac{1}{G_m}\sum_{j=1}^{G_m} \sum_{t=1}^T (Y_{t+1,j} - (a_{10}+a_{11}S_{t,j}) - (A_{t,j} - \hat{p})\beta_1)W_t \left( \begin{array}{cc}
@@ -445,7 +482,7 @@ Scenario & Estimator & \# of Clusters & Cluster Size & Estimate & SE & RMSE & CP
 & C-WCLS & \multirow{2}{*}{100} & \multirow{2}{*}{25} & -0.201 & 0.034 & 0.033 & 0.956 \\
 & WCLS & & &  -0.198 & 0.013 & 0.034 & 0.555 \\ \hline
 \end{tabular}
-\caption{Group weighted-centered least squares (C-WCLS) and weighted-least squares estimator (WCLS)  comparison over Scenario I, II, and III.}
+\caption{Simulation: cluster-based weighted-centered least squares (C-WCLS) and weighted-least squares estimator (WCLS) comparison for Scenario I, II, and III.}
 \label{tab:simresults}
 \end{table}
 
@@ -469,7 +506,7 @@ Scenario & \# of Clusters & Cluster Size & Estimate & SD & RMSE & CP \\ \hline
 & 100 & 10 & -0.097 & 0.015 & 0.015 & 0.943 \\
 & 100 & 25 &  -0.100 & 0.009 & 0.009 & 0.944 \\ \hline
 \end{tabular}
-\caption{Group weighted-centered least squares (C-WCLS) for estimation of indirect effects.}
+\caption{Simulation: C-WCLS for estimation of indirect effects.}
 \label{tab:simresults_indirect}
 
 \end{table}
@@ -538,7 +575,11 @@ Outcome & Variables & Estimate & Std. Error & t-value & p-value \\ \hline
 
 Here we consider the causal excursion effect in the presence of a priori known clusters.  We have extended the causal excursion effect to naturally account for cluster information. In particular, both direct and indirect excursion effects have been formalized in the context of MRT to account for potential interference.  The effects described in this paper are most important when using MRT data to build optimized JITAIs for deployment in an mHealth package. Specifically, the estimation procedure for the direct excursion effect accounts for within-cluster correlation in the proximal outcomes which helps the scientific team avoid making erroneous conclusions about intervention effectiveness using standard MRT methods.  Moreover, estimation of indirect effects allows the scientific team to answer questions about impact of interventions on other members of the same cluster.  Use of these methods provides empirical evidence for the scientific team to include or exclude intervention components that may have had unanticipated second order effects, or potentially lead to novel ways to improve the intervention component by revising the intervention to more explicitly account for cluster-level interference.  While this work represents a major step forward in the analysis of micro-randomized trial data, further work is required.  Specifically, extensions to be considered future work include accounting for overlapping communities and/or network (rather than cluster-only) structure~\citep{Ogburn2014,Mealli2019}, accounting for general non-continuous proximal outcomes such as binary or count outcomes~\citep{Qian2021}, penalization of the working model to allow for high-dimensional moderators, and a method to use the proposed approach to form warm-start policies at the individual level while accounting for group level information~\citep{Luckett2020}.
 
-\bibliographystyle{unsrt}
+
+\section*{Acknowledgments}
+The authors would like to thank the Intern Health Study (IHS) team at University of Michigan for substantive discussions, Professor Srijan Sen (Principal Investigator) for generously providing access to the IHS data, and the study participants of IHS for providing the data.  The draft also benefited from helpful comments from Professors Inbal Nahum-Shani and Peng Ding.
+
+
 \bibliography{groupmrts}
 
 \newpage
@@ -930,7 +971,7 @@ Therefore, the weight we used in the simulation is constructed as:
 W_{t,j,j\prime} = \frac{\hat p_t (A_{t,j}, A_{t,j^\prime} \mid S_t)}{p(A_{t,j} \mid H_t)p(A_{t,j^\prime} \mid H_t)}
 \]
 
-When the numerators are estimated using the observed data, the variance-covariance must account for this. Throughout we allow for the setting in which individuals are not always available. For completeness we provide results for a more general estimating function which can be used with observational (non-randomized $A_t$) treatments, under the assumption of sequential ignorability and assuming the data analyst is able to correctly model and estimate the treatment probability $p\left(A_{t,j}, A_{t,j^\prime}| H_t\right)$. We indicate how the results are simpliﬁed by use of data from an MRT.
+When the numerators are estimated using the observed data, the variance-covariance must account for this. Throughout we allow for the setting in which individuals are not always available. For completeness we provide results for a more general estimating function which can be used with observational (non-randomized $A_t$) treatments, under the assumption of sequential ignorability and assuming the data analyst is able to correctly model and estimate the treatment probability $p\left(A_{t,j}, A_{t,j^\prime}| H_t\right)$. We indicate how the results are simplified by use of data from an MRT.
 
 Denote the parameterized treatment probability by $p_t(a,a' | H_t;\eta)$ (with parameter $\eta$); note $\eta$ is known in an MRT. Denote the parameterized numerator of the weights by $\tilde p_t(a,a'| S_t;\rho)$ (with parameter $\rho$). The proof below allows the data analyst to use a  $\tilde p_t$ with an estimated parameter $\tilde \rho$ or to pre-specify $\rho$ as desired. We use a superscript of $\star$ to denote limiting values of estimated parameters (e.g. $\eta^\star, \rho^\star$). Then the more general version of the estimating equation $U_W(\alpha,\beta;\hat\eta,\hat\rho)$ is:
 \begin{align*}
@@ -1106,9 +1147,84 @@ where
 \]
 \end{proof}
 
+\section{Semiparametric Efficiency}
+\label{app:semipareff}
+
+In this section, we assume lack of interference and therefore the potential outcomes can be written to only depend on one's observed history.  Then we consider a semiparametric model characterized by the following assumptions:
+\begin{assumption}
+For all $1 \leq t \leq T$, $E[ Y_{t+1,J} (\bar A_{t-1,J}, 0) \mid H_{t,J}, A_{t,J} ] = E[ Y_{t+1,J} (\bar A_{t-1,J}, 0) \mid H_{t,J} ]$
+\end{assumption}
+\begin{assumption}
+Assume that there exists a function $\gamma()$ and a true parameter $\psi_0 \in \mathbb{R}^p$, such that for any $1 \leq t \leq T$,
+$$
+\mathbb{E} \left[ Y_{t+1,J} (\bar A_{t-1,J}, a_t) \mid \bar z_t, \bar a_t \right] - \mathbb{E} \left[ Y_{t+1,J} (\bar A_{t-1,J}, 0) \mid \bar z_t, \bar a_t \right] = \gamma(t+1, \bar z_t, \bar a_t; \psi)
+$$
+\end{assumption}
+We next gather the definitions necessary for defining the semiparametric efficient score:
+\begin{itemize}
+\item The longitudinal data is $O_1, A_1, Y_{2}, O_2, A_2, \ldots, O_T, A_T, Y_{T+1}$ where $O_t$ is the time-varying covariates on all individuals in the cluster, $A_t$ is the treatment assignments for the cluster, and $Y_{t+1}$ is the set of proximal outcomes on the cluster
+\item $Z_{t,j} = (Y_{t,j}, O_{t,j})$
+\item $H_{t,j} = (\bar A_{t-1,j}, \bar Z_{t,j})$
+\item $V_{t,j} = (H_{t,j}, A_{t,j})$
+\item $U_{t+1,j} (\psi) = Y_{t+1,j} - \gamma(t+1, \bar z_t, \bar a_t; \psi)$
+\item $\dot{U}_{t+1,j} (\psi) = U_{t+1,j} - \mathbb{E} \left[ U_{t+1, j} \mid H_{t,j} \right]$
+\item $W_{t,j} = \text{Var} \left( U_{t+1,j} (\psi_0) \mid V_{t,j} \right)^{-1}$
+\end{itemize}
+
+Then by~\cite[Lemma I.8]{Qian2021}, a general form of the efficient score is
+$$
+S_{\text{eff}} (\psi_0) = - \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T \rho_{t,j} \dot{U}_{t+1,j} (\psi_0)
+$$
+where
+$$
+\rho_{t,j} = \left[ \mathbb{E} \left[ \frac{\partial U_{t+1,j}}{\partial \psi} \mid V_{t,j} \right] - \mathbb{E} \left[ \frac{\partial U_{t+1,j}}{\partial \psi} \mid H_{t,j} \right] \mathbb{E} \left( W_{t,j} \mid H_{t,j} \right)^{-1} \right] W_{t,j}
+$$
+Note that $\mathbb{E} \left[ \rho_{t,j} \mid H_t \right] = 0$.  Therefore by~\cite[Lemma I.1]{Qian2021} we have
+$$
+\rho_{t,j} = \left( \rho(A_{t,j} = 1) - \rho(A_{t,j} = 1) \right) (A_{t,j} - p_t (1 \mid H_{t,j}))
+$$
+where  $\rho(A_{t,j} = a)$ denotes $\rho_{t,j}$ evaluated at $A_{t,j} = a$.
+
+We now calculate these terms based on the above notation. Under $\gamma(t+1, \bar z_t, \bar a_t; \psi_0) = A_{t,j} f(H_{t,j})^\top \psi$, we have
+$$
+\frac{\partial U_{t+1,j} (\psi_0)}{\partial \psi} = - A_{t,j} f(H_t), \quad \text{and} \quad
+\dot{U}_{t+1,j} (\psi) = Y_{t+1,j} - \mu_t (H_t) + (A_{t,j}-p_t(1 \mid H_t)) f_t(H_t, a_{t,-j})
+$$
+and hence we have
+\begin{align*}
+\mathbb{E} \left[ \frac{\partial U_{t+1,j} (\psi_0)}{\partial \psi} \mid H_{t,j}, A_{t,j} = 1 \right] &= - f(H_{t,j}) \\
+\mathbb{E} \left[ \frac{\partial U_{t+1,j} (\psi_0)}{\partial \psi} \mid H_{t,j}, A_{t,j} = 0 \right] &= 0 \\
+\text{Var} \left( U_{t+1,j} (\psi_0) \mid V_{t,j} \right) &=
+\text{Var} \left( Y_{t+1,j} \mid V_{t,j} \right) =: \sigma^2_{t+1,j} (H_{t,j}, A_{t,j}) \\
+\end{align*}
+Then
+$$
+\mathbb{E} \left[ W_{t,j} \mid H_{t,j} \right] = \frac{p_t (1 \mid H_{t,j} )}{\sigma^2_{t+1,j} (H_{t,j}, 1)} + \frac{1-p_t (1 \mid H_{t,j} )}{\sigma^2_{t+1,j} (H_{t,j}, 0)}
+$$
+and we can express
+\begin{align*}
+\rho(A_{t,j} = 1) &= - \left( 1 -p_t ( 1 \mid H_{t,j}) \left[  \frac{p_t (1 \mid H_{t,j} )}{\sigma^2_{t+1,j} (H_{t,j}, 1)} + \frac{1-p_t (1 \mid H_{t,j} )}{\sigma^2_{t+1,j} (H_{t,j}, 0)} \right] \right) \frac{f(H_{t,j})}{\sigma^2_{t+1,j} (H_{t,j}, 1)} \\
+\rho(A_{t,j} = 0) &= - \left( 0 -p_t ( 1 \mid H_{t,j}) \left[  \frac{p_t (1 \mid H_{t,j} )}{\sigma^2_{t+1,j} (H_{t,j}, 1)} + \frac{1-p_t (1 \mid H_{t,j} )}{\sigma^2_{t+1,j} (H_{t,j}, 0)} \right] \right) \frac{f(H_{t,j})}{\sigma^2_{t+1,j} (H_{t,j}, 1)}
+\end{align*}
+Therefore $\rho_{t,j}$ is given by
+\begin{align*}
+\bigg[ \frac{1}{\sigma^2_{t+1,j} (H_{t,j}, 1)} + p_t ( 1 \mid H_{t,j}) \left[  \frac{p_t (1 \mid H_{t,j} )}{\sigma^2_{t+1,j} (H_{t,j}, 1)} + \frac{1-p_t (1 \mid H_t )}{\sigma^2_{t+1,j} (H_{t,j}, 0)} \right] \times \\
+\left( \frac{1}{\sigma^2_{t+1,j} (H_{t,j}, 1)}  - \frac{1}{\sigma^2_{t+1,j} (H_{t,j}, 0)} \right)
+ \bigg] \times \left( A_{t,j} - p_t (1 \mid H_{t,j}) \right) f(H_{t,j}).
+\end{align*}
+Moreover, under the simplifying assumption $\sigma^2_{t+1,j} (H_{t,j}, a) = \sigma^2_{t+1,j} (H_{t,j})$ we have
+$$
+\rho_{t,j} = \frac{1}{\sigma^2_{t+1,j} (H_t)} \times \left( A_{t,j} - p_t (1 \mid H_{t,j}) \right) f(H_{t,j}).
+$$
+Under the even stronger assumption $\sigma^2_{t+1,j} (H_{t,j}) := \sigma^2$ we have
+\begin{align*}
+S_{\text{eff}} (\psi_0) =&  \frac{\sigma^2}{G} \sum_{j=1}^G \sum_{t=1}^T \left(Y_{t+1,j} - \mu_t (H_{t,j}) - (A_{t,j} - p_t (1 \mid H_{t,j})) f_t (H_{t,j})^\prime \beta \right) \times \\
+&\times (A_{t,j} - p_t (1 \mid H_{t,j})) f_t (H_{t,j}).
+\end{align*}
 
 \section{Code to Generate Simulation Results}
-The R code used to generate the simulation experiments and case study results in this paper can be obtained \hyperlink{https://github.com/Herashi/MRT}{here (https://github.com/Herashi/MRT)}.
+The R code used to generate the simulation experiments and case study results in this paper can be obtained at
+\href{https://github.com/Herashi/MRT}{https://github.com/Herashi/MRT}.
 
 
 \end{document}
