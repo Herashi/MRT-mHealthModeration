@@ -290,16 +290,17 @@ Here, the weight is the variance of the numerator in the weight~$W_{t,j}$.  To i
 
 \subsubsection{Connection to a semiparametric efficient estimators}
 
-A special case of both effects is when $S_t$ is set to the observed history~$H_t$.  In this case, estimators for this fully conditional case can be derived based on semiparametric efficiency theory~\citep{Newey1990,Tsiatis2007}.
+A special case of both effects is when $S_t$ is set to the observed history~$H_t$.  In this case, estimators for this fully conditional case can be derived based on semiparametric efficiency theory~\citep{Newey1990,Tsiatis2007} under a lack of interference assumption.
+
 \begin{lemma}
-Under the semiparametric model~\eqref{ass:directeffect} and Assumptions~\ref{consistency}, the semiparametric efficient score for $\beta$ is
+Under the semiparametric model~\eqref{ass:directeffect}, Assumptions~\ref{consistency}, and the stronger \emph{lack of interference} assumption, the semiparametric efficient score for $\beta$ is
 \begin{equation}
 \label{eq:effscore}
 S_{\text{eff}} (\beta) = \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T (Y_{t+1} - \mu (H_t) - (A_t - p_t (1 \mid H_t)) f_t ( H_t)^\top \beta ) K_t (A_t - p_t(1 \mid H_t)) f(H_t)
 \end{equation}
 where
 \begin{align*}
-\mu_t (H_t) = \mathbb{E} &\left[ Y_{t+1} \mid H_t, A_t = 0 \right], \quad \text{and} \quad \sigma^2_{t+1} (H_t, A_t) = \text{Var} \left( Y_{t+1} \mid H_t, A_t \right) \\
+\mu_t (H_t) = \mathbb{E} &\left[ Y_{t+1} \mid H_t \right], \quad \text{and} \quad \sigma^2_{t+1} (H_t, A_t) = \text{Var} \left( Y_{t+1} \mid H_t, A_t \right) \\
 K_t = &\bigg[ \frac{1}{\sigma^2_{t+1,j} (H_{t,j}, 1)} + p_t ( 1 \mid H_{t,j}) \left[  \frac{p_t (1 \mid H_{t,j} )}{\sigma^2_{t+1,j} (H_{t,j}, 1)} + \frac{1-p_t (1 \mid H_t )}{\sigma^2_{t+1,j} (H_{t,j}, 0)} \right] \times \\
 &\left( \frac{1}{\sigma^2_{t+1,j} (H_{t,j}, 1)}  - \frac{1}{\sigma^2_{t+1,j} (H_{t,j}, 0)} \right)
  \bigg]
