@@ -50,21 +50,21 @@
 
 \begin{document}
 \title{Assessing Time-Varying Causal Effect Moderation in the Presence of Cluster-Level Treatment Effect Heterogeneity}
-\author{Jieru Shi, Zhenke Wu, Walter Dempsey}
+% \author{Jieru Shi, Zhenke Wu, Walter Dempsey}
 \maketitle
 \begin{abstract}\noindent
 % Advances in mobile devices and wearable sensors have enabled the delivery of behavioral treatments in the users natural environment, helping to support behavior change and maintenance.
 
-Micro-randomized trial (MRT) is a sequential randomized experimental design to empirically evaluate the effectiveness of mobile health (mHealth) intervention components that may be delivered at hundreds or thousands of decision points. The MRT context has motivated a new class of causal estimands, termed ``causal excursion effects", for which inference can be made by a weighted, centered least squares approach (Boruvka et al., 2017). Existing methods assume between-subject independence and non-interference. Deviations from these assumptions often occur which, if unaccounted for, may result in bias and overconfident variance estimates. In this paper, causal excursion effects are considered under potential cluster-level correlation and interference and when the treatment effect of interest depends on cluster-level moderators. The utility of our proposed methods is shown by analyzing data from a multi-institution cohort of first year medical residents in the United States. The approach paves the way for construction of mHealth interventions that account for observed social network information.
+The micro-randomized trial (MRT) is a sequential randomized experimental design to empirically evaluate the effectiveness of mobile health (mHealth) intervention components that may be delivered at hundreds or thousands of decision points. The MRT context has motivated a new class of causal estimands, termed ``causal excursion effects", for which inference can be made by a weighted, centered least squares approach (Boruvka et al., 2017). Existing methods assume between-subject independence and non-interference. Deviations from these assumptions often occur which, if unaccounted for, may result in bias and overconfident variance estimates. In this paper, causal excursion effects are considered under potential cluster-level correlation and interference and when the treatment effect of interest depends on cluster-level moderators. The utility of our proposed methods is shown by analyzing data from a multi-institution cohort of first year medical residents in the United States. The approach paves the way for construction of mHealth interventions that account for observed social network information.
 \end{abstract}
 
 \noindent {\it Keywords:} Causal Inference; Clustered Data; Just-In-Time Adaptive Interventions; Microrandomized Trials; Mobile Health; Moderation Effect
 
 \section{Introduction}
 
-In many areas of behavioral science, push notifications in mobile apps that are adapted to continuously collected information on an individual's current context have received a considerable amount of attention.  These time-varying adaptive interventions are hypothesized to lead to meaningful short- and long-term behavior change. The assessment of the time-varying effect of such push notifications motivated sequential randomized designs such as the micro-randomized trial (MRT) \citep{Nahum2017, KlasnjaMRT}. In an MRT, interventions are randomized to be potentially delivered at a over a period of time, at hundreds or thousands of decision points. The MRT design enables the estimation of the time-delayed marginal treatment effects of a push notification upon the outcome of interest at multiple time-lags, referred to as ``causal excursion effects" \citep{Boruvkaetal, Qian2021}. A weighted, centered least squares (WCLS) approach has been developed to consistently estimate causal excursion effects with robust methods of uncertainty assessment. Extensions to balance the number of randomizations by observed or derived individual-level contextual information have also been developed, e.g., a stratified MRT~\citep{DempseyAOAS}.
+In many areas of behavioral science, push notifications in mobile apps that are adapted to continuously collected information on an individual's current context have received a considerable amount of attention.  These time-varying adaptive interventions are hypothesized to lead to meaningful short- and long-term behavior change. The assessment of the time-varying effect of such push notifications motivated sequential randomized designs such as the micro-randomized trial (MRT) \citep{Nahum2017, KlasnjaMRT}. In an MRT, interventions are randomized to be potentially delivered at hundreds or thousands of decision points. The MRT design enables the estimation of the time-delayed marginal treatment effects of a push notification upon the outcome of interest at multiple time-lags, referred to as ``causal excursion effects" \citep{Boruvkaetal, Qian2021}. A weighted, centered least squares (WCLS) approach has been developed to consistently estimate causal excursion effects with robust methods of uncertainty assessment. Extensions to balance the number of randomizations by observed or derived individual-level contextual information have also been developed, e.g., a stratified MRT~\citep{DempseyAOAS}.
 
-Existing inferential methods for data collected in an MRT rely on two key assumptions. First, an intervention delivered to an individual is assumed to only impact the outcome of that individual, i.e., non-interference. Second, the method assumes no stochastic dependence among outcomes of different subjects. Deviations from these assumptions, however, may occur when individuals naturally form clusters.  Consider, for example, an MRT in which medical interns are recruited from several hospitals and every day potentially receive push notifications designed to improve physical activity, mood, or sleep. First, \textit{interference} may occur when an intern receiving a push notification to increase their steps may then encourage another intern in the same specialty and institution to do the same hence altering the others' outcomes. Second, even if there is no direct interference, interns in the same specialty and institution are likely to have correlated outcomes, induced by variation in unobserved factors shared within each cluster. For example, interns within a specialty and institution may share similar experiences during their residency which will lead to a higher correlation in their weekly mood scores than interns in different specializations or institutions.
+Existing inferential methods for data collected in an MRT rely on two key assumptions. First, an intervention delivered to an individual is assumed to only impact the outcome of that individual, i.e., non-interference. Second, the method assumes no stochastic dependence among outcomes of different subjects. Deviations from these assumptions, however, may occur when individuals naturally form clusters.  Consider, for example, an MRT in which medical interns are recruited from several instituations and every week potentially receive push notifications designed to improve physical activity, mood, or sleep. First, \textit{interference} may occur when an intern receiving a push notification to increase their steps may then encourage another intern in the same specialty and institution to do the same hence altering the others' outcomes. Second, even if there is no direct interference, interns in the same specialty and institution are likely to have correlated outcomes, induced by variation in unobserved factors shared within each cluster. For example, interns within a specialty and institution may share similar experiences during their residency which will lead to a higher correlation in their weekly mood scores than interns in different specialties or institutions.
 
 The primary contribution of this paper is the significant extension of data analytic methods for MRTs to account for potential cluster-level correlation and the extension of the causal excursion effect to account for potential interference, i.e., we define both a direct and indirect causal excursion effect.  In Section~\ref{section:preliminaries}, we review the MRT design and the existing method's implicit assumptions.  In Section~\ref{section:cond_effects}, we introduce the moderated causal excursion effect using a cluster-based conceptualization of potential outcomes \citep{Hong2006,Vanderweele2013}.  We then generalize WCLS criterion to a cluster-based WCLS (C-WCLS) criterion to estimate both direct and indirect causal excursion effects in Section~\ref{section:estimation}.  Finally, we demonstrate that when proximal outcomes exhibit within-cluster correlation but there is an absence of between-cluster treatment effect heterogeneity, our proposal agrees with the traditional approach both in terms of the point estimate and the asymptotic variance.  In Section~\ref{section:casestudy}, we illustrate the proposed method by estimating the causal excursion effects of push notifications on mood, sleep, and step count for a cohort of first year medical residents in the United States. The paper concludes with a brief discussion.
 
@@ -138,7 +138,7 @@ Residuals & 38946 & 49479 & 1.27 \\ \hline
 
 Three immediate questions may arise:
 \begin{itemize}
-    \item[(1)] Does the standard MRT analysis still have good statistical properties, e.g., consistency and valid nominal coverage probability of $95\%$ confidence intervals when participants exhibit within-cluster correlation?
+    \item[(1)] Does the standard MRT analysis still have good statistical properties, e.g., consistency and valid nominal coverage probability of $95\%$ confidence intervals, when participants exhibit within-cluster correlation?
     \item[(2)] Can one assess potential cluster-level effect moderators using the standard MRT analysis? and,
     \item[(3)] Can one extend the MRT analysis to assess the effect of treatment provided to one individual on the proximal response of another individual in the same cluster?
 \end{itemize}
@@ -165,7 +165,7 @@ In standard MRTs, the individual is the unit of interest.  In our current settin
 Equation~\eqref{eq:directeffect} is a \emph{direct causal effect} of treatment compared to no treatment on the proximal response for the same individual, while all previous treatments on the individual and all treatments on every other member of the cluster are fixed to specific values.
 % \zw{clarify the directness means blocking all other paths except the path from $A_{tj}$ to $Y_{t+1,j}$}
 
-The ``fundamental problem of causal inference''~\citep{Rubin, Pearl2009} is that these individual differences cannot be observed. Thus, similar to prior work~\citep{DempseyAOAS, Boruvkaetal}, in this paper averages of potential outcomes are considered in defining treatment effects. Let $S_t (\bar a_{t-1})$ denote a vector of potential moderator variables chosen from $H_t (\bar a_{t-1})$, the cluster-level history up to decision point $t$.  We write $S_t (\bar a_{t-1}) = \left( S_{t,j} (\bar a_{t-1}), S_{t,-j} (\bar a_{t-1}) \right)$ to clarify that the potential moderator variables can contain both information on the selected individual as well as other individuals in the cluster. Then moderated direct treatment effect, denoted $\beta (t; s)$, can be defined as
+The ``fundamental problem of causal inference''~\citep{Rubin, Pearl2009} is that these individual differences cannot be observed. Thus, similar to prior work~\citep{DempseyAOAS, Boruvkaetal}, in this paper averages of potential outcomes are considered in defining treatment effects. Let $S_t (\bar a_{t-1})$ denote a vector of potential moderator variables chosen from $H_t (\bar a_{t-1})$, the \emph{cluster-level} history up to decision point $t$.  We write $S_t (\bar a_{t-1}) = \left( S_{t,j} (\bar a_{t-1}), S_{t,-j} (\bar a_{t-1}) \right)$ to clarify that the potential moderator variables can contain both information on the selected individual as well as other individuals in the cluster. Then moderated direct treatment effect, denoted $\beta (t; s)$, can be defined as
 \begin{equation}
 \label{eq:directavglineareffect}
 \begin{array}{r@{}l}
@@ -222,7 +222,7 @@ Causal effects \eqref{eq:directavglineareffect} and~\eqref{eq:inddirectavglinear
   \end{itemize}
 \end{assumption}
 
-Sequential ignorability and, assuming all of the randomization probabilities are bounded away from $0$ and $1$, positivity, are guaranteed for a cluster MRT by design. In a standard MRT, the randomization probabilities may depend on the individual's observed history so $\Pr(A_t = a_t \mid H_t = h_t) = \prod_{j=1}^G \Pr(A_{t,j} = a_{t,j} \mid H_{t,j} = h_{t,j})$ and the positivity constraint can be placed on the individual-level randomization probabilities.  Here, we allow for the possibility that the randomization probabilities depend on the joint cluster-level history. Consistency is a necessary assumption for linking the potential outcomes as defined here to the data. Since an individual's outcomes may be influenced by the treatments provided to other individuals in the same cluster, consistency holds due to our use of a cluster-based conceptualization of potential outcomes as seen in~\cite{Hong2006} and \cite{Vanderweele2013}.
+Sequential ignorability and, assuming all of the randomization probabilities are bounded away from $0$ and $1$, positivity, are guaranteed in our setting  by design. In a standard MRT, the randomization probabilities may depend on the individual's observed history so $\Pr(A_t = a_t \mid H_t = h_t) = \prod_{j=1}^G \Pr(A_{t,j} = a_{t,j} \mid H_{t,j} = h_{t,j})$ and the positivity constraint can be placed on the individual-level randomization probabilities.  Here, we allow for the possibility that the randomization probabilities depend on the cluster-level history. Consistency is a necessary assumption for linking the potential outcomes as defined here to the data. Since an individual's outcomes may be influenced by the treatments provided to other individuals in the same cluster, consistency holds due to our use of a cluster-based conceptualization of potential outcomes as seen in~\cite{Hong2006} and \cite{Vanderweele2013}.
 
 \begin{lemma}
   \label{lemma:cond_effect}
@@ -270,13 +270,13 @@ Q = \mathbb{E} \left[ \sum_{t=1}^T \tilde p_t( 1 \mid S_{t} ) ( 1- \tilde p_t( 1
 $$
 and
 $$
-W =  \mathbb{E} \left[ \sum_{t=1}^T W_{J,t} \, \epsilon_{J,t} ( A_{J,t} - \tilde p_t( 1 \mid S_{t} )) f_t (S_t) \times \sum_{t=1}^T W_{\tilde J,t} \, \epsilon_{\tilde J,t} ( A_{\tilde J,t} - \tilde p_t( 1 \mid S_{t} )) f_t (S_t)^\top  \right]
+W =  \mathbb{E} \left[ \sum_{t=1}^T W_{t,J} \, \epsilon_{t,J} ( A_{t,J} - \tilde p_t( 1 \mid S_{t} )) f_t (S_t) \times \sum_{t=1}^T W_{t, \tilde J} \, \epsilon_{t, \tilde J} ( A_{t, \tilde J} - \tilde p_t( 1 \mid S_{t} )) f_t (S_t)^\top  \right]
 $$
 % \zw{Should the second sum over t inside E be deleted?}: Both sums should be inside
-where $\epsilon_{t,j} = Y_{t+1} - g_t(H_t)^\prime \alpha^\star - (A_t - \tilde p_t (1 \mid S_t) ) f_t (S_t)^\top \beta^\star$, $\alpha^\star$ minimizes the least-squares criterion $\mathbb{E}  \left[G^{-1} \sum_{j=1}^G \sum_{t=1}^T W_{t,j} \left( Y_{t+1,j} - g_t(H_t)^\prime \alpha \right)^2 \right]$, and both $J$ and $\tilde J$ are independent randomly sampled indices from the cluster.
+where $\epsilon_{t,j} = Y_{t+1, j} - g_t(H_t)^\prime \alpha^\star - (A_{t,j} - \tilde p_t (1 \mid S_t) ) f_t (S_t)^\top \beta^\star$, $\alpha^\star$ minimizes the least-squares criterion $\mathbb{E}  \left[G^{-1} \sum_{j=1}^G \sum_{t=1}^T W_{t,j} \left( Y_{t+1,j} - g_t(H_t)^\prime \alpha \right)^2 \right]$, and both $J$ and $\tilde J$ are independent randomly sampled indices from the cluster.
 \end{lemma}
 
-\noindent In practice, plug-in estimates $\hat Q$ and $\hat W$ are used to estimate the covariance structure. Appendix~\ref{app:ssa} presents small sample size adjustments that we use in simulation and analysis in this paper.  It is clear that from Lemma~\ref{lemma:asymnorm} that use of standard MRT data analytic methods, i.e., equation~\eqref{eq:mrtstandard}, will produce biased estimates for the marginal effect of interest.
+\noindent In practice, plug-in estimates $\hat Q$ and $\hat W$ are used to estimate the covariance structure. Appendix~\ref{app:ssa} presents small sample size adjustments that we use in simulation and analysis in this paper.  It is clear that from Lemma~\ref{lemma:asymnorm} that use of standard MRT data analytic methods, i.e., equation~\eqref{eq:mrtstandard}, will produce biased estimates for the marginal effect of interest if cluster size is variable.
 
 \begin{remark}[$L_2$ Projection interpretation]
 \label{rmk:l2proj}
@@ -288,7 +288,7 @@ $$
 Here, the weight is the variance of the numerator in the weight~$W_{t,j}$.  To interpret as a projection or to make the stronger Assumption~\ref{ass:directeffect} can be viewed as a bias-variance trade-off.  The projection interpretation guarantees well-defined parameter interpretation in practice where Assumption~\ref{ass:directeffect} is unlikely to hold.  See~\cite[Sec. 3.1, pp.9--10]{Kennedy2019} for a great discussion of the use of projectionsin causal versus predictive settings.
 \end{remark}
 
-\subsubsection{Connection to a semiparametric efficient estimators}
+\subsubsection{Connection To A Semiparametric Efficient Estimator}
 
 A special case of both effects is when $S_t$ is set to the observed history~$H_t$.  In this case, estimators for this fully conditional case can be derived based on semiparametric efficiency theory~\citep{Newey1990,Tsiatis2007} under a lack of interference assumption.
 
@@ -296,22 +296,22 @@ A special case of both effects is when $S_t$ is set to the observed history~$H_t
 Under the semiparametric model~\eqref{ass:directeffect}, Assumptions~\ref{consistency}, and the stronger \emph{lack of interference} assumption, the semiparametric efficient score for $\beta$ is
 \begin{equation}
 \label{eq:effscore}
-S_{\text{eff}} (\beta) = \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T (Y_{t+1} - \mu (H_t) - (A_t - p_t (1 \mid H_t)) f_t ( H_t)^\top \beta ) K_t (A_t - p_t(1 \mid H_t)) f(H_t)
+S_{\text{eff}} (\beta) = \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T (Y_{t+1,j} - \mu (H_{t,j}) - (A_{t,j} - p_t (1 \mid H_{t,j})) f_t (H_{t,j})^\top \beta ) K_{t,j} (A_{t,j} - p_t(1 \mid H_{t,j})) f(H_{t,j})
 \end{equation}
 where
 \begin{align*}
-\mu_t (H_t) = \mathbb{E} &\left[ Y_{t+1} \mid H_t \right], \quad \text{and} \quad \sigma^2_{t+1} (H_t, A_t) = \text{Var} \left( Y_{t+1} \mid H_t, A_t \right) \\
-K_t = &\bigg[ \frac{1}{\sigma^2_{t+1,j} (H_{t,j}, 1)} + p_t ( 1 \mid H_{t,j}) \left[  \frac{p_t (1 \mid H_{t,j} )}{\sigma^2_{t+1,j} (H_{t,j}, 1)} + \frac{1-p_t (1 \mid H_t )}{\sigma^2_{t+1,j} (H_{t,j}, 0)} \right] \times \\
+\mu_t (H_{t,j}) = \mathbb{E} &\left[ Y_{t+1,j} \mid H_{t,j} \right], \quad \text{and} \quad \sigma^2_{t+1} (H_{t,j}, A_{t,j}) = \text{Var} \left( Y_{t+1,j} \mid H_{t,j}, A_{t,j} \right) \\
+K_{t,j} = &\bigg[ \frac{1}{\sigma^2_{t+1,j} (H_{t,j}, 1)} + p_t ( 1 \mid H_{t,j}) \left[  \frac{p_t (1 \mid H_{t,j} )}{\sigma^2_{t+1,j} (H_{t,j}, 1)} + \frac{1-p_t (1 \mid H_{t,j} )}{\sigma^2_{t+1,j} (H_{t,j}, 0)} \right] \times \\
 &\left( \frac{1}{\sigma^2_{t+1,j} (H_{t,j}, 1)}  - \frac{1}{\sigma^2_{t+1,j} (H_{t,j}, 0)} \right)
  \bigg]
 \end{align*}
 \end{lemma}
 
-Semiparametric efficiency theory states that the solution $\hat \beta$ to $\mathbb{P}_n S_{\text{eff}} (\psi) = 0$ achieves the semiparametric efficiency bound~\citep{Newey1990}.  Corollary~\eqref{cor:semiparametricconnection} motivates the C-WCLS criterion for the direct effect given by~\eqref{eq:directwcls} from the semiparametric efficiency perspective under particular working homoskedastic assumptions on the conditional variance~$\sigma^2_{t+1} (H_t, A_t)$ and a working model~$g_t (H_t)^\prime \alpha$ for the unknown quantity~$\mu(H_t)$.
+Semiparametric efficiency theory states that the solution $\hat \beta$ to $\mathbb{P}_n S_{\text{eff}} (\psi) = 0$ achieves the semiparametric efficiency bound~\citep{Newey1990}.  \cite{Qian2021} proved a similar result for the causal excursion effect on the relative risk scale for binary outcomes.  Corollary~\eqref{cor:semiparametricconnection} motivates the C-WCLS criterion for the direct effect given by~\eqref{eq:directwcls} from the semiparametric efficiency perspective under particular working homoskedastic assumptions on the conditional variance~$\sigma^2_{t+1} (H_{t,j}, A_{t,j})$ and a working model~$g_t (H_{t,j})^\prime \alpha$ for the unknown quantity~$\mu(H_{t,j})$.
 
 \begin{cor}
 \label{cor:semiparametricconnection}
-Under the assumption $\text{Var}(Y_{t+1} \mid H_t, A_t) := \sigma^2_{t+1}(H_t)$,i.e., is constant in the second argument~$A_t$, then the weight~$K_t$ simplifies and is equal to $(\sigma^2_{t+1}(H_t))^{-1}$ and the semiparametric efficient score~\eqref{eq:effscore} weights each decision time by the corresponding conditional variance.  Under the further assumption that this variance does not depend on the history, i.e., $\sigma^2_{t+1} (H_t) = \sigma^2$, and a working model for the conditional mean $\mu (H_t) := g (H_t)^\top \alpha$, the cluster-based, weighted-centered least squares criterion~\eqref{eq:directwcls} is equivalent to the semiparametric efficient estimate for the fully conditional effect.
+Under the assumption $\text{Var}(Y_{t+1,j} \mid H_{t,j}, A_{t,j}) := \sigma^2_{t+1}(H_t)$,i.e., is constant in the second argument~$A_{t,j}$, then the weight~$K_{t,j}$ simplifies and is equal to $(\sigma^2_{t+1}(H_t))^{-1}$ and the semiparametric efficient score~\eqref{eq:effscore} weights each decision time by the corresponding conditional variance.  Under the further assumption that this variance does not depend on the history, i.e., $\sigma^2_{t+1} (H_{t,j}) = \sigma^2$, and a working model for the conditional mean $\mu (H_{t,j}) := g (H_{t,j})^\top \alpha$, the cluster-based, weighted-centered least squares criterion~\eqref{eq:directwcls} is equivalent to the semiparametric efficient estimate for the fully conditional effect.
 \end{cor}
 
 \subsection{Indirect Effect Estimation}
@@ -343,8 +343,8 @@ Q = \mathbb{E} \left[ \sum_{t=1}^T (\tilde p_t (0,0 \mid S_t) + \tilde p_t (0,1 
 $$
 and
 \begin{align*}
-W =  &\mathbb{E} \bigg[ \sum_{t=1}^T W_{t,J,J^\prime} \epsilon_{t,J,J^\prime} (1-A_{J,t})( A_{t,J^\prime} - \tilde p_t^\star( 1 \mid S_{t} )) f_t (S_t) \\
-&\times \sum_{t=1}^T W_{t,J,J^\prime} \epsilon_{t, \tilde J, \tilde J^\prime} (1-A_{\tilde J,t}) ( A_{t,\tilde J^\prime} - \tilde p_t^\star( 1 \mid S_{t} )) f_t (S_t)^\top  \bigg]
+W =  &\mathbb{E} \bigg[ \sum_{t=1}^T W_{t,J,J^\prime} \epsilon_{t,J,J^\prime} (1-A_{t,J})( A_{t,J^\prime} - \tilde p_t^\star( 1 \mid S_{t} )) f_t (S_t) \\
+&\times \sum_{t=1}^T W_{t,J,J^\prime} \epsilon_{t, \tilde J, \tilde J^\prime} (1-A_{t,\tilde J}) ( A_{t,\tilde J^\prime} - \tilde p_t^\star( 1 \mid S_{t} )) f_t (S_t)^\top  \bigg]
 \end{align*}
 where $\epsilon_{t,j,j^\prime} = Y_{t+1,j} - g_t(H_t)^\prime \alpha^{\star \star} - (1-A_{t,j}) (A_{t,j^\prime} - \tilde p_t^\star (1 \mid S_t) ) f_t (S_t)^\top \beta^{\star \star}$, $\alpha^{\star \star}$ minimizes the least-squares criterion $\mathbb{E}  \left[ \frac{1}{G_m (G_m-1)} \sum_{j \neq j^\prime} \sum_{t=1}^T W_{t,j,j^\prime} \left( Y_{t+1,j} - g_t(H_t)^\prime \alpha \right)^2 \right]$, and both $(J,J^\prime)$ and $(\tilde J, \tilde J^\prime)$ are independently, randomly sampled pairs from the cluster (without replacement).
 \end{lemma}
@@ -358,12 +358,12 @@ A natural question is whether there are any conditions under which the standard 
 
 \begin{lemma}
 \label{lemma:samesies}
-Consider the direct effect when the moderator is defined on the individual (i.e., $S_{j,t}$), and the randomization probabilities only depend on the individual's observed history, i.e., $p(A_{j,t} \mid H_t) = p(A_{j,t} \mid H_{j,t})$.  If cluster size is constant across clusters (i.e., $G_m \equiv G$), then the point estimates from \eqref{eq:mrtstandard} and~\eqref{eq:directavglineareffect} are equal for any sample size. Moreover, if
+Consider the direct effect when the moderator is defined on the individual (i.e., $S_{t,j}$), and the randomization probabilities only depend on the individual's observed history, i.e., $p(A_{t,j} \mid H_t) = p(A_{t,j} \mid H_{t,j})$.  If cluster size is constant across clusters (i.e., $G_m \equiv G$), then the point estimates from \eqref{eq:mrtstandard} and~\eqref{eq:directavglineareffect} are equal for any sample size. Moreover, if
 \begin{equation}
     \label{eq:samesiescondition}
-    \E \left[ \E \left[ \epsilon_{j,t} \epsilon_{j^\prime, t^\prime} \given H_{j,t}, A_{j,t}=a, H_{j^\prime, t^\prime}, A_{j^\prime, t^\prime} = a^\prime \right] \mid S_{t,j}, S_{t,j^\prime} \right] = \psi(S_{t,j}, S_{t,j^\prime}),
+    \E \left[ \E \left[ \epsilon_{t,j} \epsilon_{t^\prime, j^\prime} \given H_{t,j}, A_{t,j}=a, H_{t^\prime,j^\prime}, A_{t^\prime,j^\prime} = a^\prime \right] \mid S_{t,j}, S_{t,j^\prime} \right] = \psi(S_{t,j}, S_{t,j^\prime}),
 \end{equation}
-for some function $\psi$, i.e., the cross-term is constant in $a$ and $a^\prime$, where $\epsilon_{j,t}$ is the error defined in Lemma~\ref{lemma:asymnorm} then the estimators share the same asymptotic variance.
+for some function $\psi$, i.e., the cross-terms are constant in $a$ and $a^\prime$, where $\epsilon_{t,j}$ is the error defined in Lemma~\ref{lemma:asymnorm} then the estimators share the same asymptotic variance.
 \end{lemma}
 
 Proof of Lemma~\ref{lemma:samesies} can be found in Appendix~\ref{app:samesies}. Here, we consider the following class of random effect models to help with interpretation of the sufficient condition~\eqref{eq:samesiescondition}.  Specifically, for participant $j$ at decision time~$t$ suppose the generative model for the proximal outcome is
