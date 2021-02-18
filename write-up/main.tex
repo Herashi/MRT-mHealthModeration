@@ -1,5 +1,5 @@
 \documentclass[12pt]{article}
-\usepackage{graphicx}
+\usepackage{graphicx,xr}
 \usepackage{setspace}
 %\DeclareGraphicsExtensions{.eps, .ps}
 \usepackage{soul,color}
@@ -14,6 +14,23 @@
 \usepackage{setspace}
 %\onehalfspacing
 \doublespacing
+
+\makeatletter
+\newcommand*{\addFileDependency}[1]{% argument=file name and extension
+  \typeout{(#1)}
+  \@addtofilelist{#1}
+  \IfFileExists{#1}{}{\typeout{No file #1.}}
+}
+\makeatother
+
+\newcommand*{\myexternaldocument}[1]{%
+    \externaldocument{#1}%
+    \addFileDependency{#1.tex}%
+    \addFileDependency{#1.aux}%
+}
+
+% put all the external documents here!
+\myexternaldocument{./main-supp}
 
 %\startlocaldefs
 
@@ -50,7 +67,7 @@
 
 \begin{document}
 \title{Assessing Time-Varying Causal Effect Moderation in the Presence of Cluster-Level Treatment Effect Heterogeneity}
-% \author{Jieru Shi, Zhenke Wu, Walter Dempsey}
+\author{Jieru Shi, Zhenke Wu, Walter Dempsey}
 \maketitle
 \begin{abstract}\noindent
 % Advances in mobile devices and wearable sensors have enabled the delivery of behavioral treatments in the users natural environment, helping to support behavior change and maintenance.
@@ -64,9 +81,9 @@ The micro-randomized trial (MRT) is a sequential randomized experimental design 
 
 In many areas of behavioral science, push notifications in mobile apps that are adapted to continuously collected information on an individual's current context have received a considerable amount of attention.  These time-varying adaptive interventions are hypothesized to lead to meaningful short- and long-term behavior change. The assessment of the time-varying effect of such push notifications motivated sequential randomized designs such as the micro-randomized trial (MRT) \citep{Nahum2017, KlasnjaMRT}. In an MRT, interventions are randomized to be potentially delivered at hundreds or thousands of decision points. The MRT design enables the estimation of the time-delayed marginal treatment effects of a push notification upon the outcome of interest at multiple time-lags, referred to as ``causal excursion effects" \citep{Boruvkaetal, Qian2021}. A weighted, centered least squares (WCLS) approach has been developed to consistently estimate causal excursion effects with robust methods of uncertainty assessment. Extensions to balance the number of randomizations by observed or derived individual-level contextual information have also been developed, e.g., a stratified MRT~\citep{DempseyAOAS}.
 
-Existing inferential methods for data collected in an MRT rely on two key assumptions. First, an intervention delivered to an individual is assumed to only impact the outcome of that individual, i.e., non-interference. Second, the method assumes no stochastic dependence among outcomes of different subjects. Deviations from these assumptions, however, may occur when individuals naturally form clusters.  Consider, for example, an MRT in which medical interns are recruited from several instituations and every week potentially receive push notifications designed to improve physical activity, mood, or sleep. First, \textit{interference} may occur when an intern receiving a push notification to increase their steps may then encourage another intern in the same specialty and institution to do the same hence altering the others' outcomes. Second, even if there is no direct interference, interns in the same specialty and institution are likely to have correlated outcomes, induced by variation in unobserved factors shared within each cluster. For example, interns within a specialty and institution may share similar experiences during their residency which will lead to a higher correlation in their weekly mood scores than interns in different specialties or institutions.
+Existing inferential methods for data collected in an MRT rely on two key assumptions. First, an intervention delivered to an individual is assumed to only impact the outcome of that individual, i.e., non-interference. Second, the method assumes no stochastic dependence among outcomes of different subjects. Deviations from these assumptions, however, may occur when individuals naturally form clusters.  Consider, for example, an MRT in which medical interns are recruited from several institutions and every week potentially receive push notifications designed to improve physical activity, mood, or sleep. First, \textit{interference} may occur when an intern receiving a push notification to increase their steps may then encourage another intern in the same specialty and institution to do the same hence altering the others' outcomes. Second, even if there is no direct interference, interns in the same specialty and institution are likely to have correlated outcomes, induced by variation in unobserved factors shared within each cluster. For example, interns within a specialty and institution may share similar experiences during their residency which will lead to a higher correlation in their weekly mood scores than interns in different specialties or institutions.
 
-The primary contribution of this paper is the significant extension of data analytic methods for MRTs to account for potential cluster-level correlation and the extension of the causal excursion effect to account for potential interference, i.e., we define both a direct and indirect causal excursion effect.  In Section~\ref{section:preliminaries}, we review the MRT design and the existing method's implicit assumptions.  In Section~\ref{section:cond_effects}, we introduce the moderated causal excursion effect using a cluster-based conceptualization of potential outcomes \citep{Hong2006,Vanderweele2013}.  We then generalize WCLS criterion to a cluster-based WCLS (C-WCLS) criterion to estimate both direct and indirect causal excursion effects in Section~\ref{section:estimation}.  Finally, we demonstrate that when proximal outcomes exhibit within-cluster correlation but there is an absence of between-cluster treatment effect heterogeneity, our proposal agrees with the traditional approach both in terms of the point estimate and the asymptotic variance.  In Section~\ref{section:casestudy}, we illustrate the proposed method by estimating the causal excursion effects of push notifications on mood, sleep, and step count for a cohort of first year medical residents in the United States. The paper concludes with a brief discussion.
+The primary contribution of this paper is the significant extension of data analytic methods for MRTs to account for potential cluster-level correlation and the extension of the causal excursion effect to account for potential interference, i.e., we define both a direct and indirect causal excursion effect.  In Section~\ref{section:preliminaries}, we review the MRT design and the existing method's implicit assumptions.  In Section~\ref{section:cond_effects}, we introduce the moderated causal excursion effect using a cluster-based conceptualization of potential outcomes \citep{Hong2006,Vanderweele2013}.  We then generalize the WCLS criterion to a cluster-based WCLS (C-WCLS) criterion to estimate both direct and indirect causal excursion effects in Section~\ref{section:estimation}.  Finally, we demonstrate that when proximal outcomes exhibit within-cluster correlation but there is an absence of between-cluster treatment effect heterogeneity, our proposal agrees with the traditional approach both in terms of the point estimate and the asymptotic variance.  In Section~\ref{section:casestudy}, we illustrate the proposed method by estimating the causal excursion effects of push notifications on mood, sleep, and step count for a cohort of first year medical residents in the United States. The paper concludes with a brief discussion.
 
 \section{Preliminaries}
 \label{section:preliminaries}
@@ -105,7 +122,7 @@ where $S_t$ is a time-varying potential effect moderator (or ``state") and a det
 See Section \ref{section:prox_effects_pot_outcome} for how this estimand is derived using potential outcomes.  Under the assumption that $\beta(t;s) = f_t(s)^\top \beta^\star$ where $f_t(s) \in \mathbb{R}^q$ is a feature vector depending only on state $s$ and decision point $t$, a consistent estimator $\hat \beta$ can be obtained by minimizing the following weighted and centered least squares (WCLS) criterion:
 \begin{equation}
 \label{eq:mrtstandard}
-\arg \max_{\alpha, \beta} \mathbb{P}_n \left[ \sum_{t=1}^T W_t \left( Y_{t+1} - g_t(H_t)^\prime \alpha - (A_t - \tilde p_t (1\textbf{} \mid S_t)) f_t (S_t)^\top \beta \right) \right]
+\arg \min_{\alpha, \beta} \mathbb{P}_n \left[ \sum_{t=1}^T W_t \left( Y_{t+1} - g_t(H_t)^\prime \alpha - (A_t - \tilde p_t (1 \mid S_t)) f_t (S_t)^\top \beta \right)^2 \right]
 \end{equation}
 where~$\mathbb{P}_n$ is defined as the average of a function over the sample, $W_t = \tilde p_t (A_t \mid S_t) / p_t (A_t \mid H_t)$ is a weight where the numerator is an arbitrary function with range $(0,1)$ that only depends on $S_t$ and the denominator is the MRT specified randomization probability, and $g_t(H_t) \in \mathbb{R}^p$ are a set of control variables chosen to help reduce the variance of the estimators and to construct more powerful test statistics. In HeartSteps, for example, a natural control variable is the number of steps in the prior 30 minutes as this variable is likely highly correlated with the proximal response and thus can be used to reduce variance in the estimation of $\beta$. See~\cite{Boruvkaetal} for additional details on how to define and estimate moderated time-varying treatment effects using data from an MRT.
 
@@ -119,7 +136,7 @@ Here we consider a cluster-based definition of causal excursion effect and corre
 \subsection{Motivating Example}
 \label{section:motex}
 
-Intern Health Study (IHS) is a 6-month micro-randomized trial on 1,565 medical interns~\citep{Necamp2020}.  Due to high depression rates and levels of stress during the first year of physician residency training, a critical question is whether targeted notifications can be used at the right time to improve mood, increase sleep time, and/or increase physical activity. Enrolled medical interns were randomized weekly to receive either mood, activity, or sleep notifications or receive no notifications for that week (probability 1/4 each).  On a week in which notifications are provided, interns were randomized daily to receive a notification with probability 50\%. Hence for a notification week, the user received, on average, 3.5 notifications. The exploratory and MRT analyses conducted in this paper focus on weekly randomization; See~\cite{Necamp2020} for further study details.
+The Intern Health Study (IHS) is a 6-month micro-randomized trial on 1,565 medical interns~\citep{Necamp2020}.  Due to high depression rates and levels of stress during the first year of physician residency training, a critical question is whether targeted notifications can be used at the right time to improve mood, increase sleep time, and/or increase physical activity. Enrolled medical interns were randomized weekly to receive either mood, activity, or sleep notifications or receive no notifications for that week (probability 1/4 each).  On a week in which notifications are provided, interns were randomized daily to receive a notification with probability 50\%. Hence for a notification week, the user received, on average, 3.5 notifications. The exploratory and MRT analyses conducted in this paper focus on weekly randomization; See~\cite{Necamp2020} for further study details.
 
 Medical internships occur in a specific location and within a specific specialty.  The 1,565 interns in the MRT represented 321 different residency locations and 42 specialties.  Thus, interns are naturally clustered.  Table~\ref{tab:IHSanova} presents a standard equally-weighted analysis of variance (ANOVA) applied to the average weekly mood scores with three factors: week-in-study, residency and specialty both interacted with weekly treatment (Txt). Compared with the residual mean square of 1.27, there is considerable excess variation associated with week-in-study (28.44), residency by treatment (5.89) and specialty by treatment (8.41). In other words, the ANOVA suggests proximal responses exhibit potential within-cluster correlation within residency locations and specialties that varies with treatment. In this paper, we focus on defining clusters using specialty and institution information and do not discuss multi-level clusters.
 
@@ -160,7 +177,7 @@ Consider a cluster of size $G$.  The overbar is used to denote a sequence throug
 In standard MRTs, the individual is the unit of interest.  In our current setting, the cluster is the unit of interest.  At the cluster level, our interest lies in the effect of providing treatment versus not providing treatment at time $t$ on a random individual in the group.  This can be expressed as a difference in potential outcomes for the proximal response and is given by
 \begin{equation}
 \label{eq:directeffect}
-\frac{1}{G} \sum_{j=1}^G \left[ Y_{t+1,j} (\bar a_{t,-j}, (\bar a_{t-1,j}, a_{tj}=1)) - Y_{t+1,j} (\bar a_{t,-j}, (\bar a_{t-1,j}, a_{tj}=0)) \right].
+\frac{1}{G} \sum_{j=1}^G \left[ Y_{t+1,j} (\bar a_{t,-j}, (\bar a_{t-1,j}, a_{t,j}=1)) - Y_{t+1,j} (\bar a_{t,-j}, (\bar a_{t-1,j}, a_{t,j}=0)) \right].
 \end{equation}
 Equation~\eqref{eq:directeffect} is a \emph{direct causal effect} of treatment compared to no treatment on the proximal response for the same individual, while all previous treatments on the individual and all treatments on every other member of the cluster are fixed to specific values.
 % \zw{clarify the directness means blocking all other paths except the path from $A_{tj}$ to $Y_{t+1,j}$}
@@ -201,7 +218,7 @@ where $J^\prime$ is uniformly distributed random index on the set $[G] \backslas
 
 It is useful to distinguish the above estimands, the traditional MRT estimand~\citep{Boruvkaetal}, and estimands commonly studies in longitudinal treatment effect estimation~\citep{Robins}. In the causal inference literature, the typical estimand is an expected outcome for a particular sequence of treatments,i.e.,~$\E \left[ Y(a_1,\ldots, a_T)\right]$.  Such estimands do not depend on the treatment distribution, but are often not of primary interest in the current MRT setting since many sequences of treatment may never be observed in finite samples given the large number of decision points (often hundreds or thousands).
 
-The estimands considered in this paper are most similar to average outcomes under a particular dynamic treatment regime~$\E_\pi \left[ Y(A_1,\ldots, A_T)\right]$ where $\pi$ denotes the dynamic treatment regime from which the treatments are drawn~\citep{MurphyJASA2001}. Indeed, for any $A_{u,j}$ not contained in $S_t (\bar A_{t-1})$, the direct and indirect effects depend on the distribution of $\{ A_{u,j} \}_{u < t, j \in [G]}$.  Estimands~\eqref{eq:directeffect} and~\eqref{eq:inddirectavglineareffect} marginalize over treatments not contained in $S_t(\bar A_{t-1})$ under the micro-randomized distribution.  Marginalization over different probabilistic assignment of treatments may yield different results. Therefore, the marginal direct and indirect effects depend on the study protocol. The reason for this is that micro-randomization is meant to gather information on how to optimize the design of intervention components~\citep{Collins2018}.  The marginal formulation of main and moderation effects characterizes contrasts excursions from the current treatment proctocol, mimics analyses used in a factorial design that marginalize over factors including time. Also see~\citet[Section 8]{Qian2021} for additional considerations.  Regardless, the effects considered in this paper are causal and depend on the cluster-level treatment distribution.  Due to this dependence, we recommend presenting the micro-randomization distribution together with the estimated treatment effects.
+The estimands considered in this paper are most similar to average outcomes under a particular dynamic treatment regime~$\E_\pi \left[ Y(A_1,\ldots, A_T)\right]$ where $\pi$ denotes the dynamic treatment regime from which the treatments are drawn~\citep{MurphyJASA2001}. Indeed, for any $A_{u,j}$ not contained in $S_t (\bar A_{t-1})$, the direct and indirect effects depend on the distribution of $\{ A_{u,j} \}_{u < t, j \in [G]}$.  Estimands~\eqref{eq:directeffect} and~\eqref{eq:inddirectavglineareffect} marginalize over treatments not contained in $S_t(\bar A_{t-1})$ under the micro-randomized distribution.  Marginalization over different probabilistic assignment of treatments may yield different results. Therefore, the marginal direct and indirect effects depend on the study protocol. The reason for this is that micro-randomization is meant to gather information on how to optimize the design of intervention components~\citep{Collins2018}.  The marginal formulation of main and moderation effects characterizes contrasts excursions from the current treatment proctocol, mimics analyses used in a factorial design that marginalize over factors including time. See~\citet[Section 8]{Qian2021} for additional considerations.  Regardless, the effects considered in this paper are causal and depend on the cluster-level treatment distribution.  Due to this dependence, we recommend presenting the micro-randomization distribution together with the estimated treatment effects.
 
 \subsection{Proximal Effect of Treatment \& Observable data: Identification}
 \label{section:prox_effects_data}
@@ -264,7 +281,7 @@ where $\mathbb{P}_M$ is defined as the average of a function over the sample, wh
 
 \begin{lemma}
 \label{lemma:asymnorm}
-Under assumption~\ref{ass:directeffect}, then, given invertibility and moment conditions, the estimator $\hat \beta$ that minimizes \eqref{eq:directwcls} satisfies $\sqrt{M} \left(\hat \beta - \beta^\star \right) \to N(0, Q^{-1} W Q^{-1})$ where
+Under assumption~\ref{ass:directeffect}, given invertibility and moment conditions, the estimator $\hat \beta$ that minimizes \eqref{eq:directwcls} satisfies $\sqrt{M} \left(\hat \beta - \beta^\star \right) \to N(0, Q^{-1} W Q^{-1})$ where
 $$
 Q = \mathbb{E} \left[ \sum_{t=1}^T \tilde p_t( 1 \mid S_{t} ) ( 1- \tilde p_t( 1 \mid S_{t} )) f_t (S_t) f_t (S_t)^\top \right]
 $$
@@ -285,7 +302,7 @@ Importantly, Assumption~\ref{ass:directeffect} is not required.  That is, we can
 $$
 \beta^\star = \arg \min_{\beta} \mathbb{E} \left[ \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T \tilde p_t(1 \mid S_t) \left( 1 - \tilde p_t(1 \mid S_t) \right) \left( \beta(t; S_t) - f_t (S_t)^\top \beta \right)^2 \right].
 $$
-Here, the weight is the variance of the numerator in the weight~$W_{t,j}$.  To interpret as a projection or to make the stronger Assumption~\ref{ass:directeffect} can be viewed as a bias-variance trade-off.  The projection interpretation guarantees well-defined parameter interpretation in practice where Assumption~\ref{ass:directeffect} is unlikely to hold.  See~\cite[Sec. 3.1, pp.9--10]{Kennedy2019} for a great discussion of the use of projectionsin causal versus predictive settings.
+Here, the weight is the variance of the numerator in the weight~$W_{t,j}$.  To interpret as a projection or to make the stronger Assumption~\ref{ass:directeffect} can be viewed as a bias-variance trade-off.  The projection interpretation guarantees well-defined parameter interpretation in practice where Assumption~\ref{ass:directeffect} is unlikely to hold.  See~\cite[Sec. 3.1, pp.9--10]{Kennedy2019} for a great discussion of the use of in causal versus predictive settings.
 \end{remark}
 
 \subsubsection{Connection To A Semiparametric Efficient Estimator}
@@ -307,11 +324,11 @@ K_{t,j} = &\bigg[ \frac{1}{\sigma^2_{t+1,j} (H_{t,j}, 1)} + p_t ( 1 \mid H_{t,j}
 \end{align*}
 \end{lemma}
 
-Semiparametric efficiency theory states that the solution $\hat \beta$ to $\mathbb{P}_n S_{\text{eff}} (\psi) = 0$ achieves the semiparametric efficiency bound~\citep{Newey1990}.  \cite{Qian2021} proved a similar result for the causal excursion effect on the relative risk scale for binary outcomes.  Corollary~\eqref{cor:semiparametricconnection} motivates the C-WCLS criterion for the direct effect given by~\eqref{eq:directwcls} from the semiparametric efficiency perspective under particular working homoskedastic assumptions on the conditional variance~$\sigma^2_{t+1} (H_{t,j}, A_{t,j})$ and a working model~$g_t (H_{t,j})^\prime \alpha$ for the unknown quantity~$\mu(H_{t,j})$.
+Semiparametric efficiency theory states that the solution $\hat \beta$ to $\mathbb{P}_n S_{\text{eff}} (\psi) = 0$ achieves the semiparametric efficiency bound~\citep{Newey1990}. \cite{Qian2021} proved a similar result for the causal excursion effect on the relative risk scale for binary outcomes.  Unlike~\cite{Qian2021}, the efficient score here requires estimates of the conditional variance, which may be difficult to obtain. Corollary~\eqref{cor:semiparametricconnection} motivates the C-WCLS criterion for the direct effect given by~\eqref{eq:directwcls} from the semiparametric efficiency perspective under particular working homoskedastic assumptions on the conditional variance~$\sigma^2_{t+1} (H_{t,j}, A_{t,j})$ and a working model~$g_t (H_{t,j})^\prime \alpha$ for the unknown quantity~$\mu(H_{t,j})$.  Making the homoskedastic assumption helps avoid the conditional variance estimation problem.  While this establishes a connection between the C-WCLS criterion and semiparametric efficiency scores, more work on efficiency theory for causal excursions effects is considered important future work.
 
 \begin{cor}
 \label{cor:semiparametricconnection}
-Under the assumption $\text{Var}(Y_{t+1,j} \mid H_{t,j}, A_{t,j}) := \sigma^2_{t+1}(H_t)$,i.e., is constant in the second argument~$A_{t,j}$, then the weight~$K_{t,j}$ simplifies and is equal to $(\sigma^2_{t+1}(H_t))^{-1}$ and the semiparametric efficient score~\eqref{eq:effscore} weights each decision time by the corresponding conditional variance.  Under the further assumption that this variance does not depend on the history, i.e., $\sigma^2_{t+1} (H_{t,j}) = \sigma^2$, and a working model for the conditional mean $\mu (H_{t,j}) := g (H_{t,j})^\top \alpha$, the cluster-based, weighted-centered least squares criterion~\eqref{eq:directwcls} is equivalent to the semiparametric efficient estimate for the fully conditional effect.
+Under the assumption $\text{Var}(Y_{t+1,j} \mid H_{t,j}, A_{t,j}) := \sigma^2_{t+1}(H_{t,j})$,i.e., is constant in the second argument~$A_{t,j}$, then the weight~$K_{t,j}$ simplifies and is equal to $(\sigma^2_{t+1}(H_{t,j}))^{-1}$ and the semiparametric efficient score~\eqref{eq:effscore} weights each decision time by the corresponding conditional variance.  Under the further assumption that this variance does not depend on the history, i.e., $\sigma^2_{t+1} (H_{t,j}) = \sigma^2$, and a working model for the conditional mean $\mu (H_{t,j}) := g (H_{t,j})^\top \alpha$, the cluster-based, weighted-centered least squares criterion~\eqref{eq:directwcls} is equivalent to the semiparametric efficient estimate for the fully conditional effect.
 \end{cor}
 
 \subsection{Indirect Effect Estimation}
@@ -489,9 +506,9 @@ Scenario & Estimator & \# of Clusters & Cluster Size & Estimate & SE & RMSE & CP
 
 % \hs{4. Demonstrate indirect effect}
 
-\noindent {\bf Simulation Scenario IV}.  The fourth scenario considers the indirect effect.  For individual $j$ at decision point $t$, we construct the total effect as $TE_{j,t} = \sum_{j^\prime \neq j} \{A_{t,j^\prime} - \tilde p_{t, j^\prime} ( 1 \mid H_t) \} (\beta_{20} + \beta_{21} S_{t,j^\prime})$, where $\beta_{20} = -0.1$ and $\beta_{21} = 0.2$. The generative model is given by:
+\noindent {\bf Simulation Scenario IV}.  The fourth scenario considers the indirect effect.  For individual $j$ at decision point $t$, we construct the total effect as $TE_{t,j} = \sum_{j^\prime \neq j} \{A_{t,j^\prime} - \tilde p_{t, j^\prime} ( 1 \mid H_t) \} (\beta_{20} + \beta_{21} S_{t,j^\prime})$, where $\beta_{20} = -0.1$ and $\beta_{21} = 0.2$. The generative model is given by:
 \begin{equation*}
-    Y_{t+1,j} = (-0.2 + b_g +  0.2 \cdot \bar S_{t,g}) \times \{A_{t,j} -p_t(1|H_{t,j})\}+ 0.8 S_{t,j} +TE_{j,t} +e_g +e_{t+1,j}
+    Y_{t+1,j} = (-0.2 + b_g +  0.2 \cdot \bar S_{t,g}) \times \{A_{t,j} -p_t(1|H_{t,j})\}+ 0.8 S_{t,j} +TE_{t,j} +e_g +e_{t+1,j}
 \end{equation*}
 This model implies a marginal indirect effect equal to $\beta_1^{(IE)} = \beta_{20} = -0.1$. Table~\ref{tab:simresults_indirect} presents the results.  We see that the proposed indirect estimator exhibited nearly no bias and achieved the nominal coverage probability.
 
@@ -521,7 +538,7 @@ In IHS,  273 institutions and 14 specialties were observed.   Here, we assess th
 %\zw{isn't Likert five levels?} in pic from https://www.jmir.org/2020/3/e15033/pdf it shows 1-10.  Data also seems to be on that scale.
 Let $t=1,\ldots,T$ denote the weekly decision points at which the individual is randomized to the various types of notifications.  Because of the form of the intervention, all participants were available for this intervention throughout the study; i.e., $I_t \equiv 1$. The proximal outcome~$Y_{j,t+1}$ is weekly mood score, which is reported on a Likert scale  taking values from 1 to 10 (higher scores mean better mood). We collapse notifications to a binary variable, i.e., $A_{t,j}=1$ if the individual was assigned to receive either mood, activity, or sleep notifications on week $t$; otherwise, $A_{t,j}= 0$ and no notifications were sent that week. At any occasion $t$, an individual's notification randomization probabilities were only dependent of their past observed history~$H_{t,j}$. For simplicity, we start with clusters beingare constructed based on medical specialty.  The average cluster size was 120; the first and third quartile were 56 and 140 respectively, with maximum and minimum sizes of 353 and 24.  For every individual in each cluster at each decision point we compute the average prior weekly mood score for all others in the cluster, denoted $\bar Y_{-j, t}$ for the $j$th individual in the cluster.  We consider two moderation analyses that can both be expressed as
 $$
-\beta(t; S_t) = \beta_0 + \beta_1 \cdot Y_{j,t-1} + \beta_2 \bar Y_{-j, t-1}.
+\beta(t; S_t) = \beta_0 + \beta_1 \cdot Y_{t-1,j} + \beta_2 \bar Y_{t-1,-j}.
 $$
 
 The first set of moderation analyses considers the standard moderation analysis where only individual-level moderators are included (i.e., $\beta_2 = 0$), with or without accounting for cluster-level moderation effect heterogeneity. Table~\ref{tab:IHS_direct} presents the results and compares our proposed approach against the WCLS approach from~\cite{Boruvkaetal}.  In this case, the effects do not change too much for the average weekly mood analysis; however, the significant effect of messages on weekly log step count under the traditional MRT analysis becomes insignificant when accounting for cluster effects.
@@ -585,340 +602,359 @@ The authors would like to thank the Intern Health Study (IHS) team at University
 
 \newpage
 
-\appendix
+% \appendix
 
-\section{Technical Details}
-\label{app:techdetails}
+% \section{Technical Details}
+% \label{app:techdetails}
 
-\begin{proof}{Proof of Lemma \ref{lemma:cond_effect}}
-We establish Lemma~\ref{lemma:cond_effect} for the direct effect~\eqref{eq:directavglineareffect}. For~$a_s \in \{ 0,1\}^{G}$, we consider
-\begin{align*}
-\E &\left[\left(\prod_{s=1}^{t-1} p_s(a_s|H_s(\bar a_{s-1})) \right) \left( \prod_{j^\prime \neq j} p_t(a_{t,j^\prime} \mid H_t(\bar a_{t-1})\right)
- Y_{t+1,j} (\bar{a}_{t,-j}, (\bar a_{t-1,J},a)) {\bf 1}_{S_t(\bar a_t) = s} \right] \\
- \E &\left[\left(\prod_{s=1}^{t-1} p_s(a_s|H_s(\bar a_{s-1})) \right) \left( \prod_{j^\prime \neq j} p_t(a_{t,j^\prime} \mid H_t(\bar a_{t-1}) \right) {\bf 1}_{S_t(\bar a_t) = s}  \E \left[ Y_{t+1,j} (\bar{a}_{t,-j}, (\bar a_{t-1,j},a)) \mid H_t (\bar a_{t-1}) \right] \right]
-\end{align*}
-since the history $H_t$ includes the moderator variable $S_t$ at time $t$. By consistency,~$H_t(\bar{A}_{t-1}) = H_t$ so the above is equal to
- \begin{equation} \label{eq:cons_version}
-\E \left[\left(\prod_{s=1}^{t-1} p_s(a_s|H_s) \right) \left( \prod_{j^\prime \neq J} p_t(a_{t,j^\prime} \mid H_t \right)  {\bf 1}_{S_t(\bar a_t) = s}
- \E \left[ Y_{t+1,j} (\bar{a}_{t,-j}, (\bar a_{t-1,j},a))   \given H_t \right]  \right]
- \end{equation}
-Sequential ignorability implies that
-\begin{align*}
- \E &\left[ Y_{t+1,j} (\bar{a}_{t,-j}, (\bar a_{t-1,j},a)) \given H_t \right]  \\
- = \E &\left[ Y_{t+1,j} (\bar{a}_{t,-j}, (\bar a_{t-1,j},a)) \given H_{t}, A_{t,j} = a \right]
-\end{align*}
-Summing over all potential outcomes and normalizing yields
-\begin{align*}
-\E &\left[ \sum_{\bar{a}_{t-1}} \frac{\left(\prod_{s=1}^{t-1} p_s(a_s|H_s) \right) \left( \prod_{j^\prime \neq j} p_t(a_{t,j^\prime} \mid H_t \right)  {\bf 1}_{S_t(\bar a_t) = s}}{\E [ \left(\prod_{s=1}^{t-1} p_s(a_s|H_s) \right) \left( \prod_{j^\prime \neq j} p_t(a_{t,j^\prime} \mid H_t \right)  {\bf 1}_{S_t(\bar a_t) = s}]}
- \E \left[ Y_{t+1,j} (\bar{a}_{t,-j}, (\bar a_{t-1},a)) \given H_t, A_{t,j} = a \right] \, \right] \\
- = \E &\left[ \sum_{\bar{a}_{t-1}} \frac{\left(\prod_{s=1}^{t-1} p_s(a_s|H_s) \right) \left( \prod_{j^\prime \neq j} p_t(a_{t,j^\prime} \mid H_t \right)  {\bf 1}_{S_t(\bar a_t) = s}}{\E [ \left(\prod_{s=1}^{t-1} p_s(a_s|H_s) \right) \left( \prod_{j^\prime \neq j} p_t(a_{t,j^\prime} \mid H_t \right)  {\bf 1}_{S_t(\bar a_t) = s}]}
-  \E \left[ Y_{t+1,j} (\bar{a}_{t,-j}, (\bar a_{t-1},a)) \given H_t, A_t = a \right] \given S_t = s \right] \\
-  = \E &\left[ \E \left[ Y_{t+1,j}  \given H_t, A_t = a \right] \given S_t = s \right].
-\end{align*}
-In the final equation, the outer expectation is with respect to the history~$H_t$ conditional on~$S_t=s$.  That is, over \emph{both} past treatments~$A_s$
-and past observations~$O_s$ for $s < t$ as well as over current treatments for $A_{t,j^\prime}$ for $j^\prime \neq j$. The above shows
-$$
-\E \left[ Y_{t+1} (\bar{A}_{t,-j}, (\bar A_{t-1,j},a)) \mid S_t (\bar a_t) = s \right] = \E \left[ \E \left[Y_{t+1, j}  \given H_t, A_{t,j} = a \right] \given S_t = s \right].
-$$
-Averaging over individuals in the group $j \in [G]$ group size completes the proof.
-The proof for the indirect effect follows the exact same structure.
-\end{proof}
-
-\subsection{Lemma~\ref{lemma:asymnorm}}
-\label{app:asymptotics}
-
-We next provide a detailed proof of asymptotic normality and consistency
-for the weighted-centered least squares estimator.
-
-\begin{proof}[Proof of consistency for direct and indirect effects]
-The solutions~$(\hat \alpha,\hat \beta)$ that minimize equation~\eqref{eq:directwcls} are consistent estimators for the
-solutions that minimize the following
-\[
-\E \left[ \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T W_{t,j} \left( Y_{t+1,j} - g_t(H_t)^\prime \alpha
--  (A_{t,j} - \tilde{p}_t (1 \given S_t) ) f_t (S_t)^\prime \beta \right)^2 \right]
-\]
-Differentiating the above equation with respect to~$\alpha$
-yields a set of~$p$ estimating equations.
-\begin{align*}
-0_{q^\prime}&= \E \left[ \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T W_{t,j} \left( Y_{t+1,j} - g_t(H_t)^\prime \alpha -  (A_{t,j} - \tilde{p}_t (1 \given S_t) ) f_t (S_t)^\prime \beta \right) g_t(H_t) \right]
-\end{align*}
-We note that
-$$
-\E \left[ W_{t,J} (A_{t,J} - \tilde{p}_t (1 \given S_t) )
-f_t (S_t)^\prime \beta \given H_t \right] = 0.
-$$
-Therefore, we have,
-\begin{align*}
-0_{p}&= \E \left[ \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T (g_t(H_t) \E \left[ W_{t,j} Y_{t+1, j} \right] - g_t(H_t)  g_t(H_t)^\prime \alpha) \right] \\
-\Rightarrow \alpha  &= \E \left[ \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T g_t(H_t)  g_t(H_t)^\prime  \right]^{-1} E \left[ \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T g_t(H_t) \E \left[ W_{t,j} Y_{t+1, j} \right] \right]
-\end{align*}
-We note that
-\begin{align*}
-&\E \left[ W_{t,J} (A_{t,J} - \tilde{p}_t (1 \given S_t) )
-g_t (H_t)^\prime \alpha \right] = 0, \quad \text{and} \\
-&\E \left[ W_{t,J} (A_{t,J} - \tilde{p}_t (1 \given S_t) )
-Y_{t+1,J} \right] =
-\tilde{p}_t (1 \given S_t) (1- \tilde{p}_t (1 \given S_t)) \beta (t; S_t)
-\end{align*}
-Now differentiating with respect to~$\beta$ yields
-\begin{align*}
-0_{q}&= \E \left[ \sum_{t=1}^T W_{t,J} \left( Y_{t+1,J} - g_t(H_t)^\prime \alpha
--  (A_{t,J} - \tilde{p}_t (1 \given S_t) ) f_t (S_t)^\prime \beta \right) (A_{t,J} - \tilde{p}_t(1 \given S_t)) f_t (S_t) \right] \\
-0_{q}&= \E \left[ \sum_{t=1}^T \tilde{p}_t (1 \given S_t) (1- \tilde{p}_t (1 \given S_t)) \left( \beta (t; S_t) - f_t (S_t)^\prime \beta^\star \right) f_t (S_t) \right]
-\end{align*}
-Then we have
-\begin{align*}
-\beta^\star &= \E\left[ \sum_{t=1}^T  \tilde{p}_t (1 \given S_t) (1- \tilde{p}_t (1 \given S_t)) f_t(S_t) f_t(S_t)^\prime \right]^{-1} \E\left[ \sum_{t=1}^T  \tilde{p}_t (1 \given S_t) (1- \tilde{p}_t (1 \given S_t)) f_t(S_t) \beta (t;S_t) \right]
-\end{align*}
-Under assumption~\ref{ass:directeffect}, we have that $\beta = \beta^\star$ which guarantees consistency.
-
-We next consider the indirect effect estimator.  Recall that
-$$
-\tilde{p}^\star_t (1 \given S_t) = \frac{\tilde{p}_t (0,1 \given S_t)}{\tilde{p}_t (0,0 \given S_t)+\tilde{p}_t (0,1 \given S_t)}
-$$
-is the replacement for $\tilde p(1 \mid S_t)$ in the direct effect for centering.  If we make the assumption that $\tilde p_t (0,1 \mid S_t) = \tilde p_t (0 \mid S_t) \tilde p_t (1 \mid S_t)$ then $\tilde{p}^\star_t (1 \given S_t) = \tilde{p}_t (1 \given S_t)$; however, we provide the proof in complete generality. The estimates that minimize equation~\eqref{eq:indirectwcls} are consistent estimators for the solutions that minimize the following
-\[
-\E \left[ \sum_{t=1}^T W_{t,J, J^\prime} \left( Y_{t+1,J} - g_t(H_t)^\prime \alpha
--  (1-A_{t,J}) (A_{t,J^\prime} - \tilde{p}^\star_t (1 \given S_t) ) f_t (S_t)^\prime \beta \right)^2 \right]
-\]
-Differentiating the above equation with respect to~$\alpha$
-yields a set of~$p$ estimating equations.
-\begin{align*}
-0_{p}&= \E \left[ \sum_{t=1}^T W_{t,J,J^\prime} \left( Y_{t+1,J} - g_t(H_t)^\prime \alpha
--  (1-A_{t,J}) (A_{t,J^\prime} - \tilde{p}_t^\star (1 \given S_t) ) f_t (S_t)^\prime \beta \right) g_t(H_t) \right]
-\end{align*}
-We note that
-$$
-\E \left[ W_{t,J, J^\prime} (1-A_{t,J}) (A_{t,J^\prime} - \tilde{p}_t^\star (1 \given S_t) )
-f_t (S_t)^\prime \beta \given H_t \right] = 0.
-$$
-Therefore, we have,
-\begin{align*}
-0_{p}&= \E \left[ \sum_{t=1}^T (g_t(H_t) \E \left[ W_{t,J,J^\prime} Y_{t+1, J} \right] - g_t(H_t)  g_t(H_t)^\prime \alpha) \right] \\
-\Rightarrow \alpha  &= \E \left[ \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T g_t(H_t)  g_t(H_t)^\prime  \right]^{-1} E \left[ \sum_{t=1}^T g_t(H_t) \E \left[ W_{t,J, J^\prime} Y_{t+1, J} \right] \right]
-\end{align*}
-First, we show that
-\begin{align*}
-&\E \left[ W_{t,J, J^\prime} (1-A_{t,J}) (A_{t,J^\prime} - \tilde{p}_t^\star (1 \given S_t) )
-\mid H_t \right] \\
-= &\sum_{a^\prime \in \{0,1\}} \E \left[ \tilde{p}_t (0,a^\prime \mid S_t)  (a^\prime - \tilde{p}_t^\star (1 \given S_t) )
-\mid H_t, A_t = 0, A_{t,J^\prime} = a^\prime \right]\\
-=& \tilde{p}_t (0,1 \mid S_t)  (1 - \frac{\tilde{p}_t (0,1 \given S_t)}{\tilde{p}_t (0,0 \given S_t)+\tilde{p}_t (0,1 \given S_t)} ) -  \tilde{p}_t (0,0 \mid S_t) \frac{\tilde{p}_t (0,1 \given S_t)}{\tilde{p}_t (0,0 \given S_t)+\tilde{p}_t (0,1 \given S_t)} = 0
-\end{align*}
-and
-\begin{align*}
-&\E \left[ W_{t,J, J^\prime} (1-A_{t,J}) (A_{t,J^\prime} - \tilde{p}_t^\star (1 \given S_t) )^2
-\mid H_t \right] \\
-=& \tilde{p}_t (0,1 \mid S_t) \left( \frac{\tilde{p}_t (0,0 \given S_t)}{\tilde{p}_t (0,0 \given S_t) +\tilde{p}_t (0,1 \given S_t)} \right)^2 + \tilde{p}_t (0,0 \mid S_t) \left( \frac{\tilde{p}_t (0,1 \given S_t)}{\tilde{p}_t (0,0 \given S_t)+\tilde{p}_t (0,1 \given S_t)} \right)^2 \\
-=& ( \tilde{p}_t (0,0 \mid S_t) + \tilde{p}_t (0,1 \mid S_t) ) \tilde{p}_t^\star (1 \mid S_t) (1- \tilde{p}_t^\star (1 \mid S_t)).
-\end{align*}
-This implies that
-\begin{align*}
-&\E \left[ W_{t,J, J^\prime} (1-A_{t,J}) (A_{t,J^\prime} - \tilde{p}_t^\star (1 \given S_t) )
-g_t (H_t)^\prime \alpha \right] = 0, \quad \text{and} \\
-&\frac{\E \left[ W_{t,J, J^\prime} (1-A_{t,J}) (A_{t,J^\prime} - \tilde{p}_t^\star (1 \given S_t) )
-Y_{t+1,J} \right]}{\tilde{p}_t (0,0 \mid S_t) + \tilde{p}_t (0,1 \mid S_t)} = \tilde{p}_t^\star (1 \mid S_t) (1- \tilde{p}_t^\star (1 \mid S_t)) \beta^{(IE)} (t; S_t).
-\end{align*}
-Now differentiating with respect to~$\beta$ yields
-\begin{align*}
-0_{q}&= \E \left[ \sum_{t=1}^T ( \tilde{p}_t (0,0 \mid S_t) + \tilde{p}_t (0,1 \mid S_t) ) \tilde{p}_t^\star (1 \mid S_t) (1- \tilde{p}_t^\star (1 \mid S_t)) \left( \beta^{(IE)} (t; S_t) - f_t (S_t)^\prime \beta^{\star \star} \right) f_t (S_t) \right]
-\end{align*}
-Under assumption~\ref{ass:indirecteffect}, we have that $\beta = \beta^{\star \star}$ which guarantees consistency.
-\end{proof}
-
-\begin{proof}[Proof of Asymptotic Normality]
-We now consider the issue of asymptotic normality.  First, let
-\[
-\epsilon_{t,j} = Y_{t+1,j} - g_t(H_t)^{\prime} \alpha^\star - (A_{t,j}-\tilde{p}_t(1 \mid S_t)) f_t(S_t)^{\prime} \beta^\star,
-\]
-$\hat{\theta} = (\hat{\alpha}, \hat{\beta})$, and $\theta^\star = (\alpha^\star, \beta^\star)$.
-Since $S_t \subset H_t$ define $h_{t,j}(H_t)^\prime = (g_t(H_t)^\prime, (A_{t,j}-\tilde{p}_t(1 \given S_t)) f_t(S_t)^\prime)$. Then
-\begin{align*}
-\sqrt{M} ( \hat{\theta} - \theta^\star )
-  &= \sqrt{M} \bigg \{ \mathbb{P}_M \bigg( \frac{1}{G_m} \sum_{j=1}^{G_m} \sum_{t=1}^T W_{t,j} h_{t,j}(H_t) h_{t,j}(H_t)^\prime \bigg)^{-1} \bigg[
-    \mathbb{P}_M \bigg( \frac{1}{G_m} \sum_{j=1}^{G_m} \sum_{t=1}^T W_{t,j}
-    Y_{t+1,j} h_{t,j}(H_t) \bigg) \\
-  &- \mathbb{P}_M \bigg( \frac{1}{G_m} \sum_{j=1}^{G_m}
-  \sum_{t=1}^T W_{t,j} h_{t,j}(H_t) h_{t,j}(H_t)^\prime \bigg)
-    \theta^\star \bigg] \bigg \} \\
-  &= \sqrt{M} \bigg \{ E \bigg[
-  \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T W_{t,j} h_{t,j}(H_t)
-  h_{t,j}(H_t)^\prime \bigg]^{-1} \\
-  &\bigg[ \mathbb{P}_M \bigg( \frac{1}{G_m} \sum_{j=1}^{G_m} \sum_{t=1}^T
-    W_{t,j} \epsilon_{t,j} h_{t,j}(H_t) \bigg) \bigg] \bigg \} + o_p ( {\bf 1} )
-\end{align*}
-By definitions of $\alpha^\star$ and $\beta^\star$ and the previous consistency argument
-\[
-E \bigg[
-  \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T W_{t,j} h_{t,j}(H_t)
-  h_{t,j}(H_t)^\prime \bigg]  = 0
-\]
-Then under moments conditions, we have asymptotic normality with variance $\Sigma_{\theta}$ given by
-\begin{align*}
-\Sigma_{\theta} &= E \left[ \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T W_{t,j} h_{t,j}(H_t) h_{t,j}(H_t)^\prime \right]^{-1} \\
-                &E \left[ \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T W_{t,j} \epsilon_{t,j} h_{t,j}(H_t)
-                  \times  \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T W_{t,j} \epsilon_{t,j} h_{t,j}(H_t)^\prime \right] \\
-                &E \left[ \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T W_{t,j} h_{t,j}(H_t) h_{t,j}(H_t)^\prime \right]^{-1}
-\end{align*}
-Due to centering, the expectation of the matrix
-$W_{t,J} h_{t,J}(H_t) h_{t,J} (H_t)^\prime$ is block diagonal and
-the sub-covariance matrix~$\Sigma_{\beta}$ can be extracted and is equal to
-\begin{align*}
- \Sigma_{\beta} &=  \left[ \sum_{t=1}^T E[ (A_{t,J} - \tilde{p}_t (1 \mid S_t)
-                  )^2 W_{t,J} f_t (S_t) f_t (S_t)^\prime ] \right]^{-1} \\
-  &\cdot E \bigg[ \sum_{t=1}^T W_{t,J} \epsilon_{t,J}
-                  (A_{t,J} - \tilde{p}_t( 1 \mid S_t)) f_t(S_t)
-          \times  \sum_{t=1}^T W_{t,J} \epsilon_{t,J}
-                  (A_{t,J} - \tilde{p}_t( 1 \mid S_t)) f_t(S_t)^\prime
-                  \bigg] \\
- &\, \cdot \left[ \sum_{t=1}^T E[ (A_{t,J} - \tilde{p}_t (1 \mid S_t)
-                  )^2 W_{t,J} f_t (S_t) f_t (S_t)^\prime ] \right]^{-1}
-\end{align*}
-as desired.
-
-We next consider asymptotic normality in the indirect setting.  First, let
-\[
-\epsilon_{t,j,j^\prime} = Y_{t+1,j} - g_t(H_t)^{\prime} \alpha^{\star \star} - (1 - A_{t,j})(A_{t,j^\prime}-\tilde{p}^\star_t(1 \mid S_t)) f_t(S_t)^{\prime} \beta^{\star \star},
-\]
-$\hat{\theta} = (\hat{\alpha}, \hat{\beta})$, and $\theta^\star = (\alpha^{\star \star}, \beta^{\star \star})$.
-Since $S_t \subset H_t$ define $h_{t,j,j^\prime}(H_t)^\prime = (g_t(H_t)^\prime, (1-A_{t,j}) (A_{t,j^\prime}-\tilde{p}^\star_t(1 \given S_t)) f_t(S_t)^\prime)$. Then $\sqrt{M} ( \hat{\theta} - \theta^{\star \star} )$ equals
-\begin{align*}
-  &\sqrt{M} \bigg \{ \mathbb{P}_M \bigg( \frac{1}{G_m \cdot (G_m-1)} \sum_{j=1}^{G_m} \sum_{j^\prime \neq j} \sum_{t=1}^T W_{t,j,j^\prime} h_{t,j,j^\prime}(H_t) h_{t,j,j^\prime}(H_t)^\prime \bigg)^{-1} \\
-  &\bigg[
-    \mathbb{P}_M \bigg( \frac{1}{G_m \cdot (G_m - 1)} \sum_{j=1}^{G_m} \sum_{j^\prime \neq j} \sum_{t=1}^T W_{t,j} Y_{t+1,j} h_{t,j,j^\prime}(H_t) \bigg)  \\
-  &- \mathbb{P}_M \bigg( \frac{1}{G_m \cdot (G_m - 1)} \sum_{j=1}^{G_m}\sum_{j^\prime \neq j}
-  \sum_{t=1}^T W_{t,j,j^\prime} h_{t,j, j^\prime}(H_t) h_{t,j, j^\prime}(H_t)^\prime \bigg)
-    \theta^\star \bigg] \bigg \} \\
-  = &\sqrt{M} \bigg \{ E \bigg[
-  \frac{1}{G (G-1)} \sum_{j=1}^G \sum_{j^\prime \neq j} \sum_{t=1}^T W_{t,j,j^\prime} h_{t,j, j^\prime}(H_t) h_{t,j, j^\prime}(H_t)^\prime \bigg]^{-1} \\
-  &\bigg[ \mathbb{P}_M \bigg( \frac{1}{G_m \cdot (G_m-1)} \sum_{j=1}^{G_m} \sum_{j^\prime \neq j} \sum_{t=1}^T W_{t,j,j^\prime} \epsilon_{t,j, j^\prime} h_{t,j,j^\prime}(H_t) \bigg) \bigg] \bigg \} + o_p ( {\bf 1} )
-\end{align*}
-By definitions of $\alpha^{\star \star}$ and $\beta^{\star \star}$  and the previous consistency argument
-\[
-E \bigg[
-  \frac{1}{G \cdot (G-1)} \sum_{j=1}^G \sum_{j^\prime \neq j} \sum_{t=1}^T W_{t,j,j^\prime} h_{t,j,j^\prime}(H_t)
-  h_{t,j,j^\prime}(H_t)^\prime \bigg]  = 0
-\]
-Then under moments conditions, we have asymptotic normality with variance $\Sigma_{\theta}$ given by
-\begin{align*}
-\Sigma_{\theta} &= E \left[ \frac{1}{G \cdot (G-1)} \sum_{j=1}^G \sum_{j^\prime \neq j} \sum_{t=1}^T W_{t,j,j^\prime} h_{t,j,j^\prime}(H_t) h_{t,j,j^\prime}(H_t)^\prime \right]^{-1} \\
-                &E \left[ \frac{1}{G (G-1)} \sum_{j=1}^G \sum_{j^\prime \neq j} \sum_{t=1}^T W_{t,j, j^\prime} \epsilon_{t,j, j^\prime} h_{t,j, j^\prime}(H_t)
-                  \times  \frac{1}{G(G-1)} \sum_{j=1}^G \sum_{j^\prime \neq j} \sum_{t=1}^T W_{t,j} \epsilon_{t,j, j^\prime} h_{t,j, j^\prime}(H_t)^\prime \right] \\
-                &E \left[ \frac{1}{G \cdot (G-1)} \sum_{j=1}^G \sum_{j^\prime \neq j} \sum_{t=1}^T W_{t,j,j^\prime} h_{t,j,j^\prime}(H_t)
-  h_{t,j,j^\prime}(H_t)^\prime  \right]^{-1}
-\end{align*}
-Due to centering, the expectation of the matrix
-$W_{t,J, J^\prime} h_{t,J,J^\prime}(H_t) h_{t,J, J^\prime} (H_t)^\prime$ is block diagonal and
-the sub-covariance matrix~$\Sigma_{\beta}$ can be extracted and is equal to
-\begin{align*}
- \Sigma_{\beta} &=  \left[ \sum_{t=1}^T E[ (1- A_{t,J}) (A_{t,J^\prime} - \tilde{p}_t^\star (1 \mid S_t)
-                  )^2 W_{t,J, J^\prime} f_t (S_t) f_t (S_t)^\prime ] \right]^{-1} \\
-  &\cdot E \bigg[ \sum_{t=1}^T W_{t,J, J^\prime} \epsilon_{t,J, J^\prime}
-                  (1-A_{t,J}) (A_{t,J^\prime} - \tilde{p}_t( 1 \mid S_t)) f_t(S_t) \\
-          &\times  \sum_{t=1}^T W_{t,\tilde  J, \tilde J^\prime} \epsilon_{t, \tilde J, \tilde J^\prime}
-                  (1-A_{t,\tilde J}) (A_{t,\tilde J^\prime} - \tilde{p}_t^\star( 1 \mid S_t)) f_t(S_t)^\prime
-                  \bigg] \\
- &\, \cdot \left[ \sum_{t=1}^T E[ (1-A_{t,J}) (A_{t,J^\prime} - \tilde{p}_t (1 \mid S_t)
-                  )^2 W_{t,J,J^\prime} f_t (S_t) f_t (S_t)^\prime ] \right]^{-1}
-\end{align*}
-as desired.
-\end{proof}
-
-% \section{Additional simulation details}
-% \label{app:simdetails}
-
-% Different scenarios were devised by setting $\beta_{11}^*$ to one of 0.2, 0.5, 0.8, giving respectively a small, medium, or large degree of moderation by $S_t$. Since $\eta_1$ and $\eta_2$ are nonzero, the treatment $A_t$ is assigned with a probability depending on both $S_t$ and past treatment $A_{t-1}$, for each $t$.
-
-% In the weighted and centered analysis, we parameterize and estimate $\tilde{p}_t$. In particular, $\tilde{p}_t(a;\hat{p}) = \hat{p}^a(1-\hat{p})^{1-a}$ where $\hat{p} = \P_n \sum_{t=1}^T A_t/T$. The weights are set to $W_t = \hat{p}^{A_t}(1-\hat{p})^{1-A_t}/p_t(A_t|H_t)$ and the working model for $\E \left[W_tY_{t+1}|H_t \right]$ is $a_{10}+a_{11}S_t$ (i.e., $g_t(H_t)= (1, S_t)^T$). Thus the estimating function is given by: \hs{Is this necessary?}
-% % $$
-% %     \sum_{t=1}^T (Y_{t+1} - (a_{10}+a_{11}S_t) - (A_t - \hat{p})\beta_1)W_t
-% %     \left( \begin{array}{c}
-% %          (1,S_t)^T \\
-% %          A_t -\hat{p}
-% %     \end{array}  \right) =0
-% % $$
-
-
-% \hs{2.  Show under-coverage when $b_g$ interacts with centered treatments - provide intuition; Show under different group size the difference in estimation}
-
-% Unlike the above scenarios, the definition of indirect effect here excludes the observations with $A_{t,j} = 1$. Hence, we can make references on how interactions will influence the response $Y_{t+1,j}$ when treatment is absent. Weights are set to be $w'_{t,j,j'} = w_{t,j} \times w_{t,j'}$, and the corresponding estimation function is:
+% \begin{proof}{Proof of Lemma \ref{lemma:cond_effect}}
+% We establish Lemma~\ref{lemma:cond_effect} for the direct effect~\eqref{eq:directavglineareffect}. For~$a_s \in \{ 0,1\}^{G}$, we consider
 % \begin{align*}
-%      \frac{1}{M} \sum_{m=1}^{M}  \binom{G_m}{2}^{-1}\sum_{j=1}^{G_m} \sum_{t=1}^T (&Y_{t+1,j} - (a_{10}+a_{11}S_{t,j}) - (1-A_{t,j}) \times \sum_{j^\prime \neq j} (A_{t,j^\prime} - \tilde p_{t, j^\prime} ( 1 \mid H_t) )\beta_2) \\
-%      &W'_t \left( \begin{array}{cc}
-%          (1,\bar S_{t,g})^T\\
-%          (1-A_{t,j}) \times \sum_{j^\prime \neq j} (A_{t,j^\prime} - \tilde p_{t, j^\prime} ( 1 \mid H_t) )
-%     \end{array}  \right) =0
+% \E &\left[\left(\prod_{s=1}^{t-1} p_s(a_s|H_s(\bar a_{s-1})) \right) \left( \prod_{j^\prime \neq j} p_t(a_{t,j^\prime} \mid H_t(\bar a_{t-1})\right)
+%  Y_{t+1,j} (\bar{a}_{t,-j}, (\bar a_{t-1,J},a)) {\bf 1}_{S_t(\bar a_t) = s} \right] \\
+%  \E &\left[\left(\prod_{s=1}^{t-1} p_s(a_s|H_s(\bar a_{s-1})) \right) \left( \prod_{j^\prime \neq j} p_t(a_{t,j^\prime} \mid H_t(\bar a_{t-1}) \right) {\bf 1}_{S_t(\bar a_t) = s}  \E \left[ Y_{t+1,j} (\bar{a}_{t,-j}, (\bar a_{t-1,j},a)) \mid H_t (\bar a_{t-1}) \right] \right]
 % \end{align*}
+% since the history $H_t$ includes the moderator variable $S_t$ at time $t$. By consistency,~$H_t(\bar{A}_{t-1}) = H_t$ so the above is equal to
+%  \begin{equation} \label{eq:cons_version}
+% \E \left[\left(\prod_{s=1}^{t-1} p_s(a_s|H_s) \right) \left( \prod_{j^\prime \neq J} p_t(a_{t,j^\prime} \mid H_t \right)  {\bf 1}_{S_t(\bar a_t) = s}
+%  \E \left[ Y_{t+1,j} (\bar{a}_{t,-j}, (\bar a_{t-1,j},a))   \given H_t \right]  \right]
+%  \end{equation}
+% Sequential ignorability implies that
+% \begin{align*}
+%  \E &\left[ Y_{t+1,j} (\bar{a}_{t,-j}, (\bar a_{t-1,j},a)) \given H_t \right]  \\
+%  = \E &\left[ Y_{t+1,j} (\bar{a}_{t,-j}, (\bar a_{t-1,j},a)) \given H_{t}, A_{t,j} = a \right]
+% \end{align*}
+% Summing over all potential outcomes and normalizing yields
+% \begin{align*}
+% \E &\left[ \sum_{\bar{a}_{t-1}} \frac{\left(\prod_{s=1}^{t-1} p_s(a_s|H_s) \right) \left( \prod_{j^\prime \neq j} p_t(a_{t,j^\prime} \mid H_t \right)  {\bf 1}_{S_t(\bar a_t) = s}}{\E [ \left(\prod_{s=1}^{t-1} p_s(a_s|H_s) \right) \left( \prod_{j^\prime \neq j} p_t(a_{t,j^\prime} \mid H_t \right)  {\bf 1}_{S_t(\bar a_t) = s}]}
+%  \E \left[ Y_{t+1,j} (\bar{a}_{t,-j}, (\bar a_{t-1},a)) \given H_t, A_{t,j} = a \right] \, \right] \\
+%  = \E &\left[ \sum_{\bar{a}_{t-1}} \frac{\left(\prod_{s=1}^{t-1} p_s(a_s|H_s) \right) \left( \prod_{j^\prime \neq j} p_t(a_{t,j^\prime} \mid H_t \right)  {\bf 1}_{S_t(\bar a_t) = s}}{\E [ \left(\prod_{s=1}^{t-1} p_s(a_s|H_s) \right) \left( \prod_{j^\prime \neq j} p_t(a_{t,j^\prime} \mid H_t \right)  {\bf 1}_{S_t(\bar a_t) = s}]}
+%   \E \left[ Y_{t+1,j} (\bar{a}_{t,-j}, (\bar a_{t-1},a)) \given H_t, A_t = a \right] \given S_t = s \right] \\
+%   = \E &\left[ \E \left[ Y_{t+1,j}  \given H_t, A_t = a \right] \given S_t = s \right].
+% \end{align*}
+% In the final equation, the outer expectation is with respect to the history~$H_t$ conditional on~$S_t=s$.  That is, over \emph{both} past treatments~$A_s$
+% and past observations~$O_s$ for $s < t$ as well as over current treatments for $A_{t,j^\prime}$ for $j^\prime \neq j$. The above shows
+% $$
+% \E \left[ Y_{t+1} (\bar{A}_{t,-j}, (\bar A_{t-1,j},a)) \mid S_t (\bar a_t) = s \right] = \E \left[ \E \left[Y_{t+1, j}  \given H_t, A_{t,j} = a \right] \given S_t = s \right].
+% $$
+% Averaging over individuals in the group $j \in [G]$ group size completes the proof.
+% The proof for the indirect effect follows the exact same structure.
+% \end{proof}
 
-\section{Proof of Lemma~\ref{lemma:samesies}}
-\label{app:samesies}
+% \subsection{Lemma~\ref{lemma:asymnorm}}
+% \label{app:asymptotics}
 
-\begin{proof}
-Consider the $W$-matrix for the direct effect asymptotic variance,
-\begin{align*}
- &\frac{1}{G^2} \sum_{t, t^\prime} \sum_{j, j^\prime} \mathbb{E} \bigg[
- W_{t,j} \epsilon_{t,j} (A_{t,j} - \tilde{p}_t( 1 \mid S_t))
- W_{t^\prime,j^\prime} \epsilon_{t^\prime,j^\prime} (A_{t^\prime,j^\prime} - \tilde{p}_t( 1 \mid S_{t^\prime}))
- f_t(S_t) f_{t^\prime}(S_{t^\prime})^\prime
-                  \bigg] \\
-=&\frac{1}{G^2} \sum_{t, t^\prime}\sum_{j, j^\prime} \mathbb{E} \bigg[
- W_{t,j} \epsilon_{t,j} (A_{t,J} - \tilde{p}_t( 1 \mid S_t))
- W_{t^\prime,j^\prime} \epsilon_{t^\prime,j^\prime} (A_{t^\prime,j^\prime} - \tilde{p}_t( 1 \mid S_{t^\prime}))
- f_t(S_t) f_{t^\prime}(S_{t^\prime})^\prime
-                  \bigg]
-\end{align*}
-Consider the cross-terms with $j \neq j^\prime$ and without loss of generality assume $t \geq t^\prime$, then
-\begin{align*}
-\mathbb{E} &\bigg[ \sum_{a, a^\prime}  \tilde p_t (a \mid S_t) (a - \tilde{p}_t( 1 \mid S_t))
-\tilde p_{t^\prime} (a^\prime \mid S_{t^\prime}) (a^\prime - \tilde p_{t^\prime} (1 \mid S_{t^\prime})) \\
-&\mathbb{E} \bigg[ \mathbb{E} \bigg[ \epsilon_{t,j} \epsilon_{t^\prime,j^\prime} \mid H_{t,j}, A_{t,j} = a, H_{t^\prime,j^\prime}, A_{t^\prime,j^\prime} = a^\prime \bigg] \mid S_t, S_{t^\prime} \bigg] f_t(S_t) f_{t^\prime}(S_{t^\prime})^\prime
-                  \bigg].
-\end{align*}
-Under the assumption of the error cross-term being constant in $a$ and $a^\prime$ we can re-write the above as:
-\begin{align*}
-&= \mathbb{E} \left[ \sum_{a, a^\prime}  \tilde p_t (a \mid S_t) (a - \tilde{p}_t( 1 \mid S_t))
-\tilde p_{t^\prime} (a^\prime \mid S_{t^\prime}) (a^\prime - \tilde p_{t^\prime} (1 \mid S_{t^\prime})) \psi (S_t, S_{t^\prime}) f_t (S_t) f_{t^\prime} (S_{t^\prime})^\prime \right] \\
-&= \mathbb{E} \bigg[ \psi (S_t, S_{t^\prime}) f_t (S_t) f_{t^\prime} (S_{t^\prime})^\prime \underbrace{\left( \sum_{a, a^\prime}  \tilde p_t (a \mid S_t) (a - \tilde{p}_t( 1 \mid S_t))
-\tilde p_{t^\prime} (a^\prime \mid S_{t^\prime}) (a^\prime - \tilde p_{t^\prime} (1 \mid S_{t^\prime})) \right)}_{=0} \bigg] \\
-&= \mathbb{E} \left[ \psi (S_t, S_{t^\prime}) f_t (S_t) f_{t^\prime} (S_{t^\prime})^\prime \cdot 0 \right] = 0.
-\end{align*}
-Therefore, we have that the $W$-matrix simplifies to
-\begin{align*}
- &\mathbb{E} \bigg[ \sum_{t=1}^T W_{t,J} \epsilon_{t,J} (A_{t,J} - \tilde{p}_t( 1 \mid S_t)) f_t(S_t) \times \sum_{t=1}^T W_{t,J} \epsilon_{t,J} (A_{t,J} - \tilde{p}_t( 1 \mid S_t)) f_t(S_t)^\prime
-                  \bigg] \\
- =&\mathbb{E} \bigg[\frac{1}{G}  \sum_{j=1}^G \bigg[ \sum_{t=1}^T W_{t,J} \epsilon_{t,J} (A_{t,J} - \tilde{p}_t( 1 \mid S_t)) f_t(S_t) \times \sum_{t=1}^T W_{t,J} \epsilon_{t,J} (A_{t,J} - \tilde{p}_t( 1 \mid S_t)) f_t(S_t)^\prime
-                  \bigg] \bigg] \\
- =&\mathbb{E} \bigg[ \sum_{t=1}^T W_{t} \epsilon_{t} (A_{t} - \tilde{p}_t( 1 \mid S_t)) f_t(S_t) \times \sum_{t=1}^T W_{t} \epsilon_{t} (A_{t} - \tilde{p}_t( 1 \mid S_t)) f_t(S_t)^\prime
-                  \bigg]
-\end{align*}
-which is the $W$ matrix as in the standard MRT analysis.
-\end{proof}
+% We next provide a detailed proof of asymptotic normality and consistency
+% for the weighted-centered least squares estimator.
 
-\section{Small sample size adjustment for covariance estimation}
-\label{app:ssa}
+% \begin{proof}[Proof of consistency for direct and indirect effects]
+% The solutions~$(\hat \alpha,\hat \beta)$ that minimize equation~\eqref{eq:directwcls} are consistent estimators for the
+% solutions that minimize the following
+% \[
+% \E \left[ \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T W_{t,j} \left( Y_{t+1,j} - g_t(H_t)^\prime \alpha
+% -  (A_{t,j} - \tilde{p}_t (1 \given S_t) ) f_t (S_t)^\prime \beta \right)^2 \right]
+% \]
+% Differentiating the above equation with respect to~$\alpha$
+% yields a set of~$p$ estimating equations.
+% \begin{align*}
+% 0_{q^\prime}&= \E \left[ \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T W_{t,j} \left( Y_{t+1,j} - g_t(H_t)^\prime \alpha -  (A_{t,j} - \tilde{p}_t (1 \given S_t) ) f_t (S_t)^\prime \beta \right) g_t(H_t) \right]
+% \end{align*}
+% We note that
+% $$
+% \E \left[ W_{t,J} (A_{t,J} - \tilde{p}_t (1 \given S_t) )
+% f_t (S_t)^\prime \beta \given H_t \right] = 0.
+% $$
+% Therefore, we have,
+% \begin{align*}
+% 0_{p}&= \E \left[ \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T (g_t(H_t) \E \left[ W_{t,j} Y_{t+1, j} \right] - g_t(H_t)  g_t(H_t)^\prime \alpha) \right] \\
+% \Rightarrow \alpha  &= \E \left[ \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T g_t(H_t)  g_t(H_t)^\prime  \right]^{-1} E \left[ \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T g_t(H_t) \E \left[ W_{t,j} Y_{t+1, j} \right] \right]
+% \end{align*}
+% We note that
+% \begin{align*}
+% &\E \left[ W_{t,J} (A_{t,J} - \tilde{p}_t (1 \given S_t) )
+% g_t (H_t)^\prime \alpha \right] = 0, \quad \text{and} \\
+% &\E \left[ W_{t,J} (A_{t,J} - \tilde{p}_t (1 \given S_t) )
+% Y_{t+1,J} \right] =
+% \tilde{p}_t (1 \given S_t) (1- \tilde{p}_t (1 \given S_t)) \beta (t; S_t)
+% \end{align*}
+% Now differentiating with respect to~$\beta$ yields
+% \begin{align*}
+% 0_{q}&= \E \left[ \sum_{t=1}^T W_{t,J} \left( Y_{t+1,J} - g_t(H_t)^\prime \alpha
+% -  (A_{t,J} - \tilde{p}_t (1 \given S_t) ) f_t (S_t)^\prime \beta \right) (A_{t,J} - \tilde{p}_t(1 \given S_t)) f_t (S_t) \right] \\
+% 0_{q}&= \E \left[ \sum_{t=1}^T \tilde{p}_t (1 \given S_t) (1- \tilde{p}_t (1 \given S_t)) \left( \beta (t; S_t) - f_t (S_t)^\prime \beta^\star \right) f_t (S_t) \right]
+% \end{align*}
+% Then we have
+% \begin{align*}
+% \beta^\star &= \E\left[ \sum_{t=1}^T  \tilde{p}_t (1 \given S_t) (1- \tilde{p}_t (1 \given S_t)) f_t(S_t) f_t(S_t)^\prime \right]^{-1} \E\left[ \sum_{t=1}^T  \tilde{p}_t (1 \given S_t) (1- \tilde{p}_t (1 \given S_t)) f_t(S_t) \beta (t;S_t) \right]
+% \end{align*}
+% Under assumption~\ref{ass:directeffect}, we have that $\beta = \beta^\star$ which guarantees consistency.
 
-The robust sandwich covariance estimator~\cite{Mancl2001} for the entire variance matrix is given by $Q^{-1} \Lambda Q^{-1}$.  The first term,~$Q$, is given by
-\[
-\left( \sum_{m=1}^M \sum_{j=1}^{G_m} D_{j,m}^T W_{j,m} D_{j,m} \right)
-\]
-where $D_{j,m}$ is the model matrix for individual~$j$ in group $g$ associated with
-equation~\eqref{eq:directwcls}, and $W_{j,m}$ is a diagonal matrix of individual weights.
-The middle term~$\Lambda$ is given by
-\[
-\sum_{m=1}^M \sum_{i,j=1}^{G_m} D_{i,m}^\prime W_{i,m} (I_{i,m} - H_{i,m})^{-1}
-e_{i,m} e_{j,m}^\prime (I_{j,m} - H_{j,m})^{-1} W_{j,m} D_{j,m}
-\]
-where $I_i$ is an identity matrix of correct dimension, $e_i$ is the individual-specific residual
-vector and
-\[
-H_{j,m} = D_{j,m}
-\left( \sum_{m=1}^M \sum_{j=1}^{G_m} D_{j,m}^\prime W_{j,m} D_{j,m} \right)^{-1}
-D_{j,m}^\prime W_{j,m}
-\]
-From $Q^{-1} \Lambda Q^{-1}$ we extract $\hat{\Sigma}_{\beta}$.
+% We next consider the indirect effect estimator.  Recall that
+% $$
+% \tilde{p}^\star_t (1 \given S_t) = \frac{\tilde{p}_t (0,1 \given S_t)}{\tilde{p}_t (0,0 \given S_t)+\tilde{p}_t (0,1 \given S_t)}
+% $$
+% is the replacement for $\tilde p(1 \mid S_t)$ in the direct effect for centering.  If we make the assumption that $\tilde p_t (0,1 \mid S_t) = \tilde p_t (0 \mid S_t) \tilde p_t (1 \mid S_t)$ then $\tilde{p}^\star_t (1 \given S_t) = \tilde{p}_t (1 \given S_t)$; however, we provide the proof in complete generality. The estimates that minimize equation~\eqref{eq:indirectwcls} are consistent estimators for the solutions that minimize the following
+% \[
+% \E \left[ \sum_{t=1}^T W_{t,J, J^\prime} \left( Y_{t+1,J} - g_t(H_t)^\prime \alpha
+% -  (1-A_{t,J}) (A_{t,J^\prime} - \tilde{p}^\star_t (1 \given S_t) ) f_t (S_t)^\prime \beta \right)^2 \right]
+% \]
+% Differentiating the above equation with respect to~$\alpha$
+% yields a set of~$p$ estimating equations.
+% \begin{align*}
+% 0_{p}&= \E \left[ \sum_{t=1}^T W_{t,J,J^\prime} \left( Y_{t+1,J} - g_t(H_t)^\prime \alpha
+% -  (1-A_{t,J}) (A_{t,J^\prime} - \tilde{p}_t^\star (1 \given S_t) ) f_t (S_t)^\prime \beta \right) g_t(H_t) \right]
+% \end{align*}
+% We note that
+% $$
+% \E \left[ W_{t,J, J^\prime} (1-A_{t,J}) (A_{t,J^\prime} - \tilde{p}_t^\star (1 \given S_t) )
+% f_t (S_t)^\prime \beta \given H_t \right] = 0.
+% $$
+% Therefore, we have,
+% \begin{align*}
+% 0_{p}&= \E \left[ \sum_{t=1}^T (g_t(H_t) \E \left[ W_{t,J,J^\prime} Y_{t+1, J} \right] - g_t(H_t)  g_t(H_t)^\prime \alpha) \right] \\
+% \Rightarrow \alpha  &= \E \left[ \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T g_t(H_t)  g_t(H_t)^\prime  \right]^{-1} E \left[ \sum_{t=1}^T g_t(H_t) \E \left[ W_{t,J, J^\prime} Y_{t+1, J} \right] \right]
+% \end{align*}
+% First, we show that
+% \begin{align*}
+% &\E \left[ W_{t,J, J^\prime} (1-A_{t,J}) (A_{t,J^\prime} - \tilde{p}_t^\star (1 \given S_t) )
+% \mid H_t \right] \\
+% = &\sum_{a^\prime \in \{0,1\}} \E \left[ \tilde{p}_t (0,a^\prime \mid S_t)  (a^\prime - \tilde{p}_t^\star (1 \given S_t) )
+% \mid H_t, A_t = 0, A_{t,J^\prime} = a^\prime \right]\\
+% =& \tilde{p}_t (0,1 \mid S_t)  (1 - \frac{\tilde{p}_t (0,1 \given S_t)}{\tilde{p}_t (0,0 \given S_t)+\tilde{p}_t (0,1 \given S_t)} ) -  \tilde{p}_t (0,0 \mid S_t) \frac{\tilde{p}_t (0,1 \given S_t)}{\tilde{p}_t (0,0 \given S_t)+\tilde{p}_t (0,1 \given S_t)} = 0
+% \end{align*}
+% and
+% \begin{align*}
+% &\E \left[ W_{t,J, J^\prime} (1-A_{t,J}) (A_{t,J^\prime} - \tilde{p}_t^\star (1 \given S_t) )^2
+% \mid H_t \right] \\
+% =& \tilde{p}_t (0,1 \mid S_t) \left( \frac{\tilde{p}_t (0,0 \given S_t)}{\tilde{p}_t (0,0 \given S_t) +\tilde{p}_t (0,1 \given S_t)} \right)^2 + \tilde{p}_t (0,0 \mid S_t) \left( \frac{\tilde{p}_t (0,1 \given S_t)}{\tilde{p}_t (0,0 \given S_t)+\tilde{p}_t (0,1 \given S_t)} \right)^2 \\
+% =& ( \tilde{p}_t (0,0 \mid S_t) + \tilde{p}_t (0,1 \mid S_t) ) \tilde{p}_t^\star (1 \mid S_t) (1- \tilde{p}_t^\star (1 \mid S_t)).
+% \end{align*}
+% This implies that
+% \begin{align*}
+% &\E \left[ W_{t,J, J^\prime} (1-A_{t,J}) (A_{t,J^\prime} - \tilde{p}_t^\star (1 \given S_t) )
+% g_t (H_t)^\prime \alpha \right] = 0, \quad \text{and} \\
+% &\frac{\E \left[ W_{t,J, J^\prime} (1-A_{t,J}) (A_{t,J^\prime} - \tilde{p}_t^\star (1 \given S_t) )
+% Y_{t+1,J} \right]}{\tilde{p}_t (0,0 \mid S_t) + \tilde{p}_t (0,1 \mid S_t)} = \tilde{p}_t^\star (1 \mid S_t) (1- \tilde{p}_t^\star (1 \mid S_t)) \beta^{(IE)} (t; S_t).
+% \end{align*}
+% Now differentiating with respect to~$\beta$ yields
+% \begin{align*}
+% 0_{q}&= \E \left[ \sum_{t=1}^T ( \tilde{p}_t (0,0 \mid S_t) + \tilde{p}_t (0,1 \mid S_t) ) \tilde{p}_t^\star (1 \mid S_t) (1- \tilde{p}_t^\star (1 \mid S_t)) \left( \beta^{(IE)} (t; S_t) - f_t (S_t)^\prime \beta^{\star \star} \right) f_t (S_t) \right]
+% \end{align*}
+% Under assumption~\ref{ass:indirecteffect}, we have that $\beta = \beta^{\star \star}$ which guarantees consistency.
+% \end{proof}
 
-\section{Additional analysis of IHS}
-\label{app:IHSadditionalanalysis}
+% \begin{proof}[Proof of Asymptotic Normality]
+% We now consider the issue of asymptotic normality.  First, let
+% \[
+% \epsilon_{t,j} = Y_{t+1,j} - g_t(H_t)^{\prime} \alpha^\star - (A_{t,j}-\tilde{p}_t(1 \mid S_t)) f_t(S_t)^{\prime} \beta^\star,
+% \]
+% $\hat{\theta} = (\hat{\alpha}, \hat{\beta})$, and $\theta^\star = (\alpha^\star, \beta^\star)$.
+% Since $S_t \subset H_t$ define $h_{t,j}(H_t)^\prime = (g_t(H_t)^\prime, (A_{t,j}-\tilde{p}_t(1 \given S_t)) f_t(S_t)^\prime)$. Then
+% \begin{align*}
+% \sqrt{M} ( \hat{\theta} - \theta^\star )
+%   &= \sqrt{M} \bigg \{ \mathbb{P}_M \bigg( \frac{1}{G_m} \sum_{j=1}^{G_m} \sum_{t=1}^T W_{t,j} h_{t,j}(H_t) h_{t,j}(H_t)^\prime \bigg)^{-1} \bigg[
+%     \mathbb{P}_M \bigg( \frac{1}{G_m} \sum_{j=1}^{G_m} \sum_{t=1}^T W_{t,j}
+%     Y_{t+1,j} h_{t,j}(H_t) \bigg) \\
+%   &- \mathbb{P}_M \bigg( \frac{1}{G_m} \sum_{j=1}^{G_m}
+%   \sum_{t=1}^T W_{t,j} h_{t,j}(H_t) h_{t,j}(H_t)^\prime \bigg)
+%     \theta^\star \bigg] \bigg \} \\
+%   &= \sqrt{M} \bigg \{ E \bigg[
+%   \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T W_{t,j} h_{t,j}(H_t)
+%   h_{t,j}(H_t)^\prime \bigg]^{-1} \\
+%   &\bigg[ \mathbb{P}_M \bigg( \frac{1}{G_m} \sum_{j=1}^{G_m} \sum_{t=1}^T
+%     W_{t,j} \epsilon_{t,j} h_{t,j}(H_t) \bigg) \bigg] \bigg \} + o_p ( {\bf 1} )
+% \end{align*}
+% By definitions of $\alpha^\star$ and $\beta^\star$ and the previous consistency argument
+% \[
+% E \bigg[
+%   \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T W_{t,j} h_{t,j}(H_t)
+%   h_{t,j}(H_t)^\prime \bigg]  = 0
+% \]
+% Then under moments conditions, we have asymptotic normality with variance $\Sigma_{\theta}$ given by
+% \begin{align*}
+% \Sigma_{\theta} &= E \left[ \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T W_{t,j} h_{t,j}(H_t) h_{t,j}(H_t)^\prime \right]^{-1} \\
+%                 &E \left[ \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T W_{t,j} \epsilon_{t,j} h_{t,j}(H_t)
+%                   \times  \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T W_{t,j} \epsilon_{t,j} h_{t,j}(H_t)^\prime \right] \\
+%                 &E \left[ \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T W_{t,j} h_{t,j}(H_t) h_{t,j}(H_t)^\prime \right]^{-1}
+% \end{align*}
+% Due to centering, the expectation of the matrix
+% $W_{t,J} h_{t,J}(H_t) h_{t,J} (H_t)^\prime$ is block diagonal and
+% the sub-covariance matrix~$\Sigma_{\beta}$ can be extracted and is equal to
+% \begin{align*}
+%  \Sigma_{\beta} &=  \left[ \sum_{t=1}^T E[ (A_{t,J} - \tilde{p}_t (1 \mid S_t)
+%                   )^2 W_{t,J} f_t (S_t) f_t (S_t)^\prime ] \right]^{-1} \\
+%   &\cdot E \bigg[ \sum_{t=1}^T W_{t,J} \epsilon_{t,J}
+%                   (A_{t,J} - \tilde{p}_t( 1 \mid S_t)) f_t(S_t)
+%           \times  \sum_{t=1}^T W_{t,J} \epsilon_{t,J}
+%                   (A_{t,J} - \tilde{p}_t( 1 \mid S_t)) f_t(S_t)^\prime
+%                   \bigg] \\
+%  &\, \cdot \left[ \sum_{t=1}^T E[ (A_{t,J} - \tilde{p}_t (1 \mid S_t)
+%                   )^2 W_{t,J} f_t (S_t) f_t (S_t)^\prime ] \right]^{-1}
+% \end{align*}
+% as desired.
+
+% We next consider asymptotic normality in the indirect setting.  First, let
+% \[
+% \epsilon_{t,j,j^\prime} = Y_{t+1,j} - g_t(H_t)^{\prime} \alpha^{\star \star} - (1 - A_{t,j})(A_{t,j^\prime}-\tilde{p}^\star_t(1 \mid S_t)) f_t(S_t)^{\prime} \beta^{\star \star},
+% \]
+% $\hat{\theta} = (\hat{\alpha}, \hat{\beta})$, and $\theta^\star = (\alpha^{\star \star}, \beta^{\star \star})$.
+% Since $S_t \subset H_t$ define $h_{t,j,j^\prime}(H_t)^\prime = (g_t(H_t)^\prime, (1-A_{t,j}) (A_{t,j^\prime}-\tilde{p}^\star_t(1 \given S_t)) f_t(S_t)^\prime)$. Then $\sqrt{M} ( \hat{\theta} - \theta^{\star \star} )$ equals
+% \begin{align*}
+%   &\sqrt{M} \bigg \{ \mathbb{P}_M \bigg( \frac{1}{G_m \cdot (G_m-1)} \sum_{j=1}^{G_m} \sum_{j^\prime \neq j} \sum_{t=1}^T W_{t,j,j^\prime} h_{t,j,j^\prime}(H_t) h_{t,j,j^\prime}(H_t)^\prime \bigg)^{-1} \\
+%   &\bigg[
+%     \mathbb{P}_M \bigg( \frac{1}{G_m \cdot (G_m - 1)} \sum_{j=1}^{G_m} \sum_{j^\prime \neq j} \sum_{t=1}^T W_{t,j} Y_{t+1,j} h_{t,j,j^\prime}(H_t) \bigg)  \\
+%   &- \mathbb{P}_M \bigg( \frac{1}{G_m \cdot (G_m - 1)} \sum_{j=1}^{G_m}\sum_{j^\prime \neq j}
+%   \sum_{t=1}^T W_{t,j,j^\prime} h_{t,j, j^\prime}(H_t) h_{t,j, j^\prime}(H_t)^\prime \bigg)
+%     \theta^\star \bigg] \bigg \} \\
+%   = &\sqrt{M} \bigg \{ E \bigg[
+%   \frac{1}{G (G-1)} \sum_{j=1}^G \sum_{j^\prime \neq j} \sum_{t=1}^T W_{t,j,j^\prime} h_{t,j, j^\prime}(H_t) h_{t,j, j^\prime}(H_t)^\prime \bigg]^{-1} \\
+%   &\bigg[ \mathbb{P}_M \bigg( \frac{1}{G_m \cdot (G_m-1)} \sum_{j=1}^{G_m} \sum_{j^\prime \neq j} \sum_{t=1}^T W_{t,j,j^\prime} \epsilon_{t,j, j^\prime} h_{t,j,j^\prime}(H_t) \bigg) \bigg] \bigg \} + o_p ( {\bf 1} )
+% \end{align*}
+% By definitions of $\alpha^{\star \star}$ and $\beta^{\star \star}$  and the previous consistency argument
+% \[
+% E \bigg[
+%   \frac{1}{G \cdot (G-1)} \sum_{j=1}^G \sum_{j^\prime \neq j} \sum_{t=1}^T W_{t,j,j^\prime} h_{t,j,j^\prime}(H_t)
+%   h_{t,j,j^\prime}(H_t)^\prime \bigg]  = 0
+% \]
+% Then under moments conditions, we have asymptotic normality with variance $\Sigma_{\theta}$ given by
+% \begin{align*}
+% \Sigma_{\theta} &= E \left[ \frac{1}{G \cdot (G-1)} \sum_{j=1}^G \sum_{j^\prime \neq j} \sum_{t=1}^T W_{t,j,j^\prime} h_{t,j,j^\prime}(H_t) h_{t,j,j^\prime}(H_t)^\prime \right]^{-1} \\
+%                 &E \left[ \frac{1}{G (G-1)} \sum_{j=1}^G \sum_{j^\prime \neq j} \sum_{t=1}^T W_{t,j, j^\prime} \epsilon_{t,j, j^\prime} h_{t,j, j^\prime}(H_t)
+%                   \times  \frac{1}{G(G-1)} \sum_{j=1}^G \sum_{j^\prime \neq j} \sum_{t=1}^T W_{t,j} \epsilon_{t,j, j^\prime} h_{t,j, j^\prime}(H_t)^\prime \right] \\
+%                 &E \left[ \frac{1}{G \cdot (G-1)} \sum_{j=1}^G \sum_{j^\prime \neq j} \sum_{t=1}^T W_{t,j,j^\prime} h_{t,j,j^\prime}(H_t)
+%   h_{t,j,j^\prime}(H_t)^\prime  \right]^{-1}
+% \end{align*}
+% Due to centering, the expectation of the matrix
+% $W_{t,J, J^\prime} h_{t,J,J^\prime}(H_t) h_{t,J, J^\prime} (H_t)^\prime$ is block diagonal and
+% the sub-covariance matrix~$\Sigma_{\beta}$ can be extracted and is equal to
+% \begin{align*}
+%  \Sigma_{\beta} &=  \left[ \sum_{t=1}^T E[ (1- A_{t,J}) (A_{t,J^\prime} - \tilde{p}_t^\star (1 \mid S_t)
+%                   )^2 W_{t,J, J^\prime} f_t (S_t) f_t (S_t)^\prime ] \right]^{-1} \\
+%   &\cdot E \bigg[ \sum_{t=1}^T W_{t,J, J^\prime} \epsilon_{t,J, J^\prime}
+%                   (1-A_{t,J}) (A_{t,J^\prime} - \tilde{p}_t( 1 \mid S_t)) f_t(S_t) \\
+%           &\times  \sum_{t=1}^T W_{t,\tilde  J, \tilde J^\prime} \epsilon_{t, \tilde J, \tilde J^\prime}
+%                   (1-A_{t,\tilde J}) (A_{t,\tilde J^\prime} - \tilde{p}_t^\star( 1 \mid S_t)) f_t(S_t)^\prime
+%                   \bigg] \\
+%  &\, \cdot \left[ \sum_{t=1}^T E[ (1-A_{t,J}) (A_{t,J^\prime} - \tilde{p}_t (1 \mid S_t)
+%                   )^2 W_{t,J,J^\prime} f_t (S_t) f_t (S_t)^\prime ] \right]^{-1}
+% \end{align*}
+% as desired.
+% \end{proof}
+
+% % \section{Additional simulation details}
+% % \label{app:simdetails}
+
+% % Different scenarios were devised by setting $\beta_{11}^*$ to one of 0.2, 0.5, 0.8, giving respectively a small, medium, or large degree of moderation by $S_t$. Since $\eta_1$ and $\eta_2$ are nonzero, the treatment $A_t$ is assigned with a probability depending on both $S_t$ and past treatment $A_{t-1}$, for each $t$.
+
+% % In the weighted and centered analysis, we parameterize and estimate $\tilde{p}_t$. In particular, $\tilde{p}_t(a;\hat{p}) = \hat{p}^a(1-\hat{p})^{1-a}$ where $\hat{p} = \P_n \sum_{t=1}^T A_t/T$. The weights are set to $W_t = \hat{p}^{A_t}(1-\hat{p})^{1-A_t}/p_t(A_t|H_t)$ and the working model for $\E \left[W_tY_{t+1}|H_t \right]$ is $a_{10}+a_{11}S_t$ (i.e., $g_t(H_t)= (1, S_t)^T$). Thus the estimating function is given by: \hs{Is this necessary?}
+% % % $$
+% % %     \sum_{t=1}^T (Y_{t+1} - (a_{10}+a_{11}S_t) - (A_t - \hat{p})\beta_1)W_t
+% % %     \left( \begin{array}{c}
+% % %          (1,S_t)^T \\
+% % %          A_t -\hat{p}
+% % %     \end{array}  \right) =0
+% % % $$
+
+
+% % \hs{2.  Show under-coverage when $b_g$ interacts with centered treatments - provide intuition; Show under different group size the difference in estimation}
+
+% % Unlike the above scenarios, the definition of indirect effect here excludes the observations with $A_{t,j} = 1$. Hence, we can make references on how interactions will influence the response $Y_{t+1,j}$ when treatment is absent. Weights are set to be $w'_{t,j,j'} = w_{t,j} \times w_{t,j'}$, and the corresponding estimation function is:
+% % \begin{align*}
+% %      \frac{1}{M} \sum_{m=1}^{M}  \binom{G_m}{2}^{-1}\sum_{j=1}^{G_m} \sum_{t=1}^T (&Y_{t+1,j} - (a_{10}+a_{11}S_{t,j}) - (1-A_{t,j}) \times \sum_{j^\prime \neq j} (A_{t,j^\prime} - \tilde p_{t, j^\prime} ( 1 \mid H_t) )\beta_2) \\
+% %      &W'_t \left( \begin{array}{cc}
+% %          (1,\bar S_{t,g})^T\\
+% %          (1-A_{t,j}) \times \sum_{j^\prime \neq j} (A_{t,j^\prime} - \tilde p_{t, j^\prime} ( 1 \mid H_t) )
+% %     \end{array}  \right) =0
+% % \end{align*}
+
+% \section{Proof of Lemma~\ref{lemma:samesies}}
+% \label{app:samesies}
+
+% \begin{proof}
+% Consider the $W$-matrix for the direct effect asymptotic variance,
+% \begin{align*}
+%  &\frac{1}{G^2} \sum_{t, t^\prime} \sum_{j, j^\prime} \mathbb{E} \bigg[
+%  W_{t,j} \epsilon_{t,j} (A_{t,j} - \tilde{p}_t( 1 \mid S_t))
+%  W_{t^\prime,j^\prime} \epsilon_{t^\prime,j^\prime} (A_{t^\prime,j^\prime} - \tilde{p}_t( 1 \mid S_{t^\prime}))
+%  f_t(S_t) f_{t^\prime}(S_{t^\prime})^\prime
+%                   \bigg] \\
+% =&\frac{1}{G^2} \sum_{t, t^\prime}\sum_{j, j^\prime} \mathbb{E} \bigg[
+%  W_{t,j} \epsilon_{t,j} (A_{t,J} - \tilde{p}_t( 1 \mid S_t))
+%  W_{t^\prime,j^\prime} \epsilon_{t^\prime,j^\prime} (A_{t^\prime,j^\prime} - \tilde{p}_t( 1 \mid S_{t^\prime}))
+%  f_t(S_t) f_{t^\prime}(S_{t^\prime})^\prime
+%                   \bigg]
+% \end{align*}
+% Consider the cross-terms with $j \neq j^\prime$ and without loss of generality assume $t \geq t^\prime$, then
+% \begin{align*}
+% \mathbb{E} &\bigg[ \sum_{a, a^\prime}  \tilde p_t (a \mid S_t) (a - \tilde{p}_t( 1 \mid S_t))
+% \tilde p_{t^\prime} (a^\prime \mid S_{t^\prime}) (a^\prime - \tilde p_{t^\prime} (1 \mid S_{t^\prime})) \\
+% &\mathbb{E} \bigg[ \mathbb{E} \bigg[ \epsilon_{t,j} \epsilon_{t^\prime,j^\prime} \mid H_{t,j}, A_{t,j} = a, H_{t^\prime,j^\prime}, A_{t^\prime,j^\prime} = a^\prime \bigg] \mid S_t, S_{t^\prime} \bigg] f_t(S_t) f_{t^\prime}(S_{t^\prime})^\prime
+%                   \bigg].
+% \end{align*}
+% Under the assumption of the error cross-term being constant in $a$ and $a^\prime$ we can re-write the above as:
+% \begin{align*}
+% &= \mathbb{E} \left[ \sum_{a, a^\prime}  \tilde p_t (a \mid S_t) (a - \tilde{p}_t( 1 \mid S_t))
+% \tilde p_{t^\prime} (a^\prime \mid S_{t^\prime}) (a^\prime - \tilde p_{t^\prime} (1 \mid S_{t^\prime})) \psi (S_t, S_{t^\prime}) f_t (S_t) f_{t^\prime} (S_{t^\prime})^\prime \right] \\
+% &= \mathbb{E} \bigg[ \psi (S_t, S_{t^\prime}) f_t (S_t) f_{t^\prime} (S_{t^\prime})^\prime \underbrace{\left( \sum_{a, a^\prime}  \tilde p_t (a \mid S_t) (a - \tilde{p}_t( 1 \mid S_t))
+% \tilde p_{t^\prime} (a^\prime \mid S_{t^\prime}) (a^\prime - \tilde p_{t^\prime} (1 \mid S_{t^\prime})) \right)}_{=0} \bigg] \\
+% &= \mathbb{E} \left[ \psi (S_t, S_{t^\prime}) f_t (S_t) f_{t^\prime} (S_{t^\prime})^\prime \cdot 0 \right] = 0.
+% \end{align*}
+% Therefore, we have that the $W$-matrix simplifies to
+% \begin{align*}
+%  &\mathbb{E} \bigg[ \sum_{t=1}^T W_{t,J} \epsilon_{t,J} (A_{t,J} - \tilde{p}_t( 1 \mid S_t)) f_t(S_t) \times \sum_{t=1}^T W_{t,J} \epsilon_{t,J} (A_{t,J} - \tilde{p}_t( 1 \mid S_t)) f_t(S_t)^\prime
+%                   \bigg] \\
+%  =&\mathbb{E} \bigg[\frac{1}{G}  \sum_{j=1}^G \bigg[ \sum_{t=1}^T W_{t,J} \epsilon_{t,J} (A_{t,J} - \tilde{p}_t( 1 \mid S_t)) f_t(S_t) \times \sum_{t=1}^T W_{t,J} \epsilon_{t,J} (A_{t,J} - \tilde{p}_t( 1 \mid S_t)) f_t(S_t)^\prime
+%                   \bigg] \bigg] \\
+%  =&\mathbb{E} \bigg[ \sum_{t=1}^T W_{t} \epsilon_{t} (A_{t} - \tilde{p}_t( 1 \mid S_t)) f_t(S_t) \times \sum_{t=1}^T W_{t} \epsilon_{t} (A_{t} - \tilde{p}_t( 1 \mid S_t)) f_t(S_t)^\prime
+%                   \bigg]
+% \end{align*}
+% which is the $W$ matrix as in the standard MRT analysis.
+% \end{proof}
+
+% \section{Small sample size adjustment for covariance estimation}
+% \label{app:ssa}
+
+% The robust sandwich covariance estimator~\cite{Mancl2001} for the entire variance matrix is given by $Q^{-1} \Lambda Q^{-1}$.  The first term,~$Q$, is given by
+% \[
+% \left( \sum_{m=1}^M \sum_{j=1}^{G_m} D_{j,m}^T W_{j,m} D_{j,m} \right)
+% \]
+% where $D_{j,m}$ is the model matrix for individual~$j$ in group $g$ associated with
+% equation~\eqref{eq:directwcls}, and $W_{j,m}$ is a diagonal matrix of individual weights.
+% The middle term~$\Lambda$ is given by
+% \[
+% \sum_{m=1}^M \sum_{i,j=1}^{G_m} D_{i,m}^\prime W_{i,m} (I_{i,m} - H_{i,m})^{-1}
+% e_{i,m} e_{j,m}^\prime (I_{j,m} - H_{j,m})^{-1} W_{j,m} D_{j,m}
+% \]
+% where $I_i$ is an identity matrix of correct dimension, $e_i$ is the individual-specific residual
+% vector and
+% \[
+% H_{j,m} = D_{j,m}
+% \left( \sum_{m=1}^M \sum_{j=1}^{G_m} D_{j,m}^\prime W_{j,m} D_{j,m} \right)^{-1}
+% D_{j,m}^\prime W_{j,m}
+% \]
+% From $Q^{-1} \Lambda Q^{-1}$ we extract $\hat{\Sigma}_{\beta}$.
+
+% \section{Additional analysis of IHS}
+% \label{app:IHSadditionalanalysis}
+
+
+% % \begin{table}[!th]
+% % \centering
+% % \begin{tabular}{c | crrrr}
+% % \hline
+% % Setting & Variables & Estimate & Std. Error & t-value & p-value \\ \hline
+% % \multirow{2}{*}{WCLS} & $\beta_0$ & 0.729 & 0.295 & 2.472 & 0.015 \\
+% % & $\beta_1$ & -0.037 & 0.015 & -2.484 & 0.015 \\ \hline
+% % \multirow{2}{*}{C-WCLS} & $\beta_0$ & 0.622 & 0.384 & 1.618 & 0.108 \\
+% % & $\beta_1$ & -0.031 & 0.019 & -1.580 & 0.117 \\ \hline
+% % \multirow{3}{*}{C-WCLS} & $\beta_0$ & -2.095 & 1.248 & -1.678 & 0.094 \\
+% % & $\beta_1$ & -0.034 & 0.019 & -1.745 & 0.083 \\
+% % & $\beta_2$ & 0.143 & 0.062 &2.330 & 0.020 \\ \hline
+% % \end{tabular}
+% % \caption{Moderation analysis for the effect of notifications on average weekly log step counts in IHS. WCLS estimates use the estimator in~\cite{Boruvkaetal}, while the C-WCLS estimates use our proposed estimator.}
+% % \label{tab:IHS_directstep}
+% % \end{table}
+
 
 
 % \begin{table}[!th]
@@ -926,306 +962,287 @@ From $Q^{-1} \Lambda Q^{-1}$ we extract $\hat{\Sigma}_{\beta}$.
 % \begin{tabular}{c | crrrr}
 % \hline
 % Setting & Variables & Estimate & Std. Error & t-value & p-value \\ \hline
-% \multirow{2}{*}{WCLS} & $\beta_0$ & 0.729 & 0.295 & 2.472 & 0.015 \\
-% & $\beta_1$ & -0.037 & 0.015 & -2.484 & 0.015 \\ \hline
-% \multirow{2}{*}{C-WCLS} & $\beta_0$ & 0.622 & 0.384 & 1.618 & 0.108 \\
-% & $\beta_1$ & -0.031 & 0.019 & -1.580 & 0.117 \\ \hline
-% \multirow{3}{*}{C-WCLS} & $\beta_0$ & -2.095 & 1.248 & -1.678 & 0.094 \\
-% & $\beta_1$ & -0.034 & 0.019 & -1.745 & 0.083 \\
-% & $\beta_2$ & 0.143 & 0.062 &2.330 & 0.020 \\ \hline
+% \multirow{2}{*}{WCLS} & $\beta_0$ & 1.325 & 0.350 & 3.782 & 0.000 \\
+% & $\beta_1$ & -0.068 & 0.017 & -3.916 & 0.000 \\ \hline
+% \multirow{2}{*}{C-WCLS} & $\beta_0$ & 1.193 & 0.454 & 2.627 & 0.011 \\
+% & $\beta_1$ & -0.061 & 0.023 & -2.696 & 0.009 \\ \hline
+% \multirow{3}{*}{C-WCLS} & $\beta_0$ & -1.912 & 1.379 & -1.386 & 0.171  \\
+% & $\beta_1$ & -0.067 & 0.023 & -2.948 & 0.004 \\
+% & $\beta_2$ & 0.162 & 0.065 & 2.487 & 0.015 \\ \hline
 % \end{tabular}
-% \caption{Moderation analysis for the effect of notifications on average weekly log step counts in IHS. WCLS estimates use the estimator in~\cite{Boruvkaetal}, while the C-WCLS estimates use our proposed estimator.}
-% \label{tab:IHS_directstep}
+% \caption{Moderation analysis for the effect of notifications on average weekly log sleep minutes in IHS. WCLS estimates use the estimator in~\cite{Boruvkaetal}, while the C-WCLS estimates use our proposed estimator.}
+% \label{tab:IHS_directsleep}
 % \end{table}
 
 
+% \section{Additional on the indirect effect}
+% \label{app:addindirect}
 
-\begin{table}[!th]
-\centering
-\begin{tabular}{c | crrrr}
-\hline
-Setting & Variables & Estimate & Std. Error & t-value & p-value \\ \hline
-\multirow{2}{*}{WCLS} & $\beta_0$ & 1.325 & 0.350 & 3.782 & 0.000 \\
-& $\beta_1$ & -0.068 & 0.017 & -3.916 & 0.000 \\ \hline
-\multirow{2}{*}{C-WCLS} & $\beta_0$ & 1.193 & 0.454 & 2.627 & 0.011 \\
-& $\beta_1$ & -0.061 & 0.023 & -2.696 & 0.009 \\ \hline
-\multirow{3}{*}{C-WCLS} & $\beta_0$ & -1.912 & 1.379 & -1.386 & 0.171  \\
-& $\beta_1$ & -0.067 & 0.023 & -2.948 & 0.004 \\
-& $\beta_2$ & 0.162 & 0.065 & 2.487 & 0.015 \\ \hline
-\end{tabular}
-\caption{Moderation analysis for the effect of notifications on average weekly log sleep minutes in IHS. WCLS estimates use the estimator in~\cite{Boruvkaetal}, while the C-WCLS estimates use our proposed estimator.}
-\label{tab:IHS_directsleep}
-\end{table}
+% Weights used in the estimation of the indirect effect is a natural extension of~\cite{Boruvkaetal}. As in Section~\ref{section:indirect}, the weight~$W_{t,j, j^\prime}$ at decision time $t$ for the $j$th individual is equal to $\frac{\tilde p (A_{t,j}, A_{t,j^\prime} \mid S_t)}{p_t (A_{t,j}, A_{t,j^\prime} \mid H_t)}$ where $\tilde p_t (a, a^\prime \mid S_t)\in (0,1)$ is arbitrary as long as it does not depend on terms in $H_t$ other than $S_t$, and $p(A_{t,j}, A_{t,j^\prime} \mid H_t)$ is the marginal probability that individuals $j$ and $j^\prime$ receive treatments $A_{t,j}$ and $A_{t,j^\prime}$ respectively given $H_t$.
 
+% In the simulation, the treatment individuals $j$ and $j^\prime$ receive $A_{t,j}$ and $A_{t,j^\prime}$ are mutually independent conditioning on the previous history. thus, the denominator of $W_{t,j,j\prime}$ can be factorized into:
+% \[ p(A_{t,j}, A_{t,j^\prime} \mid H_t)= p(A_{t,j} \mid H_t)p(A_{t,j^\prime} \mid H_t) \]
+% Besides, the numerator of  $W_{t,j,j\prime}$ is defined as the empirical frequency of the treatment pair $ (a, a^\prime)$, which takes the value from $\{(0,0),(0,1),(1,0),(1,1)\}$. Here we denote it as \[\tilde p_t (A_{t,j}, A_{t,j^\prime} \mid S_t) = \hat p_t (A_{t,j}, A_{t,j^\prime} \mid S_t)\]
 
-\section{Additional on the indirect effect}
-\label{app:addindirect}
+% Therefore, the weight we used in the simulation is constructed as:
+% \[
+% W_{t,j,j\prime} = \frac{\hat p_t (A_{t,j}, A_{t,j^\prime} \mid S_t)}{p(A_{t,j} \mid H_t)p(A_{t,j^\prime} \mid H_t)}
+% \]
 
-Weights used in the estimation of the indirect effect is a natural extension of~\cite{Boruvkaetal}. As in Section~\ref{section:indirect}, the weight~$W_{t,j, j^\prime}$ at decision time $t$ for the $j$th individual is equal to $\frac{\tilde p (A_{t,j}, A_{t,j^\prime} \mid S_t)}{p_t (A_{t,j}, A_{t,j^\prime} \mid H_t)}$ where $\tilde p_t (a, a^\prime \mid S_t)\in (0,1)$ is arbitrary as long as it does not depend on terms in $H_t$ other than $S_t$, and $p(A_{t,j}, A_{t,j^\prime} \mid H_t)$ is the marginal probability that individuals $j$ and $j^\prime$ receive treatments $A_{t,j}$ and $A_{t,j^\prime}$ respectively given $H_t$.
+% When the numerators are estimated using the observed data, the variance-covariance must account for this. Throughout we allow for the setting in which individuals are not always available. For completeness we provide results for a more general estimating function which can be used with observational (non-randomized $A_t$) treatments, under the assumption of sequential ignorability and assuming the data analyst is able to correctly model and estimate the treatment probability $p\left(A_{t,j}, A_{t,j^\prime}| H_t\right)$. We indicate how the results are simplified by use of data from an MRT.
 
-In the simulation, the treatment individuals $j$ and $j^\prime$ receive $A_{t,j}$ and $A_{t,j^\prime}$ are mutually independent conditioning on the previous history. thus, the denominator of $W_{t,j,j\prime}$ can be factorized into:
-\[ p(A_{t,j}, A_{t,j^\prime} \mid H_t)= p(A_{t,j} \mid H_t)p(A_{t,j^\prime} \mid H_t) \]
-Besides, the numerator of  $W_{t,j,j\prime}$ is defined as the empirical frequency of the treatment pair $ (a, a^\prime)$, which takes the value from $\{(0,0),(0,1),(1,0),(1,1)\}$. Here we denote it as \[\tilde p_t (A_{t,j}, A_{t,j^\prime} \mid S_t) = \hat p_t (A_{t,j}, A_{t,j^\prime} \mid S_t)\]
+% Denote the parameterized treatment probability by $p_t(a,a' | H_t;\eta)$ (with parameter $\eta$); note $\eta$ is known in an MRT. Denote the parameterized numerator of the weights by $\tilde p_t(a,a'| S_t;\rho)$ (with parameter $\rho$). The proof below allows the data analyst to use a  $\tilde p_t$ with an estimated parameter $\tilde \rho$ or to pre-specify $\rho$ as desired. We use a superscript of $\star$ to denote limiting values of estimated parameters (e.g. $\eta^\star, \rho^\star$). Then the more general version of the estimating equation $U_W(\alpha,\beta;\hat\eta,\hat\rho)$ is:
+% \begin{align*}
+%     \sum_{t=1}^T \left( Y_{t+1,J} - g_t(H_t)^\top \alpha -  (1-A_{t,J}) (A_{t,J^\prime} - \tilde p_t^\star (1 \given S_t;\hat \rho) ) f_t (S_t)^\prime \beta \right)
+% 	&I_{t,J}I_{t,J^\prime}W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \hat\eta,\hat\rho) \times \\
+%     &\begin{pmatrix}
+%   g_t(H_t) \\
+%   (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t;\hat\rho) ) f_t (S_t)
+% \end{pmatrix}
+% \end{align*}
 
-Therefore, the weight we used in the simulation is constructed as:
-\[
-W_{t,j,j\prime} = \frac{\hat p_t (A_{t,j}, A_{t,j^\prime} \mid S_t)}{p(A_{t,j} \mid H_t)p(A_{t,j^\prime} \mid H_t)}
-\]
+% Note $W_{t,J, J^\prime}$ in the body of the paper is replaced here by $W_{t,J, J^\prime}(A_t,H_t; \hat\eta,\hat\rho)$, and $\hat\eta$, $\hat\rho$ are estimators.
 
-When the numerators are estimated using the observed data, the variance-covariance must account for this. Throughout we allow for the setting in which individuals are not always available. For completeness we provide results for a more general estimating function which can be used with observational (non-randomized $A_t$) treatments, under the assumption of sequential ignorability and assuming the data analyst is able to correctly model and estimate the treatment probability $p\left(A_{t,j}, A_{t,j^\prime}| H_t\right)$. We indicate how the results are simplified by use of data from an MRT.
-
-Denote the parameterized treatment probability by $p_t(a,a' | H_t;\eta)$ (with parameter $\eta$); note $\eta$ is known in an MRT. Denote the parameterized numerator of the weights by $\tilde p_t(a,a'| S_t;\rho)$ (with parameter $\rho$). The proof below allows the data analyst to use a  $\tilde p_t$ with an estimated parameter $\tilde \rho$ or to pre-specify $\rho$ as desired. We use a superscript of $\star$ to denote limiting values of estimated parameters (e.g. $\eta^\star, \rho^\star$). Then the more general version of the estimating equation $U_W(\alpha,\beta;\hat\eta,\hat\rho)$ is:
-\begin{align*}
-    \sum_{t=1}^T \left( Y_{t+1,J} - g_t(H_t)^\top \alpha -  (1-A_{t,J}) (A_{t,J^\prime} - \tilde p_t^\star (1 \given S_t;\hat \rho) ) f_t (S_t)^\prime \beta \right)
-	&I_{t,J}I_{t,J^\prime}W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \hat\eta,\hat\rho) \times \\
-    &\begin{pmatrix}
-  g_t(H_t) \\
-  (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t;\hat\rho) ) f_t (S_t)
-\end{pmatrix}
-\end{align*}
-
-Note $W_{t,J, J^\prime}$ in the body of the paper is replaced here by $W_{t,J, J^\prime}(A_t,H_t; \hat\eta,\hat\rho)$, and $\hat\eta$, $\hat\rho$ are estimators.
-
-\textbf{Treatment Probability Model:} If the data is observational then we assume: $p_t(a,a'\given{H_t;\eta})$ is a correctly specified model for $\P(a,a'\given{H_t,I_{t,J}=1,I_{t,J^\prime}=1})$. Let $\eta^\star$ be the true value of $\eta$; that is, $Pr(A_{t,J},A_{t,J^\prime}|H_t,I_{t,J}=1,I_{t,J^\prime}=1) = p_t(a,a' \given{H_t;\eta^\star})$ Assume that the estimator of $\eta$, say $\hat\eta$, satisfies $\P_n U_D(\hat\eta)=0$ and $\sqrt{n}(\hat\eta-\eta^\star) =\E \left[\dot U_D (\eta^\star) \right]^{-1}\P_n U_D (\eta^\star) + o_P(1)$. Thus $\sqrt{n}(\hat\eta-\eta^\star)$ converges in distribution to a mean zero, normal random vector with variance-covaraince matrix given by $\E \left[\dot U_D (\eta^\star) \right]^{-1} \E \left[U_D(\eta^\star)^ {\otimes 2} \right]    \left(\E \left[\dot U_D (\eta^\star) \right]^{-1} \right)^\prime$, which has finite entries. Assume that $\P_n(\dot U_D(\hat\eta))$ is a consistent estimator of $\E(\dot U_D(\eta^\star))$. Assume there exists finite constants, $b_D>0$ and $B_D<1$ such that each $b_D < p_t (a,a'|H_t;\eta^\star)<B_D$ a.s.
+% \textbf{Treatment Probability Model:} If the data is observational then we assume: $p_t(a,a'\given{H_t;\eta})$ is a correctly specified model for $\P(a,a'\given{H_t,I_{t,J}=1,I_{t,J^\prime}=1})$. Let $\eta^\star$ be the true value of $\eta$; that is, $Pr(A_{t,J},A_{t,J^\prime}|H_t,I_{t,J}=1,I_{t,J^\prime}=1) = p_t(a,a' \given{H_t;\eta^\star})$ Assume that the estimator of $\eta$, say $\hat\eta$, satisfies $\P_n U_D(\hat\eta)=0$ and $\sqrt{n}(\hat\eta-\eta^\star) =\E \left[\dot U_D (\eta^\star) \right]^{-1}\P_n U_D (\eta^\star) + o_P(1)$. Thus $\sqrt{n}(\hat\eta-\eta^\star)$ converges in distribution to a mean zero, normal random vector with variance-covaraince matrix given by $\E \left[\dot U_D (\eta^\star) \right]^{-1} \E \left[U_D(\eta^\star)^ {\otimes 2} \right]    \left(\E \left[\dot U_D (\eta^\star) \right]^{-1} \right)^\prime$, which has finite entries. Assume that $\P_n(\dot U_D(\hat\eta))$ is a consistent estimator of $\E(\dot U_D(\eta^\star))$. Assume there exists finite constants, $b_D>0$ and $B_D<1$ such that each $b_D < p_t (a,a'|H_t;\eta^\star)<B_D$ a.s.
 
 
-If the data analyst elects to use a parameterized and estimated $\tilde p_t(1|S_t,\hat \rho)$, then we assume:
+% If the data analyst elects to use a parameterized and estimated $\tilde p_t(1|S_t,\hat \rho)$, then we assume:
 
-\textbf{Numerator of Weights Probability Model}: Suppose the estimator $\hat\rho$ solves an estimating equation: $\P_n U_N(\rho)=0$. Assume that, for a finite value of $\rho$, say $\rho^\star$ and $\sqrt{n}(\hat\rho-\rho^\star)= \E \left[\dot U_N (\rho^\star) \right]^{-1}\sqrt{n}(\P_n-P) U_N (\rho^\star) + o_P(1)$ where the matrix, $\E \left[\dot U_N (\rho^\star) \right]$ is positive definite. Assume $\sqrt{n}(\P_n-P) U_N (\rho^\star)$ converges in distribution to a mean zero, normal random vector with variance-covariance matrix given by $\E[U_N(\rho^\star)^ {\otimes 2}]$ which has finite entries. Assume that $\P_n \dot U_N(\hat\rho)$ is a consistent estimator of $\E[\dot U_N(\rho^\star)]$. Assume $0 <\rho^\star <1$.
-
-
-\begin{proof}
-The solution to $\P_n U_W(\alpha,\beta;\hat\eta,\hat\rho) = 0$ gives the estimator:
-\begin{align*}
-    \begin{pmatrix}
-  \hat \alpha \\
-  \hat \beta
-\end{pmatrix} =
-\left\{ \P_n \dot U_W(\hat\eta,\hat\rho) \right \}^{-1} \P_n \sum_{t=1}^T &I_{t,J}I_{t,J^\prime} W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \hat \eta,\hat \rho) Y_{t+1,J} \times \\
-&\begin{pmatrix}
-  g_t(H_t) \\
-  (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t) ) f_t (S_t)
-\end{pmatrix}
-\end{align*}
+% \textbf{Numerator of Weights Probability Model}: Suppose the estimator $\hat\rho$ solves an estimating equation: $\P_n U_N(\rho)=0$. Assume that, for a finite value of $\rho$, say $\rho^\star$ and $\sqrt{n}(\hat\rho-\rho^\star)= \E \left[\dot U_N (\rho^\star) \right]^{-1}\sqrt{n}(\P_n-P) U_N (\rho^\star) + o_P(1)$ where the matrix, $\E \left[\dot U_N (\rho^\star) \right]$ is positive definite. Assume $\sqrt{n}(\P_n-P) U_N (\rho^\star)$ converges in distribution to a mean zero, normal random vector with variance-covariance matrix given by $\E[U_N(\rho^\star)^ {\otimes 2}]$ which has finite entries. Assume that $\P_n \dot U_N(\hat\rho)$ is a consistent estimator of $\E[\dot U_N(\rho^\star)]$. Assume $0 <\rho^\star <1$.
 
 
-where
-
-\[
-\dot U_W(\hat\eta,\hat\rho) = \sum_{t=1}^T I_{t,J}I_{t,J^\prime}W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \hat\eta,\hat\rho) \begin{pmatrix}
-  g_t(H_t) \\
-  (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t) ) f_t (S_t)
-\end{pmatrix}^ {\otimes 2}
-\]
-
-Define
-
-\begin{align*}
-    \begin{pmatrix}
-  \alpha^\prime \\
-  \beta^\prime
-\end{pmatrix} = \left\{ \E \left[ \dot U_W(\eta^\star,\rho^\star) \right]\right\}^{-1}  \E \Bigg[ \sum_{t=1}^T I_{t,J}I_{t,J^\prime} W_{t,J, J^\prime}(A_{t,J},&A_{t,J^\prime},H_t; \eta^\star,\rho^\star) Y_{t+1,J} \nonumber \\
-&\begin{pmatrix}
-  g_t(H_t) \\
-  (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t) ) f_t (S_t)
-\end{pmatrix} \Bigg]
-\end{align*}
+% \begin{proof}
+% The solution to $\P_n U_W(\alpha,\beta;\hat\eta,\hat\rho) = 0$ gives the estimator:
+% \begin{align*}
+%     \begin{pmatrix}
+%   \hat \alpha \\
+%   \hat \beta
+% \end{pmatrix} =
+% \left\{ \P_n \dot U_W(\hat\eta,\hat\rho) \right \}^{-1} \P_n \sum_{t=1}^T &I_{t,J}I_{t,J^\prime} W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \hat \eta,\hat \rho) Y_{t+1,J} \times \\
+% &\begin{pmatrix}
+%   g_t(H_t) \\
+%   (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t) ) f_t (S_t)
+% \end{pmatrix}
+% \end{align*}
 
 
-Then standard statistical arguments can be used to show that $\sqrt{n}(\hat\alpha-\alpha^\prime, \hat\beta-\beta^\prime)$ converges in distribution to a normal, mean zero, random vector with variance-covariance matrix given by:
-\begin{equation*}
-    \left\{ \E \left[\dot U_W(\eta^\star, \rho^\star) \right]\right\}^{-1} \Sigma_W(\alpha^\prime,\beta^\prime;\eta^\star, \rho^\star) \left\{ \E \left[\dot U_W(\eta^\star, \rho^\star) \right]\right\}^{-1}
-\end{equation*}
-where
-\begin{align*}
-    \Sigma_W(\alpha,\beta;\eta, \rho) = \E \Big[\Big(U_W(\alpha,\beta;\eta, \rho) + &\Sigma_{W,D}(\alpha,\beta;\eta, \rho) \left\{\E[\dot U_D(\eta)] \right\}^{-1} U_D(\eta) + \nonumber \\ &\Sigma_{W,N}(\alpha,\beta;\eta, \rho)\left\{\E[\dot U_N(\rho)] \right\}^{-1} U_N(\rho) \Big)^ {\otimes 2} \Big]
-\end{align*}
-with
-\begin{align*}
-    \Sigma_{W,D}&(\alpha,\beta ; \eta, \rho)
-    = \E \Big[ \sum_{t=1}^T \left( Y_{t+1,J} - g_t(H_t)^\prime \alpha -  (1-A_{t,J})(A_{t,J^\prime} - \tilde p_t^\star (1 \given S_t;\rho) ) f_t (S_t)^\prime \beta \right)I_{t,J}I_{t,J^\prime} \nonumber \\ &W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta,\rho)
-    \begin{pmatrix}
-  g_t(H_t) \\
-  (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t;\rho) ) f_t (S_t)
-\end{pmatrix}\left(\frac{d \log p^\star_t(A_{t,J^\prime}|H_t;\eta)}{d \eta} \right)^\prime \Big],
-\end{align*}
-and
-\begin{align*}
-    \Sigma_{W,N}&(\alpha,\beta;\eta, \rho)
-    = \E \Big[ \sum_{t=1}^T \left( Y_{t+1,J} - g_t(H_t)^\prime \alpha -  (1-A_{t,J})(A_{t,J^\prime} - \tilde p_t^\star (1 \given S_t;\rho) ) f_t (S_t)^\prime \beta \right)I_{t,J}I_{t,J^\prime} \nonumber \\ &W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta,\rho)
-    \begin{pmatrix}
-  g_t(H_t) \\
-  (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t;\rho) ) f_t (S_t)
-\end{pmatrix}\left(\frac{d \log \tilde p^\star_t(A_{t,J^\prime}|S_t;\rho)}{d \rho} \right)^\prime \Big] \nonumber \\
-&+\E \Big[ \sum_{t=1}^T \left( Y_{t+1,J} - g_t(H_t)^\prime \alpha -  (1-A_{t,J})(A_{t,J^\prime} - \tilde p_t^\star (1 \given S_t;\rho) ) f_t (S_t)^\prime \beta \right)I_{t,J}I_{t,J^\prime} \nonumber \\ &W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta,\rho)
-    \begin{pmatrix}
-  \textbf{0} \\
-  -(1-A_{t,J})\tilde {p}^\star_t (1 \given S_t;\rho)  f_t (S_t)
-\end{pmatrix}\left(\frac{d \log \tilde p^\star_t(1|S_t;\rho)}{d \rho} \right)^\prime \Big] \nonumber \\
-&+\E \Big[ \sum_{t=1}^T (1-A_{t,J}) \tilde p_t^\star (1 \given S_t;\rho)  f_t (S_t)^\prime \beta I_{t,J}I_{t,J^\prime}W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta,\rho)  \nonumber \\ &\begin{pmatrix}
-  g_t(H_t) \\
-  (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t;\rho) ) f_t (S_t)
-\end{pmatrix}\left(\frac{d \log \tilde p^\star_t(1|S_t;\rho)}{d \rho} \right)^\prime \Big]
-\end{align*}
+% where
 
-In our simulation, an individual's randomization probabilities only depends on their observed history, then $\tilde p_t^\star (1 \mid S_{t,j^\prime}) = \tilde p_t (1 \mid S_{t,j^\prime})$. Since the data is from an MRT (we know $p_t$) and we pre-specify (not estimate) $\tilde p_t$, then $\Sigma_W = \E \left[ \left(U_W(\alpha,\beta)  \right)^ {\otimes 2} \right] $ greatly simplifying the variance-covaraince matrix.
+% \[
+% \dot U_W(\hat\eta,\hat\rho) = \sum_{t=1}^T I_{t,J}I_{t,J^\prime}W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \hat\eta,\hat\rho) \begin{pmatrix}
+%   g_t(H_t) \\
+%   (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t) ) f_t (S_t)
+% \end{pmatrix}^ {\otimes 2}
+% \]
 
-A consistent estimator of the variance-covariance matrix is given by:
-\begin{equation}
-    \left\{ \P_n \left[\dot U_W(\hat\eta, \hat\rho) \right]\right\}^{-1} \hat\Sigma_W(\hat\alpha,\hat\beta;\hat\eta, \hat\rho) \left\{ \P_n \left[\dot U_W(\hat\eta, \hat\rho) \right]\right\}^{-1}
-\end{equation}
-where
-\begin{align*}
-    \hat\Sigma_W(\alpha,\beta;\eta, \rho) = \P_n \Big[\Big(U_W(\alpha,\beta;\eta, \rho) + &\hat\Sigma_{W,D}(\alpha,\beta;\eta, \rho) \left\{\P_n[\dot U_D(\eta)] \right\}^{-1} U_D(\eta) + \nonumber \\ &\hat\Sigma_{W,N}(\alpha,\beta;\eta, \rho)\left\{\P_n[\dot U_N(\rho)] \right\}^{-1} U_N(\rho) \Big)^ {\otimes 2} \Big]
-\end{align*}
-with
-\begin{align*}
-    \hat\Sigma_{W,D}(\alpha,\beta &; \eta, \rho)
-    = \P_n \Big[ \sum_{t=1}^T \left( Y_{t+1,J} - g_t(H_t)^\prime \alpha -  (1-A_{t,J})(A_{t,J^\prime} - \tilde p_t^\star (1 \given S_t;\rho) ) f_t (S_t)^\prime \beta \right)I_{t,J}I_{t,J^\prime} \nonumber \\ &W_{t,J, J^\prime}(A_t,H_t; \eta,\rho)
-    \begin{pmatrix}
-  g_t(H_t) \\
-  (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t;\rho) ) f_t (S_t)
-\end{pmatrix}\left(\frac{d \log p^\star_t(A_{t,J^\prime}|H_t;\eta)}{d \eta} \right)^\prime \Big],
-\end{align*}
-and
-\begin{align*}
-    \hat\Sigma_{W,N}&(\alpha,\beta;\eta, \rho)
-    = \P_n \Big[ \sum_{t=1}^T \left( Y_{t+1,J} - g_t(H_t)^\prime \alpha -  (1-A_{t,J})(A_{t,J^\prime} - \tilde p_t^\star (1 \given S_t;\rho) ) f_t (S_t)^\prime \beta \right)I_{t,J}I_{t,J^\prime} \nonumber \\ &W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta,\rho)
-    \begin{pmatrix}
-  g_t(H_t) \\
-  (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t;\rho) ) f_t (S_t)
-\end{pmatrix}\left(\frac{d \log \tilde p^\star_t(A_{t,J^\prime}|S_t;\rho)}{d \rho} \right)^\prime \Big] \nonumber \\
-&+\P_n \Big[ \sum_{t=1}^T \left( Y_{t+1,J} - g_t(H_t)^\prime \alpha -  (1-A_{t,J})(A_{t,J^\prime} - \tilde p_t^\star (1 \given S_t;\rho) ) f_t (S_t)^\prime \beta \right)I_{t,J}I_{t,J^\prime} \nonumber \\ &W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta,\rho)
-    \begin{pmatrix}
-  \textbf{0} \\
-  -(1-A_{t,J})\tilde {p}^\star_t (1 \given S_t;\rho)  f_t (S_t)
-\end{pmatrix}\left(\frac{d \log \tilde p^\star_t(1|S_t;\rho)}{d \rho} \right)^\prime \Big] \nonumber \\
-&+\P_n \Big[ \sum_{t=1}^T (1-A_{t,J}) \tilde p_t^\star (1 \given S_t;\rho)  f_t (S_t)^\prime \beta I_{t,J}I_{t,J^\prime}W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta,\rho)  \nonumber \\ &\begin{pmatrix}
-  g_t(H_t) \\
-  (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t;\rho) ) f_t (S_t)
-\end{pmatrix}\left(\frac{d \log \tilde p^\star_t(1|S_t;\rho)}{d \rho} \right)^\prime \Big]
-\end{align*}
+% Define
 
-It remains to show that $\beta^\prime = \beta^{\star\star}$. Since $\E [U_W(\alpha^\prime,\beta^\prime;\eta^\star,\rho^\star)]=0$,
-\begin{align*}
-    0 &= \E \sum_{t=1}^T \left( Y_{t+1,J} - g_t(H_t)^\top\alpha^\prime -  (1-A_{t,J}) (A_{t,J^\prime} - \tilde p_t^\star (1 \given S_t;\rho^\star) ) f_t (S_t)^\top \beta^\prime \right) I_{t,J}I_{t,J^\prime} \nonumber \\
-    &  ~~~~~~~~~~~~~~~~~~~~  W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta^\star,\rho^\star)(1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t;\rho^\star) ) f_t (S_t) \nonumber \\
-    &=  \E \sum_{t=1}^T \left(\E \left[Y_{t+1} \given{A_{t,J},A_{t,J^\prime}, H_t ,I_{t,J}I_{t,J^\prime}=1} \right]- g_t(H_t)^\top\alpha^\prime-(1-A_{t,J}) (A_{t,J^\prime} - \tilde p_t^\star (1 \given S_t;\rho^\star) ) f_t (S_t)^\top \beta^\prime \right) \nonumber \\
-    &  ~~~~~~~~~~~~~~~~~~~~  I_{t,J}I_{t,J^\prime}W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta^\star,\rho^\star)(1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t;\rho^\star) ) f_t (S_t) \nonumber \\
-    &= \E \sum_{t=1}^T \sum_{a^\prime \in \{0,1\}} \Big(\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=a^\prime, H_t ,I_{t,J}I_{t,J^\prime}=1} \right]- g_t(H_t)^\top\alpha^\prime- \nonumber \\
-    &  ~~~~~~~~~~~~~~~~~~~~  (a^\prime - \tilde p_t^\star (1 \given S_t;\rho^\star) ) f_t (S_t)^\top \beta^\prime \Big) I_{t,J}I_{t,J^\prime}\tilde p_t (0,a^\prime \given S_t;\rho^\star)(a^\prime - \tilde {p}^\star_t (1 \given S_t;\rho^\star) ) f_t (S_t)
-\end{align*}
+% \begin{align*}
+%     \begin{pmatrix}
+%   \alpha^\prime \\
+%   \beta^\prime
+% \end{pmatrix} = \left\{ \E \left[ \dot U_W(\eta^\star,\rho^\star) \right]\right\}^{-1}  \E \Bigg[ \sum_{t=1}^T I_{t,J}I_{t,J^\prime} W_{t,J, J^\prime}(A_{t,J},&A_{t,J^\prime},H_t; \eta^\star,\rho^\star) Y_{t+1,J} \nonumber \\
+% &\begin{pmatrix}
+%   g_t(H_t) \\
+%   (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t) ) f_t (S_t)
+% \end{pmatrix} \Bigg]
+% \end{align*}
 
-where the last equality averages out over $A_{t,J^\prime}$. The above simplifies to:
 
-\begin{align*}
-    0 &= \E \sum_{t=1}^T \sum_{a^\prime \in \{0,1\}} \Big(\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=a^\prime, H_t ,I_{t,J}I_{t,J^\prime}=1} \right]- g_t(H_t)^\top\alpha^\prime- \nonumber \\
-    &  ~~~~~~~~~~~~~~~~~~~~  (a^\prime - \tilde p_t^\star (1 \given S_t;\rho^\star) ) f_t (S_t)^\top \beta^\prime \Big) I_{t,J}I_{t,J^\prime}\tilde p_t (0,a^\prime \given S_t;\rho^\star)(a^\prime - \tilde {p}^\star_t (1 \given S_t;\rho^\star) ) f_t (S_t) \nonumber \\
-    &= \E \sum_{t=1}^T  \Big(\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=1, H_t ,I_{t,J}I_{t,J^\prime}=1} \right]- g_t(H_t)^\top\alpha^\prime- \nonumber \\
-    &  ~~~~~~~~~~~~~~~~~~~~  (1 - \tilde p_t^\star (1 \given S_t;\rho^\star) ) f_t (S_t)^\top \beta^\prime \Big) I_{t,J}I_{t,J^\prime}\tilde p_t (0,1 \given S_t;\rho^\star)(1 - \tilde {p}^\star_t (1 \given S_t;\rho^\star) ) f_t (S_t) \nonumber \\
-    & ~~~~ +\E \sum_{t=1}^T \Big(\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=0, H_t ,I_{t,J}I_{t,J^\prime}=1} \right]- g_t(H_t)^\top\alpha^\prime- \nonumber \\
-    &  ~~~~~~~~~~~~~~~~~~~~  ( - \tilde p_t^\star (1 \given S_t;\rho^\star) ) f_t (S_t)^\top \beta^\prime \Big) I_{t,J}I_{t,J^\prime}\tilde p_t (0,0 \given S_t;\rho^\star)( - \tilde {p}^\star_t (1 \given S_t;\rho^\star) ) f_t (S_t) \nonumber \\
-    &= \E \sum_{t=1}^T \Big(\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=1, H_t ,I_{t,J}I_{t,J^\prime}=1} \right] - \E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=0, H_t ,I_{t,J}I_{t,J^\prime}=1} \right]\nonumber \\
-    &  ~~~~~~~~~~~~~~~~~~~~  -f_t (S_t)^\top \beta^\prime \Big)  f_t (S_t) \gamma(\eta^\star,\rho^\star) I_{t,J}I_{t,J^\prime}
-\end{align*}
+% Then standard statistical arguments can be used to show that $\sqrt{n}(\hat\alpha-\alpha^\prime, \hat\beta-\beta^\prime)$ converges in distribution to a normal, mean zero, random vector with variance-covariance matrix given by:
+% \begin{equation*}
+%     \left\{ \E \left[\dot U_W(\eta^\star, \rho^\star) \right]\right\}^{-1} \Sigma_W(\alpha^\prime,\beta^\prime;\eta^\star, \rho^\star) \left\{ \E \left[\dot U_W(\eta^\star, \rho^\star) \right]\right\}^{-1}
+% \end{equation*}
+% where
+% \begin{align*}
+%     \Sigma_W(\alpha,\beta;\eta, \rho) = \E \Big[\Big(U_W(\alpha,\beta;\eta, \rho) + &\Sigma_{W,D}(\alpha,\beta;\eta, \rho) \left\{\E[\dot U_D(\eta)] \right\}^{-1} U_D(\eta) + \nonumber \\ &\Sigma_{W,N}(\alpha,\beta;\eta, \rho)\left\{\E[\dot U_N(\rho)] \right\}^{-1} U_N(\rho) \Big)^ {\otimes 2} \Big]
+% \end{align*}
+% with
+% \begin{align*}
+%     \Sigma_{W,D}&(\alpha,\beta ; \eta, \rho)
+%     = \E \Big[ \sum_{t=1}^T \left( Y_{t+1,J} - g_t(H_t)^\prime \alpha -  (1-A_{t,J})(A_{t,J^\prime} - \tilde p_t^\star (1 \given S_t;\rho) ) f_t (S_t)^\prime \beta \right)I_{t,J}I_{t,J^\prime} \nonumber \\ &W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta,\rho)
+%     \begin{pmatrix}
+%   g_t(H_t) \\
+%   (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t;\rho) ) f_t (S_t)
+% \end{pmatrix}\left(\frac{d \log p^\star_t(A_{t,J^\prime}|H_t;\eta)}{d \eta} \right)^\prime \Big],
+% \end{align*}
+% and
+% \begin{align*}
+%     \Sigma_{W,N}&(\alpha,\beta;\eta, \rho)
+%     = \E \Big[ \sum_{t=1}^T \left( Y_{t+1,J} - g_t(H_t)^\prime \alpha -  (1-A_{t,J})(A_{t,J^\prime} - \tilde p_t^\star (1 \given S_t;\rho) ) f_t (S_t)^\prime \beta \right)I_{t,J}I_{t,J^\prime} \nonumber \\ &W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta,\rho)
+%     \begin{pmatrix}
+%   g_t(H_t) \\
+%   (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t;\rho) ) f_t (S_t)
+% \end{pmatrix}\left(\frac{d \log \tilde p^\star_t(A_{t,J^\prime}|S_t;\rho)}{d \rho} \right)^\prime \Big] \nonumber \\
+% &+\E \Big[ \sum_{t=1}^T \left( Y_{t+1,J} - g_t(H_t)^\prime \alpha -  (1-A_{t,J})(A_{t,J^\prime} - \tilde p_t^\star (1 \given S_t;\rho) ) f_t (S_t)^\prime \beta \right)I_{t,J}I_{t,J^\prime} \nonumber \\ &W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta,\rho)
+%     \begin{pmatrix}
+%   \textbf{0} \\
+%   -(1-A_{t,J})\tilde {p}^\star_t (1 \given S_t;\rho)  f_t (S_t)
+% \end{pmatrix}\left(\frac{d \log \tilde p^\star_t(1|S_t;\rho)}{d \rho} \right)^\prime \Big] \nonumber \\
+% &+\E \Big[ \sum_{t=1}^T (1-A_{t,J}) \tilde p_t^\star (1 \given S_t;\rho)  f_t (S_t)^\prime \beta I_{t,J}I_{t,J^\prime}W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta,\rho)  \nonumber \\ &\begin{pmatrix}
+%   g_t(H_t) \\
+%   (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t;\rho) ) f_t (S_t)
+% \end{pmatrix}\left(\frac{d \log \tilde p^\star_t(1|S_t;\rho)}{d \rho} \right)^\prime \Big]
+% \end{align*}
 
-where $\gamma(\eta^\star,\rho^\star) = \tilde{p}_t (0,1 \mid S_t)(1- \tilde {p}^\star_t (1 \given S_t;\rho^\star)) = \tilde{p}_t (0,0 \mid S_t) \tilde {p}^\star_t (1 \given S_t;\rho^\star) $. From this we obtain:
-\begin{align*}
-   0 = \E \sum_{t=1}^T  f_t (S_t) &\gamma(\eta^\star,\rho^\star) I_{t,J}I_{t,J^\prime}   \Big(\E \Big[\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=1, H_t ,I_{t,J}I_{t,J^\prime}=1} \right] - \nonumber \\
-   &\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=0, H_t ,I_{t,J}I_{t,J^\prime}=1} \right] \mid S_t,I_{t,J}I_{t,J^\prime}=1\Big]  -f_t (S_t)^\top \beta^\prime \Big)
-\end{align*}
+% In our simulation, an individual's randomization probabilities only depends on their observed history, then $\tilde p_t^\star (1 \mid S_{t,j^\prime}) = \tilde p_t (1 \mid S_{t,j^\prime})$. Since the data is from an MRT (we know $p_t$) and we pre-specify (not estimate) $\tilde p_t$, then $\Sigma_W = \E \left[ \left(U_W(\alpha,\beta)  \right)^ {\otimes 2} \right] $ greatly simplifying the variance-covaraince matrix.
 
-Thus
-\begin{align}
-\label{eq:estimand_beta}
-    \beta^\prime =\left[\E \dot U_W(\eta^\star,\rho^\star) \right]_{(2,2)}^{-1} \E \Bigg[\sum_{t=1}^T  f_t (S_t) &\gamma(\eta^\star,\rho^\star) I_{t,J}I_{t,J^\prime}  \E \Big[\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=1, H_t ,I_{t,J}I_{t,J^\prime}=1} \right] - \nonumber \\
-   &\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=0, H_t ,I_{t,J}I_{t,J^\prime}=1} \right] \mid S_t,I_{t,J}I_{t,J^\prime}=1\Big]  \Bigg]
-\end{align}
+% A consistent estimator of the variance-covariance matrix is given by:
+% \begin{equation}
+%     \left\{ \P_n \left[\dot U_W(\hat\eta, \hat\rho) \right]\right\}^{-1} \hat\Sigma_W(\hat\alpha,\hat\beta;\hat\eta, \hat\rho) \left\{ \P_n \left[\dot U_W(\hat\eta, \hat\rho) \right]\right\}^{-1}
+% \end{equation}
+% where
+% \begin{align*}
+%     \hat\Sigma_W(\alpha,\beta;\eta, \rho) = \P_n \Big[\Big(U_W(\alpha,\beta;\eta, \rho) + &\hat\Sigma_{W,D}(\alpha,\beta;\eta, \rho) \left\{\P_n[\dot U_D(\eta)] \right\}^{-1} U_D(\eta) + \nonumber \\ &\hat\Sigma_{W,N}(\alpha,\beta;\eta, \rho)\left\{\P_n[\dot U_N(\rho)] \right\}^{-1} U_N(\rho) \Big)^ {\otimes 2} \Big]
+% \end{align*}
+% with
+% \begin{align*}
+%     \hat\Sigma_{W,D}(\alpha,\beta &; \eta, \rho)
+%     = \P_n \Big[ \sum_{t=1}^T \left( Y_{t+1,J} - g_t(H_t)^\prime \alpha -  (1-A_{t,J})(A_{t,J^\prime} - \tilde p_t^\star (1 \given S_t;\rho) ) f_t (S_t)^\prime \beta \right)I_{t,J}I_{t,J^\prime} \nonumber \\ &W_{t,J, J^\prime}(A_t,H_t; \eta,\rho)
+%     \begin{pmatrix}
+%   g_t(H_t) \\
+%   (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t;\rho) ) f_t (S_t)
+% \end{pmatrix}\left(\frac{d \log p^\star_t(A_{t,J^\prime}|H_t;\eta)}{d \eta} \right)^\prime \Big],
+% \end{align*}
+% and
+% \begin{align*}
+%     \hat\Sigma_{W,N}&(\alpha,\beta;\eta, \rho)
+%     = \P_n \Big[ \sum_{t=1}^T \left( Y_{t+1,J} - g_t(H_t)^\prime \alpha -  (1-A_{t,J})(A_{t,J^\prime} - \tilde p_t^\star (1 \given S_t;\rho) ) f_t (S_t)^\prime \beta \right)I_{t,J}I_{t,J^\prime} \nonumber \\ &W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta,\rho)
+%     \begin{pmatrix}
+%   g_t(H_t) \\
+%   (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t;\rho) ) f_t (S_t)
+% \end{pmatrix}\left(\frac{d \log \tilde p^\star_t(A_{t,J^\prime}|S_t;\rho)}{d \rho} \right)^\prime \Big] \nonumber \\
+% &+\P_n \Big[ \sum_{t=1}^T \left( Y_{t+1,J} - g_t(H_t)^\prime \alpha -  (1-A_{t,J})(A_{t,J^\prime} - \tilde p_t^\star (1 \given S_t;\rho) ) f_t (S_t)^\prime \beta \right)I_{t,J}I_{t,J^\prime} \nonumber \\ &W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta,\rho)
+%     \begin{pmatrix}
+%   \textbf{0} \\
+%   -(1-A_{t,J})\tilde {p}^\star_t (1 \given S_t;\rho)  f_t (S_t)
+% \end{pmatrix}\left(\frac{d \log \tilde p^\star_t(1|S_t;\rho)}{d \rho} \right)^\prime \Big] \nonumber \\
+% &+\P_n \Big[ \sum_{t=1}^T (1-A_{t,J}) \tilde p_t^\star (1 \given S_t;\rho)  f_t (S_t)^\prime \beta I_{t,J}I_{t,J^\prime}W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta,\rho)  \nonumber \\ &\begin{pmatrix}
+%   g_t(H_t) \\
+%   (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t;\rho) ) f_t (S_t)
+% \end{pmatrix}\left(\frac{d \log \tilde p^\star_t(1|S_t;\rho)}{d \rho} \right)^\prime \Big]
+% \end{align*}
 
-where
-\[
-\left[\E \dot U_W(\eta^\star,\rho^\star) \right]_{(2,2)} =\E \sum_{t=1}^T  f_t (S_t)f_t (S_t)^\top \gamma(\eta^\star,\rho^\star) I_{t,J}I_{t,J^\prime}
-\]
-\end{proof}
+% It remains to show that $\beta^\prime = \beta^{\star\star}$. Since $\E [U_W(\alpha^\prime,\beta^\prime;\eta^\star,\rho^\star)]=0$,
+% \begin{align*}
+%     0 &= \E \sum_{t=1}^T \left( Y_{t+1,J} - g_t(H_t)^\top\alpha^\prime -  (1-A_{t,J}) (A_{t,J^\prime} - \tilde p_t^\star (1 \given S_t;\rho^\star) ) f_t (S_t)^\top \beta^\prime \right) I_{t,J}I_{t,J^\prime} \nonumber \\
+%     &  ~~~~~~~~~~~~~~~~~~~~  W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta^\star,\rho^\star)(1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t;\rho^\star) ) f_t (S_t) \nonumber \\
+%     &=  \E \sum_{t=1}^T \left(\E \left[Y_{t+1} \given{A_{t,J},A_{t,J^\prime}, H_t ,I_{t,J}I_{t,J^\prime}=1} \right]- g_t(H_t)^\top\alpha^\prime-(1-A_{t,J}) (A_{t,J^\prime} - \tilde p_t^\star (1 \given S_t;\rho^\star) ) f_t (S_t)^\top \beta^\prime \right) \nonumber \\
+%     &  ~~~~~~~~~~~~~~~~~~~~  I_{t,J}I_{t,J^\prime}W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta^\star,\rho^\star)(1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t;\rho^\star) ) f_t (S_t) \nonumber \\
+%     &= \E \sum_{t=1}^T \sum_{a^\prime \in \{0,1\}} \Big(\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=a^\prime, H_t ,I_{t,J}I_{t,J^\prime}=1} \right]- g_t(H_t)^\top\alpha^\prime- \nonumber \\
+%     &  ~~~~~~~~~~~~~~~~~~~~  (a^\prime - \tilde p_t^\star (1 \given S_t;\rho^\star) ) f_t (S_t)^\top \beta^\prime \Big) I_{t,J}I_{t,J^\prime}\tilde p_t (0,a^\prime \given S_t;\rho^\star)(a^\prime - \tilde {p}^\star_t (1 \given S_t;\rho^\star) ) f_t (S_t)
+% \end{align*}
 
-\section{Semiparametric Efficiency}
-\label{app:semipareff}
+% where the last equality averages out over $A_{t,J^\prime}$. The above simplifies to:
 
-In this section, we assume lack of interference and therefore the potential outcomes can be written to only depend on one's observed history.  Then we consider a semiparametric model characterized by the following assumptions:
-\begin{assumption}
-For all $1 \leq t \leq T$, $E[ Y_{t+1,J} (\bar A_{t-1,J}, 0) \mid H_{t,J}, A_{t,J} ] = E[ Y_{t+1,J} (\bar A_{t-1,J}, 0) \mid H_{t,J} ]$
-\end{assumption}
-\begin{assumption}
-Assume that there exists a function $\gamma()$ and a true parameter $\psi_0 \in \mathbb{R}^p$, such that for any $1 \leq t \leq T$,
-$$
-\mathbb{E} \left[ Y_{t+1,J} (\bar A_{t-1,J}, a_t) \mid \bar z_t, \bar a_t \right] - \mathbb{E} \left[ Y_{t+1,J} (\bar A_{t-1,J}, 0) \mid \bar z_t, \bar a_t \right] = \gamma(t+1, \bar z_t, \bar a_t; \psi)
-$$
-\end{assumption}
-We next gather the definitions necessary for defining the semiparametric efficient score:
-\begin{itemize}
-\item The longitudinal data is $O_1, A_1, Y_{2}, O_2, A_2, \ldots, O_T, A_T, Y_{T+1}$ where $O_t$ is the time-varying covariates on all individuals in the cluster, $A_t$ is the treatment assignments for the cluster, and $Y_{t+1}$ is the set of proximal outcomes on the cluster
-\item $Z_{t,j} = (Y_{t,j}, O_{t,j})$
-\item $H_{t,j} = (\bar A_{t-1,j}, \bar Z_{t,j})$
-\item $V_{t,j} = (H_{t,j}, A_{t,j})$
-\item $U_{t+1,j} (\psi) = Y_{t+1,j} - \gamma(t+1, \bar z_t, \bar a_t; \psi)$
-\item $\dot{U}_{t+1,j} (\psi) = U_{t+1,j} - \mathbb{E} \left[ U_{t+1, j} \mid H_{t,j} \right]$
-\item $W_{t,j} = \text{Var} \left( U_{t+1,j} (\psi_0) \mid V_{t,j} \right)^{-1}$
-\end{itemize}
+% \begin{align*}
+%     0 &= \E \sum_{t=1}^T \sum_{a^\prime \in \{0,1\}} \Big(\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=a^\prime, H_t ,I_{t,J}I_{t,J^\prime}=1} \right]- g_t(H_t)^\top\alpha^\prime- \nonumber \\
+%     &  ~~~~~~~~~~~~~~~~~~~~  (a^\prime - \tilde p_t^\star (1 \given S_t;\rho^\star) ) f_t (S_t)^\top \beta^\prime \Big) I_{t,J}I_{t,J^\prime}\tilde p_t (0,a^\prime \given S_t;\rho^\star)(a^\prime - \tilde {p}^\star_t (1 \given S_t;\rho^\star) ) f_t (S_t) \nonumber \\
+%     &= \E \sum_{t=1}^T  \Big(\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=1, H_t ,I_{t,J}I_{t,J^\prime}=1} \right]- g_t(H_t)^\top\alpha^\prime- \nonumber \\
+%     &  ~~~~~~~~~~~~~~~~~~~~  (1 - \tilde p_t^\star (1 \given S_t;\rho^\star) ) f_t (S_t)^\top \beta^\prime \Big) I_{t,J}I_{t,J^\prime}\tilde p_t (0,1 \given S_t;\rho^\star)(1 - \tilde {p}^\star_t (1 \given S_t;\rho^\star) ) f_t (S_t) \nonumber \\
+%     & ~~~~ +\E \sum_{t=1}^T \Big(\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=0, H_t ,I_{t,J}I_{t,J^\prime}=1} \right]- g_t(H_t)^\top\alpha^\prime- \nonumber \\
+%     &  ~~~~~~~~~~~~~~~~~~~~  ( - \tilde p_t^\star (1 \given S_t;\rho^\star) ) f_t (S_t)^\top \beta^\prime \Big) I_{t,J}I_{t,J^\prime}\tilde p_t (0,0 \given S_t;\rho^\star)( - \tilde {p}^\star_t (1 \given S_t;\rho^\star) ) f_t (S_t) \nonumber \\
+%     &= \E \sum_{t=1}^T \Big(\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=1, H_t ,I_{t,J}I_{t,J^\prime}=1} \right] - \E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=0, H_t ,I_{t,J}I_{t,J^\prime}=1} \right]\nonumber \\
+%     &  ~~~~~~~~~~~~~~~~~~~~  -f_t (S_t)^\top \beta^\prime \Big)  f_t (S_t) \gamma(\eta^\star,\rho^\star) I_{t,J}I_{t,J^\prime}
+% \end{align*}
 
-Then by~\cite[Lemma I.8]{Qian2021}, a general form of the efficient score is
-$$
-S_{\text{eff}} (\psi_0) = - \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T \rho_{t,j} \dot{U}_{t+1,j} (\psi_0)
-$$
-where
-$$
-\rho_{t,j} = \left[ \mathbb{E} \left[ \frac{\partial U_{t+1,j}}{\partial \psi} \mid V_{t,j} \right] - \mathbb{E} \left[ \frac{\partial U_{t+1,j}}{\partial \psi} \mid H_{t,j} \right] \mathbb{E} \left( W_{t,j} \mid H_{t,j} \right)^{-1} \right] W_{t,j}
-$$
-Note that $\mathbb{E} \left[ \rho_{t,j} \mid H_t \right] = 0$.  Therefore by~\cite[Lemma I.1]{Qian2021} we have
-$$
-\rho_{t,j} = \left( \rho(A_{t,j} = 1) - \rho(A_{t,j} = 1) \right) (A_{t,j} - p_t (1 \mid H_{t,j}))
-$$
-where  $\rho(A_{t,j} = a)$ denotes $\rho_{t,j}$ evaluated at $A_{t,j} = a$.
+% where $\gamma(\eta^\star,\rho^\star) = \tilde{p}_t (0,1 \mid S_t)(1- \tilde {p}^\star_t (1 \given S_t;\rho^\star)) = \tilde{p}_t (0,0 \mid S_t) \tilde {p}^\star_t (1 \given S_t;\rho^\star) $. From this we obtain:
+% \begin{align*}
+%    0 = \E \sum_{t=1}^T  f_t (S_t) &\gamma(\eta^\star,\rho^\star) I_{t,J}I_{t,J^\prime}   \Big(\E \Big[\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=1, H_t ,I_{t,J}I_{t,J^\prime}=1} \right] - \nonumber \\
+%    &\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=0, H_t ,I_{t,J}I_{t,J^\prime}=1} \right] \mid S_t,I_{t,J}I_{t,J^\prime}=1\Big]  -f_t (S_t)^\top \beta^\prime \Big)
+% \end{align*}
 
-We now calculate these terms based on the above notation. Under $\gamma(t+1, \bar z_t, \bar a_t; \psi_0) = A_{t,j} f(H_{t,j})^\top \psi$, we have
-$$
-\frac{\partial U_{t+1,j} (\psi_0)}{\partial \psi} = - A_{t,j} f(H_t), \quad \text{and} \quad
-\dot{U}_{t+1,j} (\psi) = Y_{t+1,j} - \mu_t (H_t) + (A_{t,j}-p_t(1 \mid H_t)) f_t(H_t, a_{t,-j})
-$$
-and hence we have
-\begin{align*}
-\mathbb{E} \left[ \frac{\partial U_{t+1,j} (\psi_0)}{\partial \psi} \mid H_{t,j}, A_{t,j} = 1 \right] &= - f(H_{t,j}) \\
-\mathbb{E} \left[ \frac{\partial U_{t+1,j} (\psi_0)}{\partial \psi} \mid H_{t,j}, A_{t,j} = 0 \right] &= 0 \\
-\text{Var} \left( U_{t+1,j} (\psi_0) \mid V_{t,j} \right) &=
-\text{Var} \left( Y_{t+1,j} \mid V_{t,j} \right) =: \sigma^2_{t+1,j} (H_{t,j}, A_{t,j}) \\
-\end{align*}
-Then
-$$
-\mathbb{E} \left[ W_{t,j} \mid H_{t,j} \right] = \frac{p_t (1 \mid H_{t,j} )}{\sigma^2_{t+1,j} (H_{t,j}, 1)} + \frac{1-p_t (1 \mid H_{t,j} )}{\sigma^2_{t+1,j} (H_{t,j}, 0)}
-$$
-and we can express
-\begin{align*}
-\rho(A_{t,j} = 1) &= - \left( 1 -p_t ( 1 \mid H_{t,j}) \left[  \frac{p_t (1 \mid H_{t,j} )}{\sigma^2_{t+1,j} (H_{t,j}, 1)} + \frac{1-p_t (1 \mid H_{t,j} )}{\sigma^2_{t+1,j} (H_{t,j}, 0)} \right] \right) \frac{f(H_{t,j})}{\sigma^2_{t+1,j} (H_{t,j}, 1)} \\
-\rho(A_{t,j} = 0) &= - \left( 0 -p_t ( 1 \mid H_{t,j}) \left[  \frac{p_t (1 \mid H_{t,j} )}{\sigma^2_{t+1,j} (H_{t,j}, 1)} + \frac{1-p_t (1 \mid H_{t,j} )}{\sigma^2_{t+1,j} (H_{t,j}, 0)} \right] \right) \frac{f(H_{t,j})}{\sigma^2_{t+1,j} (H_{t,j}, 1)}
-\end{align*}
-Therefore $\rho_{t,j}$ is given by
-\begin{align*}
-\bigg[ \frac{1}{\sigma^2_{t+1,j} (H_{t,j}, 1)} + p_t ( 1 \mid H_{t,j}) \left[  \frac{p_t (1 \mid H_{t,j} )}{\sigma^2_{t+1,j} (H_{t,j}, 1)} + \frac{1-p_t (1 \mid H_t )}{\sigma^2_{t+1,j} (H_{t,j}, 0)} \right] \times \\
-\left( \frac{1}{\sigma^2_{t+1,j} (H_{t,j}, 1)}  - \frac{1}{\sigma^2_{t+1,j} (H_{t,j}, 0)} \right)
- \bigg] \times \left( A_{t,j} - p_t (1 \mid H_{t,j}) \right) f(H_{t,j}).
-\end{align*}
-Moreover, under the simplifying assumption $\sigma^2_{t+1,j} (H_{t,j}, a) = \sigma^2_{t+1,j} (H_{t,j})$ we have
-$$
-\rho_{t,j} = \frac{1}{\sigma^2_{t+1,j} (H_t)} \times \left( A_{t,j} - p_t (1 \mid H_{t,j}) \right) f(H_{t,j}).
-$$
-Under the even stronger assumption $\sigma^2_{t+1,j} (H_{t,j}) := \sigma^2$ we have
-\begin{align*}
-S_{\text{eff}} (\psi_0) =&  \frac{\sigma^2}{G} \sum_{j=1}^G \sum_{t=1}^T \left(Y_{t+1,j} - \mu_t (H_{t,j}) - (A_{t,j} - p_t (1 \mid H_{t,j})) f_t (H_{t,j})^\prime \beta \right) \times \\
-&\times (A_{t,j} - p_t (1 \mid H_{t,j})) f_t (H_{t,j}).
-\end{align*}
+% Thus
+% \begin{align}
+% \label{eq:estimand_beta}
+%     \beta^\prime =\left[\E \dot U_W(\eta^\star,\rho^\star) \right]_{(2,2)}^{-1} \E \Bigg[\sum_{t=1}^T  f_t (S_t) &\gamma(\eta^\star,\rho^\star) I_{t,J}I_{t,J^\prime}  \E \Big[\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=1, H_t ,I_{t,J}I_{t,J^\prime}=1} \right] - \nonumber \\
+%    &\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=0, H_t ,I_{t,J}I_{t,J^\prime}=1} \right] \mid S_t,I_{t,J}I_{t,J^\prime}=1\Big]  \Bigg]
+% \end{align}
 
-\section{Code to Generate Simulation Results}
-The R code used to generate the simulation experiments and case study results in this paper can be obtained at
-\href{https://github.com/Herashi/MRT}{https://github.com/Herashi/MRT}.
+% where
+% \[
+% \left[\E \dot U_W(\eta^\star,\rho^\star) \right]_{(2,2)} =\E \sum_{t=1}^T  f_t (S_t)f_t (S_t)^\top \gamma(\eta^\star,\rho^\star) I_{t,J}I_{t,J^\prime}
+% \]
+% \end{proof}
+
+% \section{Semiparametric Efficiency}
+% \label{app:semipareff}
+
+% In this section, we assume lack of interference and therefore the potential outcomes can be written to only depend on one's observed history.  Then we consider a semiparametric model characterized by the following assumptions:
+% \begin{assumption}
+% For all $1 \leq t \leq T$, $E[ Y_{t+1,J} (\bar A_{t-1,J}, 0) \mid H_{t,J}, A_{t,J} ] = E[ Y_{t+1,J} (\bar A_{t-1,J}, 0) \mid H_{t,J} ]$
+% \end{assumption}
+% \begin{assumption}
+% Assume that there exists a function $\gamma()$ and a true parameter $\psi_0 \in \mathbb{R}^p$, such that for any $1 \leq t \leq T$,
+% $$
+% \mathbb{E} \left[ Y_{t+1,J} (\bar A_{t-1,J}, a_t) \mid \bar z_t, \bar a_t \right] - \mathbb{E} \left[ Y_{t+1,J} (\bar A_{t-1,J}, 0) \mid \bar z_t, \bar a_t \right] = \gamma(t+1, \bar z_t, \bar a_t; \psi)
+% $$
+% \end{assumption}
+% We next gather the definitions necessary for defining the semiparametric efficient score:
+% \begin{itemize}
+% \item The longitudinal data is $O_1, A_1, Y_{2}, O_2, A_2, \ldots, O_T, A_T, Y_{T+1}$ where $O_t$ is the time-varying covariates on all individuals in the cluster, $A_t$ is the treatment assignments for the cluster, and $Y_{t+1}$ is the set of proximal outcomes on the cluster
+% \item $Z_{t,j} = (Y_{t,j}, O_{t,j})$
+% \item $H_{t,j} = (\bar A_{t-1,j}, \bar Z_{t,j})$
+% \item $V_{t,j} = (H_{t,j}, A_{t,j})$
+% \item $U_{t+1,j} (\psi) = Y_{t+1,j} - \gamma(t+1, \bar z_t, \bar a_t; \psi)$
+% \item $\dot{U}_{t+1,j} (\psi) = U_{t+1,j} - \mathbb{E} \left[ U_{t+1, j} \mid H_{t,j} \right]$
+% \item $W_{t,j} = \text{Var} \left( U_{t+1,j} (\psi_0) \mid V_{t,j} \right)^{-1}$
+% \end{itemize}
+
+% Then by~\cite[Lemma I.8]{Qian2021}, a general form of the efficient score is
+% $$
+% S_{\text{eff}} (\psi_0) = - \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T \rho_{t,j} \dot{U}_{t+1,j} (\psi_0)
+% $$
+% where
+% $$
+% \rho_{t,j} = \left[ \mathbb{E} \left[ \frac{\partial U_{t+1,j}}{\partial \psi} \mid V_{t,j} \right] - \mathbb{E} \left[ \frac{\partial U_{t+1,j}}{\partial \psi} \mid H_{t,j} \right] \mathbb{E} \left( W_{t,j} \mid H_{t,j} \right)^{-1} \right] W_{t,j}
+% $$
+% Note that $\mathbb{E} \left[ \rho_{t,j} \mid H_t \right] = 0$.  Therefore by~\cite[Lemma I.1]{Qian2021} we have
+% $$
+% \rho_{t,j} = \left( \rho(A_{t,j} = 1) - \rho(A_{t,j} = 1) \right) (A_{t,j} - p_t (1 \mid H_{t,j}))
+% $$
+% where  $\rho(A_{t,j} = a)$ denotes $\rho_{t,j}$ evaluated at $A_{t,j} = a$.
+
+% We now calculate these terms based on the above notation. Under $\gamma(t+1, \bar z_t, \bar a_t; \psi_0) = A_{t,j} f(H_{t,j})^\top \psi$, we have
+% $$
+% \frac{\partial U_{t+1,j} (\psi_0)}{\partial \psi} = - A_{t,j} f(H_t), \quad \text{and} \quad
+% \dot{U}_{t+1,j} (\psi) = Y_{t+1,j} - \mu_t (H_t) + (A_{t,j}-p_t(1 \mid H_t)) f_t(H_{t,j})^\top \psi
+% $$
+% and hence we have
+% \begin{align*}
+% \mathbb{E} \left[ \frac{\partial U_{t+1,j} (\psi_0)}{\partial \psi} \mid H_{t,j}, A_{t,j} = 1 \right] &= - f(H_{t,j}) \\
+% \mathbb{E} \left[ \frac{\partial U_{t+1,j} (\psi_0)}{\partial \psi} \mid H_{t,j}, A_{t,j} = 0 \right] &= 0 \\
+% \text{Var} \left( U_{t+1,j} (\psi_0) \mid V_{t,j} \right) &=
+% \text{Var} \left( Y_{t+1,j} \mid V_{t,j} \right) =: \sigma^2_{t+1,j} (H_{t,j}, A_{t,j}) \\
+% \end{align*}
+% Then
+% $$
+% \mathbb{E} \left[ W_{t,j} \mid H_{t,j} \right] = \frac{p_t (1 \mid H_{t,j} )}{\sigma^2_{t+1,j} (H_{t,j}, 1)} + \frac{1-p_t (1 \mid H_{t,j} )}{\sigma^2_{t+1,j} (H_{t,j}, 0)}
+% $$
+% and we can express
+% \begin{align*}
+% \rho(A_{t,j} = 1) &= - \left( 1 -p_t ( 1 \mid H_{t,j}) \left[  \frac{p_t (1 \mid H_{t,j} )}{\sigma^2_{t+1,j} (H_{t,j}, 1)} + \frac{1-p_t (1 \mid H_{t,j} )}{\sigma^2_{t+1,j} (H_{t,j}, 0)} \right] \right) \frac{f(H_{t,j})}{\sigma^2_{t+1,j} (H_{t,j}, 1)} \\
+% \rho(A_{t,j} = 0) &= - \left( 0 -p_t ( 1 \mid H_{t,j}) \left[  \frac{p_t (1 \mid H_{t,j} )}{\sigma^2_{t+1,j} (H_{t,j}, 1)} + \frac{1-p_t (1 \mid H_{t,j} )}{\sigma^2_{t+1,j} (H_{t,j}, 0)} \right] \right) \frac{f(H_{t,j})}{\sigma^2_{t+1,j} (H_{t,j}, 1)}
+% \end{align*}
+% Therefore $\rho_{t,j}$ is given by
+% \begin{align*}
+% \bigg[ \frac{1}{\sigma^2_{t+1,j} (H_{t,j}, 1)} + p_t ( 1 \mid H_{t,j}) \left[  \frac{p_t (1 \mid H_{t,j} )}{\sigma^2_{t+1,j} (H_{t,j}, 1)} + \frac{1-p_t (1 \mid H_t )}{\sigma^2_{t+1,j} (H_{t,j}, 0)} \right] \times \\
+% \left( \frac{1}{\sigma^2_{t+1,j} (H_{t,j}, 1)}  - \frac{1}{\sigma^2_{t+1,j} (H_{t,j}, 0)} \right)
+%  \bigg] \times \left( A_{t,j} - p_t (1 \mid H_{t,j}) \right) f(H_{t,j}).
+% \end{align*}
+% Moreover, under the simplifying assumption $\sigma^2_{t+1,j} (H_{t,j}, a) = \sigma^2_{t+1,j} (H_{t,j})$ we have
+% $$
+% \rho_{t,j} = \frac{1}{\sigma^2_{t+1,j} (H_t)} \times \left( A_{t,j} - p_t (1 \mid H_{t,j}) \right) f(H_{t,j}).
+% $$
+% Under the even stronger assumption $\sigma^2_{t+1,j} (H_{t,j}) := \sigma^2$ we have
+% \begin{align*}
+% S_{\text{eff}} (\psi_0) =&  \frac{\sigma^2}{G} \sum_{j=1}^G \sum_{t=1}^T \left(Y_{t+1,j} - \mu_t (H_{t,j}) - (A_{t,j} - p_t (1 \mid H_{t,j})) f_t (H_{t,j})^\prime \beta \right) \times \\
+% &\times (A_{t,j} - p_t (1 \mid H_{t,j})) f_t (H_{t,j}).
+% \end{align*}
+
+% \section{Code to Generate Simulation Results}
+% The R code used to generate the simulation experiments and case study results in this paper can be obtained at
+% \href{https://github.com/Herashi/MRT}{https://github.com/Herashi/MRT}.
 
 
 \end{document}
