@@ -28,9 +28,9 @@ sim.omit <- function() {
   out <- NULL
   ## low, medium and high degrees of moderation by state
   for (b in 0.2) {
-    for (n in 2500) {
+    for (n in 250) {
       group = group_all[[as.character(n)]]
-      for (tmax in c(30,50)) {
+      for (tmax in c(30)) {
         clusterSetRNGStream(cl, seed)
         out <-
           rbind(out,
