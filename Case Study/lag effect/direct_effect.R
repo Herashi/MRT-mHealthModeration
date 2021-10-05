@@ -6,11 +6,11 @@
 ## Code to combine data over several impuations and properly pools the results, 
 ## Since the randomization probability is constant, we can do this with gee
 
-setwd("~/MRT/Case Study")
+setwd("~/MRT/Case Study/lag effect")
 library(zoo)
 source("xzoo.R")
 
-load("~/MRT/Case Study/imputation_list_daily_separated_20.RData")
+load("imputation_list_daily_separated_20.RData")
 library(readr)
 survey_dat = read_csv("IHSdata_2018.csv")
 
@@ -68,15 +68,16 @@ for(impute_iter in 1:num_impute){
   # weights
   howmany = function(x) {test$UserID[test$Specialty == x]}
   w = 1/unlist(lapply(temp$Specialty, howmany))
-  # 
+
   # Boruvka's weights
   p_tilde = mean(analysis_dat_gee$week_category_new)
-  analysis_dat_gee$weights = ifelse(analysis_dat_gee$week_category_new==1,p_tilde/(3/4),(1-p_tilde)/(1/4))
+  analysis_dat_gee$weights = ifelse(analysis_dat_gee$week_category_new==1,p_tilde/(3/4),
+                                    (1-p_tilde)/(1/4))
   
   p_tilde = mean(temp$week_category_new)
   temp$weights = ifelse(temp$week_category_new==1,p_tilde/(3/4),(1-p_tilde)/(1/4))
   temp$weights = temp$weights * w
-
+  
 
   ## CONSTRUCT GROUP-LEVEL MOODprev
   aggMOODprev = aggregate(MOODprev~as.factor(study_week)+as.factor(Specialty), data = temp, FUN = mean)
@@ -96,31 +97,32 @@ for(impute_iter in 1:num_impute){
   test = unlist(lapply(1:nrow(temp), match))
   temp$aggMOODprev = test
   
+  # all 1 weights
+  # temp$week_category_new_next = delay(temp$UserID, temp$study_week, temp$week_category_new, -1)
+  # analysis_dat_gee$week_category_new_next = delay(analysis_dat_gee$UserID, analysis_dat_gee$study_week, analysis_dat_gee$week_category_new, -1)
+  # 
+  # analysis_dat_gee$weights = ifelse(analysis_dat_gee$week_category_new_next==1,analysis_dat_gee$weights * (1/(3/4)),0)
+  # temp$weights = ifelse(temp$week_category_new_next==1,temp$weights * (1/(3/4)),0)
+  
   # Construct Y_{t+2}
-  temp$MOODnext = delay(temp$UserID, temp$study_week, temp$MOOD,-1)
+  temp$MOODnext = delay(temp$UserID, temp$study_week, temp$MOOD, -1)
   analysis_dat_gee$MOODnext = delay(analysis_dat_gee$UserID, analysis_dat_gee$study_week, analysis_dat_gee$MOOD,-1)
   
-  ## ANOVA ONLY FOR 1st IMPUTATION!
-  # if(impute_iter == 1){
-  #   two.way <- aov(MOOD ~ as.factor(study_week) + INSTITUTION_STANDARD:week_category + Specialty:week_category, data = temp)
-  #   print(summary(two.way))
-  # }
-  
-  gee_result_mood = geeglm(MOOD ~ week_category + STEP_COUNTprev + SLEEP_COUNTprev + MOODprev + Sex + PHQtot0 +
+  gee_result_mood = geeglm(MOODnext ~ week_category + STEP_COUNTprev + SLEEP_COUNTprev + MOODprev + Sex + PHQtot0 +
                              Neu0 + depr0 + pre_intern_mood + pre_intern_sleep +  pre_intern_sqrt_step + week_category:MOODprev, data = analysis_dat_gee, weights = weights,id = UserID, scale.fix = T)
-  gee_result_mood2 = geeglm(MOOD ~ week_category + STEP_COUNTprev + SLEEP_COUNTprev + MOODprev + Sex + PHQtot0 +
+  gee_result_mood2 = geeglm(MOODnext ~ week_category + STEP_COUNTprev + SLEEP_COUNTprev + MOODprev + Sex + PHQtot0 +
                              Neu0 + depr0 + pre_intern_mood + pre_intern_sleep +  pre_intern_sqrt_step + week_category:MOODprev, data = temp, id = Specialty, scale.fix = T, weights = weights)
-  gee_result_mood3 = geeglm(MOOD ~ week_category + STEP_COUNTprev + SLEEP_COUNTprev + MOODprev + Sex + PHQtot0 +
+  gee_result_mood3 = geeglm(MOODnext ~ week_category + STEP_COUNTprev + SLEEP_COUNTprev + MOODprev + Sex + PHQtot0 +
                               Neu0 + depr0 + pre_intern_mood + pre_intern_sleep +  pre_intern_sqrt_step + week_category:MOODprev + week_category:aggMOODprev, data = temp, id = Specialty, scale.fix = T, weights = weights)
   mood_results[[impute_iter]] = gee_result_mood
   mood_results2[[impute_iter]] = gee_result_mood2
   mood_results3[[impute_iter]] = gee_result_mood3
   
-  gee_result_mood_agg = geeglm(MOOD ~ week_category_new + STEP_COUNTprev + SLEEP_COUNTprev + MOODprev + Sex + PHQtot0 + 
+  gee_result_mood_agg = geeglm(MOODnext ~ week_category_new + STEP_COUNTprev + SLEEP_COUNTprev + MOODprev + Sex + PHQtot0 + 
                                  Neu0 + depr0 + pre_intern_mood + pre_intern_sleep +  pre_intern_sqrt_step +  week_category_new:MOODprev, data = analysis_dat_gee,weights = weights, id = UserID, scale.fix = T)
-  gee_result_mood_agg2 = geeglm(MOOD ~ week_category_new + STEP_COUNTprev + SLEEP_COUNTprev + MOODprev + Sex + PHQtot0 + 
+  gee_result_mood_agg2 = geeglm(MOODnext ~ week_category_new + STEP_COUNTprev + SLEEP_COUNTprev + MOODprev + Sex + PHQtot0 + 
                                  Neu0 + depr0 + pre_intern_mood + pre_intern_sleep +  pre_intern_sqrt_step +  week_category_new:MOODprev, data = temp, id = Specialty, scale.fix = T, weights = weights)
-  gee_result_mood_agg3 = geeglm(MOOD ~ week_category_new + STEP_COUNTprev + SLEEP_COUNTprev + MOODprev + Sex + PHQtot0 + 
+  gee_result_mood_agg3 = geeglm(MOODnext ~ week_category_new + STEP_COUNTprev + SLEEP_COUNTprev + MOODprev + Sex + PHQtot0 + 
                                   Neu0 + depr0 + pre_intern_mood + pre_intern_sleep +  pre_intern_sqrt_step +  week_category_new:MOODprev + week_category_new:aggMOODprev, data = temp, id = Specialty, scale.fix = T, weights = weights)
   mood_agg_results[[impute_iter]] = gee_result_mood_agg
   mood_agg_results2[[impute_iter]] = gee_result_mood_agg2
@@ -148,11 +150,11 @@ for(impute_iter in 1:num_impute){
   temp$STEP_COUNTnext = delay(temp$UserID, temp$study_week, temp$STEP_COUNT,-1)
   analysis_dat_gee$STEP_COUNTnext = delay(analysis_dat_gee$UserID, analysis_dat_gee$study_week, analysis_dat_gee$STEP_COUNT,-1)
 
-  gee_result = geeglm(STEP_COUNT  ~ week_category_new + STEP_COUNTprev + SLEEP_COUNTprev + MOODprev + Sex + PHQtot0 +
+  gee_result = geeglm(STEP_COUNTnext ~ week_category_new + STEP_COUNTprev + SLEEP_COUNTprev + MOODprev + Sex + PHQtot0 +
                         Neu0 + depr0 + pre_intern_mood + pre_intern_sleep +  pre_intern_sqrt_step + week_category_new:STEP_COUNTprev, data = analysis_dat_gee,weights = weights, id = UserID, scale.fix = T)
-  gee_result2 = geeglm(STEP_COUNT  ~ week_category_new + STEP_COUNTprev + SLEEP_COUNTprev + MOODprev + Sex + PHQtot0 +
+  gee_result2 = geeglm(STEP_COUNTnext ~ week_category_new + STEP_COUNTprev + SLEEP_COUNTprev + MOODprev + Sex + PHQtot0 +
                         Neu0 + depr0 + pre_intern_mood + pre_intern_sleep +  pre_intern_sqrt_step + week_category_new:STEP_COUNTprev, data = temp, id = Specialty, scale.fix = T, weights = weights)
-  gee_result3 = geeglm(STEP_COUNT  ~ week_category_new + STEP_COUNTprev + SLEEP_COUNTprev + MOODprev + Sex + PHQtot0 +
+  gee_result3 = geeglm(STEP_COUNTnext ~ week_category_new + STEP_COUNTprev + SLEEP_COUNTprev + MOODprev + Sex + PHQtot0 +
                          Neu0 + depr0 + pre_intern_mood + pre_intern_sleep +  pre_intern_sqrt_step + week_category_new:STEP_COUNTprev + week_category_new:aggSTEP_COUNTprev, data = temp, id = Specialty, scale.fix = T, weights = weights)
   step_results[[impute_iter]] = gee_result
   step_results2[[impute_iter]] = gee_result2
@@ -180,11 +182,11 @@ for(impute_iter in 1:num_impute){
   temp$SLEEP_COUNTnext = delay(temp$UserID, temp$study_week, temp$SLEEP_COUNT,-1)
   analysis_dat_gee$SLEEP_COUNTnext = delay(analysis_dat_gee$UserID, analysis_dat_gee$study_week, analysis_dat_gee$SLEEP_COUNT,-1)
 
-  gee_result = geeglm(SLEEP_COUNT  ~ week_category_new + STEP_COUNTprev + SLEEP_COUNTprev + MOODprev + Sex + PHQtot0 +
+  gee_result = geeglm(SLEEP_COUNTnext ~ week_category_new + STEP_COUNTprev + SLEEP_COUNTprev + MOODprev + Sex + PHQtot0 +
                         Neu0 + depr0 + pre_intern_mood + pre_intern_sleep +  pre_intern_sqrt_step + week_category_new:SLEEP_COUNTprev, data = analysis_dat_gee,weights = weights, id = UserID, scale.fix = T)
-  gee_result2 = geeglm(SLEEP_COUNT  ~ week_category_new + STEP_COUNTprev + SLEEP_COUNTprev + MOODprev + Sex + PHQtot0 +
+  gee_result2 = geeglm(SLEEP_COUNTnext ~ week_category_new + STEP_COUNTprev + SLEEP_COUNTprev + MOODprev + Sex + PHQtot0 +
                         Neu0 + depr0 + pre_intern_mood + pre_intern_sleep +  pre_intern_sqrt_step + week_category_new:SLEEP_COUNTprev, data = temp, id = Specialty, scale.fix = T, weights = weights)
-  gee_result3 = geeglm(SLEEP_COUNT  ~ week_category_new + STEP_COUNTprev + SLEEP_COUNTprev + MOODprev + Sex + PHQtot0 +
+  gee_result3 = geeglm(SLEEP_COUNTnext ~ week_category_new + STEP_COUNTprev + SLEEP_COUNTprev + MOODprev + Sex + PHQtot0 +
                          Neu0 + depr0 + pre_intern_mood + pre_intern_sleep +  pre_intern_sqrt_step + week_category_new:SLEEP_COUNTprev + week_category_new:aggSLEEP_COUNTprev, data = temp, id = Specialty, scale.fix = T, weights = weights)
   sleep_results[[impute_iter]] = gee_result
   sleep_results2[[impute_iter]] = gee_result2
