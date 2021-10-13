@@ -37,8 +37,8 @@ sim.omit <- function() {
                     sim_wc(n, tmax, M, 
                            ## regress response on state and proximal treatment,
                            ## ignoring the underlying interaction between the two
-                           y.formula = list(w = y ~ lag1state + I(lag1a-pn)),
-                           contrast_vec = c(0,0,1),
+                           y.formula = list(w = y ~ I(lag1a-pn)),
+                           contrast_vec = c(0,1),
                            y.names = c(w = "Weighted and centered"),
                            ## term labels for proximal treatment
                            y.label = list(w = "I(lag1a - pn)"),

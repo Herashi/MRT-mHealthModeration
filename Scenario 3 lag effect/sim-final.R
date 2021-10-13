@@ -366,7 +366,7 @@ sim_wc <- function(n = 100, tmax = 30, M = 1000,
       l <- list(x = model.matrix(formula[["w"]], data = d[r, ]), y = d[r, response])
     } 
     
-    l$w <- rep(1, nrow(d))
+    l$w <- rep(1,nrow(d))
     l$w <- l$w * d$avail
     l$w <- l$w[r]
     
@@ -411,9 +411,9 @@ sim_wc <- function(n = 100, tmax = 30, M = 1000,
       if (length(prob)){
         d[, args[["w"]][["wn"]]] = unique(fita[["fitted.values"]])
         
-        # if (lag){
-        #   l$w <- ifelse(d[r, "a"] == 0, 1/(1-d[r, args[["w"]][["wd"]]]),0)
-        # }
+        if (lag){
+           l$w <- ifelse(d[r, "a"] == 1, 1/d[r, args[["w"]][["wd"]]],0)
+        }
         
         w <- ifelse(d[, "a"] == 1, d[, args[["w"]][["wn"]]]/ d[, args[["w"]][["wd"]]],
                     (1 - d[, args[["w"]][["wn"]]]) / (1 - d[, args[["w"]][["wd"]]]))
@@ -468,11 +468,11 @@ sim_wc <- function(n = 100, tmax = 30, M = 1000,
   
   out <- data.frame(n, tmax, out)
   ## 95% CI coverage probability using uncorrected SEs
-  out$cp <- with(out, lcl <= -0.1 & -0.1 <= ucl)
+  out$cp <- with(out, lcl <= -0.128 & -0.128 <= ucl)
   ## coverage probability using SEs corrected for estimates in weights
-  out$cpc <- with(out, lclc <= -0.1 & -0.1 <= uclc)
+  out$cpc <- with(out, lclc <= -0.128 & -0.128 <= uclc)
   ## root MSE
-  out$rmse <- with(out, (estc - (-0.1))^2)
+  out$rmse <- with(out, (estc - (-0.128))^2)
   
   
   ## mean and SD estimate, number of replicates

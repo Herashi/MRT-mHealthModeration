@@ -281,8 +281,11 @@ model.matrix.geeglm <- function(x) x$geese$X
 bread.geeglm <- function(x, wcovinv = NULL, invert = TRUE, approx = TRUE, ...) {
   approx <- approx & x$family$link != "identity"
   if (is.null(wcovinv)) wcovinv <- working.covariance(x, invert = TRUE)
-  g <- if (approx) function(D, V, r, X, k) 0
-  else function(D, V, r, X, k) t(D) %*% V %*% diag(r, k) %*% X
+  g <- if (approx){
+    function(D, V, r, X, k) 0
+  } else{
+    function(D, V, r, X, k) t(D) %*% V %*% diag(r, k) %*% X
+  } 
   b <- mapply(function(D, DD, V, r, X, k) g(DD, V, r, X, k) - t(D) %*% V %*% D,
               D = split.data.frame(model.matrix(x) * dot.mu(x), x$id),
               DD = split.data.frame(model.matrix(x) * dot.mu(x, 2), x$id),
