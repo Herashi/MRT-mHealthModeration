@@ -16,7 +16,7 @@ M <- 1000
 ## set number of threads to use for parallel processing and the random seed
 ## (nb: these two values ensure that the results are replicable)
 cores <- 4
-seed <- 0
+seed <- 234
 
 cl <- makeCluster(getOption("cl.cores", cores))
 clusterEvalQ(cl, source("init.R"))
@@ -33,7 +33,7 @@ sim.omit <- function() {
       clusterSetRNGStream(cl, seed)
       out <-
         rbind(out,
-              cbind(level = 0.2,
+              cbind(level = -0.128,
                     sim_wc(n, tmax, M, 
                            ## regress response on state and proximal treatment,
                            ## ignoring the underlying interaction between the two
