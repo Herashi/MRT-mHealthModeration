@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ## This file generates direct effect estimates 
 ## If RDS files for the models already exist
 ## Go to the file "present_results.R" to avoid re-running 

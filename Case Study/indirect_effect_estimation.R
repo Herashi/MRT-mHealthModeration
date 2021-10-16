@@ -1,13 +1,23 @@
+library(sgd)
+
 ## DEFINE FUNCTIONS
 compute_Sigma <- function(model, model.matrix, weights, groupids) {
   ## COMPUTES THE ROBUST STD ERROR 
   ## USING MANCL and DEROUEN SMALL SAMPLE CORRECTION
   q = matrix(0, nrow = ncol(model.matrix), ncol = ncol(model.matrix))
   for(group in unique(groupids)) {
+    # print(group)
     ingroup = which(groupids==group)
-    d_matrix = temp.mm[ingroup,]
-    weight_matrix = diag(weights[ingroup])
-    q = q + t(d_matrix) %*% weight_matrix %*% d_matrix
+    if(length(ingroup)>1){
+      d_matrix = temp.mm[ingroup,]
+      weight_matrix = diag(weights[ingroup])
+      q = q + t(d_matrix) %*% weight_matrix %*% d_matrix
+    }else{
+      d_matrix = temp.mm[ingroup,]
+      weight_matrix = weights[ingroup]
+      q = q + as.matrix(d_matrix) %*% d_matrix * weight_matrix
+    }
+    
   }
   
   lambda = matrix(0,nrow = ncol(model.matrix), ncol = ncol(model.matrix))
@@ -15,15 +25,22 @@ compute_Sigma <- function(model, model.matrix, weights, groupids) {
     print(paste("On group",group))
     ingroup = which(indirectfulldata.subset$specinst_id==group)
     d_matrix = model.matrix[ingroup,]
-    if (nrow(d_matrix) > 10000) {
-      print(paste("On group",group))
-      print(paste("Number of rows is", nrow(d_matrix)))
-    }
-    weight_matrix = diag(weights[ingroup])
-    h = d_matrix%*%solve(q)%*%t(d_matrix)%*% weight_matrix
     res_group = model$residuals[ingroup]
-    proj_res = solve(diag(rep(1,nrow(h)))-h, res_group)
-    lambda_comp = t(d_matrix)%*%weight_matrix %*% proj_res
+    # if (nrow(d_matrix) > 10000) {
+    #   print(paste("On group",group))
+    #   print(paste("Number of rows is", nrow(d_matrix)))
+    # }
+    if (length(ingroup)==1){
+      weight_matrix = weights[ingroup]
+      h = d_matrix%*%solve(q)%*%as.matrix(d_matrix)* weight_matrix
+      proj_res = solve(diag(rep(1,nrow(h)))-h, res_group)
+      lambda_comp = as.matrix(d_matrix) * proj_res * weight_matrix
+    }else{
+      weight_matrix = diag(weights[ingroup])
+      h = d_matrix%*%solve(q)%*%t(d_matrix)%*% weight_matrix
+      proj_res = solve(diag(rep(1,nrow(h)))-h, res_group)
+      lambda_comp = t(d_matrix)%*%weight_matrix %*% proj_res
+    }
     lambda = lambda + lambda_comp%*%t(lambda_comp)
   }
   
@@ -33,14 +50,14 @@ compute_Sigma <- function(model, model.matrix, weights, groupids) {
 }
 
 
-setwd("D:/github/Temp folder for Zhenke/code/")
+setwd("~/MRT/CaseStudy")
 
 for(impute_iter in 9:20) {
   
-  indirectfulldata = readRDS(file = paste("indirectdata_impute_", impute_iter, ".RDS", sep = ""))
+  indirectfulldata = readRDS(file = paste("~/MRT/CaseStudy/indirectdata_impute_", impute_iter, ".RDS", sep = ""))
   
-  if(!require("sgd")){install.packages("sgd")}
-  library("sgd")
+  # if(!require("sgd")){install.packages("sgd")}
+  
   ## Remove the one large group for ease of computation
   badids = c(304,547)
   indirectfulldata.subset = subset(indirectfulldata, !is.element(specinst_id,badids))

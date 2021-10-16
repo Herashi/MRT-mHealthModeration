@@ -6,9 +6,11 @@
 ## Code to combine data over several impuations and properly pools the results, 
 ## Since the randomization probability is constant, we can do this with gee
 
-load(file = '../2018 data/imputed data_full/imputation_list_daily_separated_20.RData')
+setwd("~/MRT/CaseStudy")
 
-survey_dat = read.csv('../2018 data/survey data/IHSdata_2018.csv')
+load("imputation_list_daily_separated_20.RData")
+library(readr)
+survey_dat = read_csv("IHSdata_2018.csv")
 
 mood_agg_results = list()
 step_agg_results = list()
@@ -16,6 +18,7 @@ sleep_agg_results = list()
 
 library(geepack)
 library(mitml)
+library(tidyverse)
 
 num_impute = impute_list$num_impute
 for(impute_iter in 1:num_impute){
@@ -24,6 +27,7 @@ for(impute_iter in 1:num_impute){
   
   all_baseline = cur_list$all_baseline
   full_data = cur_list$full_data
+  colnames(full_data)[1] = "UserID"
   full_data_complete = cur_list$full_data_complete
   
   baseline_step = apply(all_baseline[,c(10,13,16)], MARGIN = 1, FUN = mean)
@@ -57,13 +61,15 @@ for(impute_iter in 1:num_impute){
   temp$Specialty = as.factor(temp$Specialty)
   temp = temp[!is.na(temp$Specialty),]
   test = aggregate(UserID ~ Specialty + INSTITUTION_STANDARD, data = temp, FUN = function(x){length(unique(x))})
-  # howmany = function(x) {
-  #   g = test$UserID[test$Specialty == x[20] & test$INSTITUTION_STANDARD == x[19]]
-  #   return(g*(g-1))
-  # }
-  # weights = 1/unlist(apply(X = temp, MARGIN = 1, FUN = howmany))
-  # temp = temp[!(weights == Inf),]
-  # weights = weights[!(weights==Inf)]
+  howmany = function(x) {
+    g = test$UserID[test$Specialty == x[20] & test$INSTITUTION_STANDARD == x[19]]
+    return(g*(g-1))
+  }
+  weights = 1/unlist(apply(X = temp, MARGIN = 1, FUN = howmany))
+  temp = temp[!(weights == Inf),]
+  weights = weights[!(weights==Inf)]
+  
+  temp = temp %>% drop_na(study_week)
   
   ## CONSTRUCT GROUP-LEVEL MOODprev
   aggMOODprev = aggregate(MOODprev~as.factor(study_week)+as.factor(Specialty) + as.factor(INSTITUTION_STANDARD), data = temp, FUN = mean)
@@ -78,12 +84,16 @@ for(impute_iter in 1:num_impute){
                                  aggMOODprev$INSTITUTION_STANDARD == x$INSTITUTION_STANDARD]
     count = countMOODprev$MOODprev[countMOODprev$study_week == x$study_week & countMOODprev$Specialty == x$Specialty & 
                                      aggMOODprev$INSTITUTION_STANDARD == x$INSTITUTION_STANDARD]
-    if (count == 1) {
+
+    if(is.na(count)){
       return(0)
-    } else {
+    }else if (count == 1) {
+      return(0)
+    }else {
       return(count/(count-1) * agg - x$MOODprev/(count-1))
     }
   }
+  
   test = unlist(lapply(1:nrow(temp), match))
   temp$aggMOODprev = test
   
@@ -104,10 +114,12 @@ for(impute_iter in 1:num_impute){
     count = countSTEP_COUNTprev$STEP_COUNTprev[countSTEP_COUNTprev$study_week == x$study_week & 
                                                  countSTEP_COUNTprev$Specialty == x$Specialty & 
                                                  countSTEP_COUNTprev$INSTITUTION_STANDARD == x$INSTITUTION_STANDARD]
-    if (count == 1) {
+    if(is.na(count)){
       return(0)
-    } else {
-      return(count/(count-1) * agg - x$MOODprev/(count-1))
+    }else if (count == 1) {
+      return(0)
+    }else {
+      return(count/(count-1) * agg - x$STEP_COUNTprev/(count-1))
     }
   }
   test = unlist(lapply(1:nrow(temp), match))
@@ -130,10 +142,12 @@ for(impute_iter in 1:num_impute){
     count = countSLEEP_COUNTprev$SLEEP_COUNTprev[countSTEP_COUNTprev$study_week == x$study_week & 
                                                    countSLEEP_COUNTprev$Specialty == x$Specialty & 
                                                    countSLEEP_COUNTprev$INSTITUTION_STANDARD == x$INSTITUTION_STANDARD]
-    if (count == 1) {
+    if(is.na(count)){
       return(0)
-    } else {
-      return(count/(count-1) * agg - x$MOODprev/(count-1))
+    }else if (count == 1) {
+      return(0)
+    }else {
+      return(count/(count-1) * agg - x$SLEEP_COUNTprev/(count-1))
     }
   }
   test = unlist(lapply(1:nrow(temp), match))
@@ -142,7 +156,7 @@ for(impute_iter in 1:num_impute){
   ## MAKE INDIRECT DATASET
   combos = aggregate(UserID ~ Specialty + INSTITUTION_STANDARD, data = temp, FUN = function(x){length(unique(x))})
   ## REMOVE BLANK INSTITUTIONS
-  combos = combos[-which(combos$INSTITUTION_STANDARD == ""), ]
+  # combos = combos[-which(combos$INSTITUTION_STANDARD == ""), ]
   setofweeks = unique(temp$study_week)
   indirectfulldata = data.frame()
   for (i in 1:nrow(combos)) {
@@ -169,12 +183,15 @@ for(impute_iter in 1:num_impute){
         }
       }
     }
-  }  
-  indirectfulldata$centeredaction = (1-indirectfulldata$week_category_new)*(indirectfulldata$otherusersaction-0.5)
-  indirectfulldata$centeredaction2 = indirectfulldata$week_category_new*(indirectfulldata$otherusersaction-0.5)
+  } 
   
-  indirectfulldata$centeredaction_week = indirectfulldata$week_category_new*(indirectfulldata$otherusersaction-0.5)*indirectfulldata$study_week
-  indirectfulldata$centeredaction2_week = indirectfulldata$week_category_new*(indirectfulldata$otherusersaction-0.5)*indirectfulldata$study_week
+  indirectfulldata = indirectfulldata %>% filter(UserID != otherusers)
+  
+  indirectfulldata$centeredaction = (1-indirectfulldata$week_category_new)*(indirectfulldata$otherusersaction-0.75)
+  indirectfulldata$centeredaction2 = indirectfulldata$week_category_new*(indirectfulldata$otherusersaction-0.75)
+  
+  indirectfulldata$centeredaction_week = indirectfulldata$week_category_new*(indirectfulldata$otherusersaction-0.75)*indirectfulldata$study_week
+  indirectfulldata$centeredaction2_week = indirectfulldata$week_category_new*(indirectfulldata$otherusersaction-0.75)*indirectfulldata$study_week
   
   whichcombo <- function(x) {
     which(combos$Specialty == x[20] & combos$INSTITUTION_STANDARD == x[19])

@@ -3,19 +3,19 @@ step_model_list = list()
 sleep_model_list = list()
 max_iter = 20
 
-for(impute_iter in 1:max_iter) {
+for(impute_iter in 9:max_iter) {
 
-mood_model = readRDS(file = paste("mood_model_impute_", impute_iter, ".RDS", sep = ""))
+mood_model = readRDS(file = paste("~/MRT/CaseStudy/mood_model_impute_", impute_iter, ".RDS", sep = ""))
 
-mood_model_list[[impute_iter]] = cbind(mood_model$coef, sqrt(diag(mood_model$Sigma)))
+mood_model_list[[impute_iter-8]] = cbind(mood_model$coef, sqrt(diag(mood_model$Sigma)))
 
-step_model = readRDS(file = paste("step_model_impute_", impute_iter, ".RDS", sep = ""))
+step_model = readRDS(file = paste("~/MRT/CaseStudy/step_model_impute_", impute_iter, ".RDS", sep = ""))
 
-step_model_list[[impute_iter]] = cbind(step_model$coef, sqrt(diag(step_model$Sigma)))
+step_model_list[[impute_iter-8]] = cbind(step_model$coef, sqrt(diag(step_model$Sigma)))
 
-sleep_model = readRDS(file = paste("sleep_model_impute_", impute_iter, ".RDS", sep = ""))
+sleep_model = readRDS(file = paste("~/MRT/CaseStudy/sleep_model_impute_", impute_iter, ".RDS", sep = ""))
 
-sleep_model_list[[impute_iter]] = cbind(sleep_model$coef, sqrt(diag(sleep_model$Sigma)))
+sleep_model_list[[impute_iter-8]] = cbind(sleep_model$coef, sqrt(diag(sleep_model$Sigma)))
 
 }
 
