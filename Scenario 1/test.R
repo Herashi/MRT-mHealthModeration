@@ -1,4 +1,4 @@
-setwd("/home/herashi/MRT/direct_effect/100_25")
+setwd("~/MRT/Scenario 1")
 
 
 library("foreach")
@@ -30,7 +30,7 @@ sim.omit <- function() {
   for (b in 0.2) {
     for (n in 2500) {
       group = group_all[[as.character(n)]]
-      for (tmax in c(30,50)) {
+      for (tmax in 30) {
         clusterSetRNGStream(cl, seed)
         out <-
           rbind(out,

@@ -359,7 +359,6 @@ sim_wc <- function(n = 100, tmax = 30, M = 1000,
     
     # no availability has 0 weight
     
-    
     if (!is.null(args$corstr)) {
       fun <- "geese.glm"
       l$id <- d$id[r]

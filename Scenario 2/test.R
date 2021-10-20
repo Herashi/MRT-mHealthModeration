@@ -1,4 +1,4 @@
-setwd("/home/herashi/MRT/direct_effect/100_25")
+setwd("~/MRT/Scenario 2")
 
 
 library("foreach")
@@ -28,9 +28,9 @@ sim.omit <- function() {
   out <- NULL
   ## low, medium and high degrees of moderation by state
   for (b in 0.2) {
-    for (n in 250) {
+    for (n in 2500) {
       group = group_all[[as.character(n)]]
-      for (tmax in c(30)) {
+      for (tmax in 30) {
         clusterSetRNGStream(cl, seed)
         out <-
           rbind(out,

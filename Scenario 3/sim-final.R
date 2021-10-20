@@ -38,24 +38,13 @@ group_str = function(group){
   group[["group err"]] = rep(group[["err"]],group[["group size"]])
   
   # random cluster-level intercept term that interacts with treatment 
-  slope = c()
+  bg = c()
   for (i in 1:group[["#groups"]]){
-    e = rnorm(1,mean = 0,sd = sqrt(group[["slope sigma2"]][i]))
-    slope = c(slope,e)
+    e = rnorm(1,mean = 0,sd = sqrt(group[["bg sigma2"]][i]))
+    bg = c(bg,e)
   }
-  group[["slope"]] = slope
-  group[["random slope"]] = rep(group[["slope"]],group[["group size"]])
-  
-  
-  # random cluster-level intercept might vary throughout time
-  # set this to 0 in all settings (not inluded in the simulation)
-  bg2 = c()
-  for (i in 1:group[["#groups"]]){
-    e = rnorm(1,mean = 0,sd = sqrt(group[["bg2 sigma2"]][i]))
-    bg2 = c(bg2,e)
-  }
-  group[["bg2"]] = bg2
-  group[["beta0 bg2"]] = rep(group[["bg2"]],group[["group size"]])
+  group[["bg"]] = bg
+  group[["random bg"]] = rep(group[["bg"]],group[["group size"]])
   
   return(group)
 } 
@@ -110,8 +99,7 @@ rsnmm = function(n, T,
   
   group = group_str(group_ls)
   group_err = group[["group err"]]
-  slope = group[["random slope"]]
-  bg2 = group[["beta0 bg2"]]
+  bg = group[["random bg"]]
   ind = group[["group_id"]]
   
   
@@ -126,8 +114,7 @@ rsnmm = function(n, T,
         mu[2] * ty[j]+  # pre-evaluated time function 
         mu[3] * base[i*T + j]+
         ac[i*T + j] * (beta[1]+ 
-                         slope[i+1] + 
-                         bg2[i+1]*(j-1) +
+                         bg[i+1] +
                          beta[2] * tmod[j] + # pre-evaluated time function
                          beta[3] * base[i*T + j]+
                          beta[4] * state_mean +
@@ -149,8 +136,7 @@ rsnmm = function(n, T,
   d = data.frame(ty = ty, tmod = tmod, tavail = tavail, tstate = tstate,
                  base = base, state = state, a = a, y = y, err = err,
                  group_err = rep(group_err, each = T), 
-                 slope = rep(slope, each = T),
-                 bg2 = rep(bg2, each = T),
+                 bg = rep(bg, each = T),
                  avail = avail, p = prob, a.center = ac,
                  state.center = statec, avail.center = availc)
   
@@ -253,7 +239,7 @@ rsnmm.R <- function(n, tmax, group_ls, control, ...) {
   d <- data.frame(id = rep(1:n, each = tmax), time = time,
                   ty = d$ty, tmod = d$tmod, tavail = d$tavail, tstate = d$tstate,
                   base = d$base, state = d$state, a = d$a, y = d$y, err = d$err,
-                  group_err = d$group_err, slope = d$slope, bg2 = d$bg2,avail = d$avail, 
+                  group_err = d$group_err, bg = d$bg, avail = d$avail, 
                   prob = d$p, a.center = d$a.center, state.center = d$state.center, 
                   avail.center = d$avail.center, one = 1)
   
@@ -287,6 +273,7 @@ rsnmm.R <- function(n, tmax, group_ls, control, ...) {
 sim_wc <- function(n = 100, tmax = 30, M = 1000,
                    ## response regression models
                    y.formula = list(w = y ~ state + I(a - pn)),
+                   ## extract the variable 
                    contrast_vec = c(0,0,1),
                    ## names for each regression model
                    y.names = c(w = "Weighted and centered"),
@@ -321,7 +308,7 @@ sim_wc <- function(n = 100, tmax = 30, M = 1000,
   ##     moderator has conditional mean zero
   y.coef <- mapply(which.terms, x = y.formula, label = y.label,
                    stripnames = TRUE, SIMPLIFY = FALSE)
-
+  
   
   ## corresponding treatment probability models
   ## nb: we avoid delayed evaluation in 'y.args' (e.g. passing a 'weights'
@@ -375,10 +362,6 @@ sim_wc <- function(n = 100, tmax = 30, M = 1000,
     }
     # no availability has 0 weight
     l$w <- l$w * d$avail
-    # lag != 0
-    if (lag){
-      l$w <- delay(d$id, d$time, l$w, lag)
-    } 
     l$w <- l$w[r]
     
     if (!is.null(args$corstr)) {
@@ -390,7 +373,7 @@ sim_wc <- function(n = 100, tmax = 30, M = 1000,
       fun <- "lm.wfit"
     } 
     
-    # fit <- do.call(fun, c(l, args))
+    # fit the model with initial weights
     fit <- do.call(fun, l)
     
     if (!inherits(fit, "geeglm")){
@@ -413,13 +396,24 @@ sim_wc <- function(n = 100, tmax = 30, M = 1000,
     }else {
       ## usual variance sandwich estimator
       fit$vcov <- vcov.geeglm(fit, group  = group_ls)
-      est <- estimate(fit, group= group_ls,rbind("Average group treatment effect" = contrast_vec))[,1:4]
+      est <- estimate(fit,group= group_ls, rbind("Average group treatment effect" = contrast_vec))[,1:4]
       ## correction for any estimates in weights
       
       if (length(prob)){
         d[r, args[["w"]][["wn"]]] = fita[["fitted.values"]]
-        l$w <- ifelse(d[r, "a"] == 1, d[r, args[["w"]][["wn"]]]/ d[r, args[["w"]][["wd"]]],
-                      (1 - d[r, args[["w"]][["wn"]]]) / (1 - d[r, args[["w"]][["wd"]]]))
+        # re-calculate the weights
+        if (lag){
+          # edit this line for various future treatment precifications
+          # l$w <- ifelse(d[r, "a"] == 1, 1/d[r, args[["w"]][["wd"]]],0)
+          w <- ifelse(d[, "a"] == 1, d[, args[["w"]][["wn"]]]/ d[, args[["w"]][["wd"]]],
+                      (1 - d[, args[["w"]][["wn"]]]) / (1 - d[, args[["w"]][["wd"]]]))
+          w <- delay(d$id, d$time, w, lag)
+          
+          l$w = l$w *w[r] 
+        }else{
+          l$w <- ifelse(d[r, "a"] == 1, d[r, args[["w"]][["wn"]]]/ d[r, args[["w"]][["wd"]]],
+                        (1 - d[r, args[["w"]][["wn"]]]) / (1 - d[r, args[["w"]][["wd"]]]))
+        }
       } 
       # refit the model
       
@@ -432,7 +426,7 @@ sim_wc <- function(n = 100, tmax = 30, M = 1000,
       }
       
       fit$vcov <- vcov.geeglm(fit, group  = group_ls)
-      estc <- estimate(fit, group= group_ls, rbind("Average group treatment effect" = contrast_vec))[,1:4]
+      estc <- estimate(fit, group= group_ls,rbind("Average group treatment effect" = contrast_vec))[,1:4]
       fit <- data.frame(moderator = c("Average group treatment effect"), 
                         est = est["Estimate"], se = est["SE"],
                         lcl = est["95% LCL"], ucl = est["95% UCL"],estc = estc["Estimate"],
@@ -447,24 +441,29 @@ sim_wc <- function(n = 100, tmax = 30, M = 1000,
   
   out <- foreach(m = 1:M, .combine = "rbind") %dopar% {
     d <- rsnmm.R(n, tmax,group_ls, control = control)
-    d$pn <- d$pd <- d$prob
-  
-      ## ... fit treatment probability models
+    # centering probability
+    if(lag){
+      d$pn <- d$pd <- d$lag1prob
+    }else{
+      d$pn <- d$pd <- d$prob
+    }
+    
+    
+    ## ... fit treatment probability models
     if (!is.null(a.formula)){
-        fita <- fitter(formula = a.formula, addvar = names(a.formula),
-                       args = list(), prob = list(),coef = list(), label = list(),
-                       response = "a")
-      }
-      ## ... fit response models
-      
+      fita <- fitter(formula = a.formula, addvar = names(a.formula),
+                     args = list(), prob = list(),coef = list(), label = list(),
+                     response = "a")
+    }
+    ## ... fit response models
+    
     fity <- fitter(formula = y.formula, args = y.args, prob = y.prob,
-                     coef = y.coef, label = y.label)
+                   coef = y.coef, label = y.label)
     fity <- data.frame(iter = m, true = -0.2,
-                         method = c("Weighted and centered"),
-                         fity, row.names = NULL)
+                       method = c("Weighted and centered"),
+                       fity, row.names = NULL)
     
     fity
-
   }
   
   out <- data.frame(n, tmax, out)
@@ -475,7 +474,7 @@ sim_wc <- function(n = 100, tmax = 30, M = 1000,
   ## root MSE
   out$rmse <- with(out, (estc - (-0.2))^2)
   
-
+  
   ## mean and SD estimate, number of replicates
   out <- cbind(aggregate(cbind(est,estc, se, sec, cp, cpc, rmse,lclc, uclc) ~
                            method + moderator +  n + tmax,

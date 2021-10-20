@@ -1,4 +1,4 @@
-# setwd("/home/herashi/MRT")
+setwd("~/MRT/Scenario 3")
 
 
 library("foreach")
@@ -11,7 +11,7 @@ source("group.R")
 
 ## set number of Monte Carlo replicates
 
-M <- 1000
+M <- 3
 
 ## set number of threads to use for parallel processing and the random seed
 ## (nb: these two values ensure that the results are replicable)
@@ -30,7 +30,7 @@ sim.omit <- function() {
   for (b in 0.2) {
     for (n in 2500) {
       group = group_all[[as.character(n)]]
-      for (tmax in c(30,50)) {
+      for (tmax in 30) {
         clusterSetRNGStream(cl, seed)
         out <-
           rbind(out,
