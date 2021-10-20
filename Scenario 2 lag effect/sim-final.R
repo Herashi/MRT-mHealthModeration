@@ -38,24 +38,13 @@ group_str = function(group){
   group[["group err"]] = rep(group[["err"]],group[["group size"]])
   
   # random cluster-level intercept term that interacts with treatment 
-  slope = c()
+  bg = c()
   for (i in 1:group[["#groups"]]){
-    e = rnorm(1,mean = 0,sd = sqrt(group[["slope sigma2"]][i]))
-    slope = c(slope,e)
+    e = rnorm(1,mean = 0,sd = sqrt(group[["bg sigma2"]][i]))
+    bg = c(bg,e)
   }
-  group[["slope"]] = slope
-  group[["random slope"]] = rep(group[["slope"]],group[["group size"]])
-  
-  
-  # random cluster-level intercept might vary throughout time
-  # set this to 0 in all settings (not inluded in the simulation)
-  bg2 = c()
-  for (i in 1:group[["#groups"]]){
-    e = rnorm(1,mean = 0,sd = sqrt(group[["bg2 sigma2"]][i]))
-    bg2 = c(bg2,e)
-  }
-  group[["bg2"]] = bg2
-  group[["beta0 bg2"]] = rep(group[["bg2"]],group[["group size"]])
+  group[["bg"]] = bg
+  group[["random bg"]] = rep(group[["bg"]],group[["group size"]])
   
   return(group)
 } 
@@ -69,7 +58,7 @@ rsnmm = function(n, T,
                  coefavail, coefstate, coeferr,
                  avail, base, state, a, prob,
                  y, err, statec, ac, availc, 
-                 group_err, slope, bg2){
+                 group_err, bg){
   # a list indicating grouping structure
   
   for (i in 0:(n-1)) {
@@ -110,7 +99,7 @@ rsnmm = function(n, T,
                          beta[4] * state[i*T + j]+
                          beta[5] * a[i*T + j - 1])+
         ac[i*T + j - 1] * (beta[6]+ 
-                             slope[i+1] + 
+                             bg[i+1] + 
                              beta[7] * tmod[j - 1]+
                              beta[8] * base[i*T + j - 1]+
                              beta[9] * state[i*T + j - 1])+
@@ -199,9 +188,7 @@ rsnmm.R <- function(n, tmax, group_ls, control, ...) {
   }
   group = group_str(group_ls)
   group_err = group[["group err"]]
-  slope = group[["random slope"]]
-  bg2 = group[["beta0 bg2"]]
-  # X = group[["indicator matrix"]]
+  bg = group[["random bg"]]
   
   d <- rsnmm(
     n = as.integer(n) ,
@@ -228,16 +215,14 @@ rsnmm.R <- function(n, tmax, group_ls, control, ...) {
     ac = as.double(rep(0, n*tmax)),
     availc = as.double(rep(0, n*tmax)),
     group_err =as.double(group_err),
-    slope = as.double(slope),
-    bg2 = as.double(bg2))
+    bg = as.double(bg))
   
   d <- data.frame(id = rep(1:n, each = tmax), time = time,
                   ty = d$ty, tmod = d$tmod, tavail = d$tavail, tstate = d$tstate,
                   base = d$base, state = d$state, a = d$a, y = d$y, err = d$err,
-                  group_err = rep(group_err, each = tmax), slope = rep(slope, each = tmax),
-                  bg2 = rep(bg2, each = tmax),avail = d$avail, prob = d$p, 
-                  a.center = d$a.center, state.center = d$state.center, 
-                  avail.center = d$avail.center, one = 1)
+                  group_err = rep(group_err, each = tmax), bg = rep(bg, each = tmax),
+                  avail = d$avail, prob = d$p, a.center = d$a.center, 
+                  state.center = d$state.center, avail.center = d$avail.center, one = 1)
   
   ## nb: for a given row, y is the proximal response
   d$lag1y <- with(d, delay(id, time, y))

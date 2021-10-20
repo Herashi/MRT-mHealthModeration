@@ -39,24 +39,13 @@ group_str = function(group){
   group[["group err"]] = rep(group[["err"]],group[["group size"]])
   
   # random cluster-level intercept term that interacts with treatment 
-  slope = c()
+  bg = c()
   for (i in 1:group[["#groups"]]){
-    e = rnorm(1,mean = 0,sd = sqrt(group[["slope sigma2"]][i]))
-    slope = c(slope,e)
+    e = rnorm(1,mean = 0,sd = sqrt(group[["bg sigma2"]][i]))
+    bg = c(bg,e)
   }
-  group[["slope"]] = slope
-  group[["random slope"]] = rep(group[["slope"]],group[["group size"]])
-  
-  
-  # random cluster-level intercept might vary throughout time
-  # set this to 0 in all settings (not inluded in the simulation)
-  bg2 = c()
-  for (i in 1:group[["#groups"]]){
-    e = rnorm(1,mean = 0,sd = sqrt(group[["bg2 sigma2"]][i]))
-    bg2 = c(bg2,e)
-  }
-  group[["bg2"]] = bg2
-  group[["beta0 bg2"]] = rep(group[["bg2"]],group[["group size"]])
+  group[["bg"]] = bg
+  group[["random bg"]] = rep(group[["bg"]],group[["group size"]])
   
   return(group)
 } 
@@ -71,7 +60,7 @@ rsnmm = function(n, T,
                  avail, base, state, a, prob,
                  y, err, statec, ac, availc, 
                  group_ls){
-  # group_err, slope, bg2
+  # group_err, bg
   
   # a list indicating grouping structure
   
@@ -113,8 +102,7 @@ rsnmm = function(n, T,
   
   group = group_str(group_ls)
   group_err = group[["group err"]]
-  slope = group[["random slope"]]
-  bg2 = group[["beta0 bg2"]]
+  bg = group[["random bg"]]
   ind = group[["group_id"]]
   
   indirect_effect = as.double(rep(0, n*T))
@@ -139,8 +127,7 @@ rsnmm = function(n, T,
         mu[2] * ty[j]+  # pre-evaluated time function 
         mu[3] * base[i*T + j]+
         ac[i*T + j] * (beta[1]+ 
-                         slope[i+1] + 
-                         bg2[i+1]*(j-1) +
+                         bg[i+1] + 
                          beta[2] * tmod[j] + # pre-evaluated time function
                          beta[3] * base[i*T + j]+
                          beta[4] * state_mean +
@@ -163,8 +150,7 @@ rsnmm = function(n, T,
   d = data.frame(ty = ty, tmod = tmod, tavail = tavail, tstate = tstate,
                  base = base, state = state, a = a, y = y, err = err,
                  group_err = rep(group_err, each = T), 
-                 slope = rep(slope, each = T),
-                 bg2 = rep(bg2, each = T), indir = indirect_effect,
+                 bg = rep(bg, each = T), indir = indirect_effect,
                  avail = avail, p = prob, a.center = ac,
                  state.center = statec, avail.center = availc)
   
@@ -267,7 +253,7 @@ rsnmm.R <- function(n, tmax, group_ls, control, ...) {
   d <- data.frame(id = rep(1:n, each = tmax), time = time,
                   ty = d$ty, tmod = d$tmod, tavail = d$tavail, tstate = d$tstate,
                   base = d$base, state = d$state, a = d$a, y = d$y, err = d$err,
-                  group_err = d$group_err, slope = d$slope, bg2 = d$bg2,avail = d$avail, 
+                  group_err = d$group_err, bg = d$bg, avail = d$avail, 
                   prob = d$p, a.center = d$a.center, state.center = d$state.center, 
                   avail.center = d$avail.center, indir = d$indir, one = 1)
   
