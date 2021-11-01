@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ## zoo extras
 
 ## take first recorded value
@@ -90,7 +89,7 @@ unzoosplit <- function(z, indexed = FALSE) {
   levels(x) <- levels(z)
   x
 }
-=======
+
 ## zoo extras
 
 ## take first recorded value
@@ -182,4 +181,3 @@ unzoosplit <- function(z, indexed = FALSE) {
   levels(x) <- levels(z)
   x
 }
->>>>>>> 7540d70758f2c0c4d3d46bfc9436dd8c63c76216
