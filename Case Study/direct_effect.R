@@ -467,4 +467,3 @@ for (i in 1:length(specialties)) {
   result[i] = length(unique(temp$UserID[temp$Specialty == specialty]))
 }
 result
->>>>>>> 7540d70758f2c0c4d3d46bfc9436dd8c63c76216
