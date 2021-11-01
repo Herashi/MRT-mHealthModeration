@@ -3,7 +3,7 @@
 ## Go to the file "present_results.R" to avoid re-running 
 ## as code takes a while to generate the MI estimates.
 
-## Code to combine data over several impuations and properly pools the results, 
+## Code to combine data over several imputations and properly pools the results, 
 ## Since the randomization probability is constant, we can do this with gee
 
 setwd("~/MRT/Case Study")
