@@ -3,7 +3,7 @@
 ## Go to the file "present_results.R" to avoid re-running 
 ## as code takes a while to generate the MI estimates.
 
-## Code to combine data over several impuations and properly pools the results, 
+## Code to combine data over several imputations and properly pools the results, 
 ## Since the randomization probability is constant, we can do this with gee
 
 setwd("~/MRT/Case Study")
@@ -467,4 +467,3 @@ for (i in 1:length(specialties)) {
   result[i] = length(unique(temp$UserID[temp$Specialty == specialty]))
 }
 result
->>>>>>> 7540d70758f2c0c4d3d46bfc9436dd8c63c76216
