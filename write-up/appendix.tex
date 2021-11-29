@@ -1,0 +1,1159 @@
+\documentclass[supplementary, lineno]{biometrika}
+
+\usepackage{amsmath}
+
+%% Please use the following statements for
+%% managing the text and math fonts for your papers:
+\usepackage{times}
+%\usepackage[cmbold]{mathtime}
+\usepackage{bm}
+\usepackage{natbib}
+
+\graphicspath{{./art/}}
+
+\usepackage{amsfonts}
+\usepackage{multirow}
+\usepackage{arydshln}
+
+\usepackage[plain,noend]{algorithm2e}
+
+\usepackage{xr}	
+\makeatletter
+\newcommand*{\addFileDependency}[1]{% argument=file name and extension
+  \typeout{(#1)}
+  \@addtofilelist{#1}
+  \IfFileExists{#1}{}{\typeout{No file #1.}}
+}
+\makeatother
+\newcommand*{\myexternaldocument}[1]{%
+    \externaldocument{#1}%
+    \addFileDependency{#1.tex}%
+    \addFileDependency{#1.aux}%
+}
+\myexternaldocument{main}
+
+\makeatletter
+
+\renewcommand{\algocf@captiontext}[2]{#1\algocf@typo. \AlCapFnt{}#2} % text of caption
+\renewcommand{\AlTitleFnt}[1]{#1\unskip}% default definition
+\def\@algocf@capt@plain{top}
+\renewcommand{\algocf@makecaption}[2]{%
+  \addtolength{\hsize}{\algomargin}%
+  \sbox\@tempboxa{\algocf@captiontext{#1}{#2}}%
+  \ifdim\wd\@tempboxa >\hsize%     % if caption is longer than a line
+    \hskip .5\algomargin%
+    \parbox[t]{\hsize}{\algocf@captiontext{#1}{#2}}% then caption is not centered
+  \else%
+    \global\@minipagefalse%
+    \hbox to\hsize{\box\@tempboxa}% else caption is centered
+  \fi%
+  \addtolength{\hsize}{-\algomargin}%
+}
+\makeatother
+
+\def\pr{\text{pr}}
+\def\E{\mathbb{E}}
+\def\P{\mathbb{P}}
+\def\given{\, | \,}
+\def\Ep{\E_{\bf p}}
+\def\Eeta{\E_{\eta}}
+\def\U{\mathcal{U}}
+\def\V{\mathcal{V}}
+
+%%% User-defined macros should be placed here, but keep them to a minimum.
+\def\Bka{{\it Biometrika}}
+\def\AIC{\textsc{aic}}
+\def\T{{ \mathrm{\scriptscriptstyle T} }}
+\def\v{{\varepsilon}}
+
+\addtolength\topmargin{35pt}
+\DeclareMathOperator{\Thetabb}{\mathcal{C}}
+
+\begin{document}
+
+%% The left and right page headers are defined here:
+\markboth{J. Shi, Z. Wu, \and W. Dempsey}{Causal Excursion Effects and Treatment Effect Heterogeneity}
+
+\title{Assessing Time-Varying Causal Effect Moderation in the Presence of Cluster-Level Treatment Effect Heterogeneity}
+
+\author{J. SHI, Z. WU, \and W. Dempsey}
+\affil{Department of Biostatistics, University of Michigan, \\ Ann Arbor, MI, USA \email{herashi@umich.edu} \email{zhenkewu@umich.edu} \email{wdem@umich.edu}}
+
+\maketitle
+
+\appendix
+
+
+
+\section{Connection to a Semiparametric Efficient Estimator}
+\label{sec:semipar}
+
+A special case of both effects is when $S_t$ is set to the observed history~$H_t$ and~$\Delta = 1$.  In this case, estimators for this fully conditional case can be derived using techniques from~\cite{Robins1994} based on semiparametric efficiency theory~\citep{Newey1990,Tsiatis2007} under a lack of interference assumption.  Proofs can be found in Appendix~\ref{app:semipareff}.
+
+\begin{lemma}
+Under the semiparametric model~\eqref{ass:directeffect}, Assumption~\ref{consistency}, and the stronger \emph{lack of interference} assumption, the semiparametric efficient score~$S_{\text{eff}} (\beta)$ for $\beta$ is
+\begin{equation}
+\label{eq:effscore}
+\frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T (Y_{t,1,j} - \mu (H_{t,j}) - (A_{t,j} - p_t (1 \mid H_{t,j})) f_t (H_{t,j})^\top \beta ) K_{t,j} (A_{t,j} - p_t(1 \mid H_{t,j})) f(H_{t,j}),
+\end{equation}
+where
+\begin{align*}
+\mu_t (H_{t,j}) = \mathbb{E} &\left[ Y_{t,1,j} \mid H_{t,j} \right], \quad \text{and} \quad \sigma^2_{t+1} (H_{t,j}, A_{t,j}) = \text{Var} \left( Y_{t,1,j} \mid H_{t,j}, A_{t,j} \right) \\
+K_{t,j} = &\bigg[ \frac{1}{\sigma^2_{t+1,j} (H_{t,j}, 1)} + p_t ( 1 \mid H_{t,j}) \left[  \frac{p_t (1 \mid H_{t,j} )}{\sigma^2_{t+1,j} (H_{t,j}, 1)} + \frac{1-p_t (1 \mid H_{t,j} )}{\sigma^2_{t+1,j} (H_{t,j}, 0)} \right] \times \\
+&\left( \frac{1}{\sigma^2_{t+1,j} (H_{t,j}, 1)}  - \frac{1}{\sigma^2_{t+1,j} (H_{t,j}, 0)} \right)
+ \bigg].
+\end{align*}
+\end{lemma}
+
+Semiparametric efficiency theory states that the solution $\hat \beta$ to $\mathbb{P}_n \left[ S_{\text{eff}} (\beta) \right] = 0$ achieves the semiparametric efficiency bound~\citep{Newey1990}. 
+% \cite{Qian2021} proved a similar result for the causal excursion effect on the relative risk scale for binary outcomes.  Unlike~\cite{Qian2021}, the efficient score here requires estimates of the conditional variance, which may be difficult to obtain. 
+Corollary~\ref{cor:semiparametricconnection} motivates the C-WCLS criterion for the direct effect given by~\eqref{eq:directwcls} from the semiparametric efficiency perspective under particular working homoskedastic assumptions on the conditional variance~$\sigma^2_{t+1} (H_{t,j}, A_{t,j})$ and a working model~$g_t (H_{t,j})^\top \alpha$ for the unknown quantity~$\mu(H_{t,j})$.  
+% Making the homoskedastic assumption helps avoid the conditional variance estimation problem.  
+While this establishes a connection between the C-WCLS criterion and semiparametric efficiency scores, more work on efficiency theory for causal excursions effects is considered important future work.
+
+\begin{corollary}
+\label{cor:semiparametricconnection}
+Assuming $\text{Var}(Y_{t,1,j} \mid H_{t,j}, A_{t,j}) := \sigma^2_{t+1}(H_{t,j})$, i.e., is constant in the second argument~$A_{t,j}$, the weight~$K_{t,j}$ is equal to $(\sigma^2_{t+1}(H_{t,j}))^{-1}$ and the semiparametric efficient score~\eqref{eq:effscore} weights each decision time by the corresponding conditional variance.  Under the further assumption that this variance does not depend on the history, i.e., $\sigma^2_{t+1} (H_{t,j}) = \sigma^2$, and a working model for the conditional mean $\mu (H_{t,j}) := g (H_{t,j})^\top \alpha$, criterion~\eqref{eq:directwcls} is equivalent to the semiparametric efficient score for the fully conditional effect.
+\end{corollary}
+
+
+\section{Technical Details}
+\label{app:techdetails}
+
+\begin{proof}[Lemma \ref{lemma:cond_effect}]
+We establish Lemma~\ref{lemma:cond_effect} for the direct effect~\eqref{eq:directavglineareffect}. For~$a_s \in \{ 0,1\}^{G}$, we consider
+\begin{align*}
+\E \bigg[&\left(\prod_{s=1}^{t-1} p_s(a_s |H_s(\bar a_{s-1})) \right) \left( \prod_{j^\prime \neq j} \prod_{s=t}^{t+\Delta-1} p_s(a_{s,j^\prime} \mid H_s(\bar a_{s-1})) \right)  \\
+&\left( \prod_{s=t}^{t+\Delta-1} \pi_s(a_{s,j} \mid H_s(\bar a_{s-1})) \right) 
+ Y_{t,\Delta,j} (\bar{a}_{t+\Delta-1,-j}, (\bar a_{t-1,j},a, a_{t+1:(t+\Delta-1), j})) {\bf 1}_{S_t(\bar a_t) = s} \bigg] \\
+= \E \bigg[&\left(\prod_{s=1}^{t-1} p_s(a_s |H_s(\bar a_{s-1})) \right) {\bf 1}_{S_t(\bar a_t) = s} \left( \prod_{j^\prime \neq j} \prod_{s=t}^{t+\Delta-1} p_s(a_{s,j^\prime} \mid H_s(\bar a_{s-1})) \right)  \\
+&\E \left[ \left( \prod_{s=t}^{t+\Delta-1} \pi_s(a_{s,j} \mid H_s(\bar a_{s-1})) \right) Y_{t,\Delta,j} (\bar{a}_{t+\Delta-1,-j}, (\bar a_{t-1,j},a, a_{t+1:(t+\Delta-1), j})) \mid H_t (\bar a_{t-1}) \right] \bigg] \\
+= \E \bigg[&\left(\prod_{s=1}^{t-1} p_s(a_s |H_s(\bar a_{s-1})) \right) {\bf 1}_{S_t(\bar a_t) = s} \left( \prod_{j^\prime \neq j} \prod_{s=t}^{t+\Delta-1} p_s(a_{s,j^\prime} \mid H_s(\bar a_{s-1})) \right)  \\
+&\E \bigg[ \left( W_{t,\Delta, j} (\bar a_{t+\Delta-1}) \prod_{s=t}^{t+\Delta-1} p_s(a_s |H_s(\bar a_{s-1})) \right) Y_{t,\Delta,j} (\bar{a}_{t+\Delta-1,-j}, (\bar a_{t-1,j},a, a_{t+1:(t+\Delta-1), j})) \mid H_t (\bar a_{t-1}) \bigg] \bigg] \\
+\end{align*}
+since the history $H_t$ includes the moderator variable $S_t$ at time $t$. By consistency,~$H_t(\bar{A}_{t-1}) = H_t$.
+%  \begin{align*} 
+%  %\label{eq:cons_version}
+% \E \bigg[&\left(\prod_{s=1}^{t-1} p_s(a_s |H_s(\bar a_{s-1})) \right) {\bf 1}_{S_t(\bar a_t) = s} \left( \prod_{j^\prime \neq j} \prod_{s=t}^{t+\Delta-1} p_s(a_{s,j^\prime} \mid H_s(\bar a_{s-1})) \right)  \\
+% &\times \E \left[ \left( \prod_{s=t}^{t+\Delta-1} \pi_s(a_{s,j} \mid H_s(\bar a_{s-1})) \right) Y_{t,\Delta,j} (\bar{a}_{t+\Delta-1,-j}, (\bar a_{t-1,j},a, a_{t+1:(t+\Delta-1), j})) \mid H_t \right] \bigg] \\
+%  \end{align*}
+Moreover, sequential ignorability implies that
+\begin{align*}
+ \E &\left[ \left( W_{t,\Delta, j} (\bar a_{t+\Delta-1}) \prod_{s=t}^{t+\Delta-1} p_s(a_s |H_s(\bar a_{s-1})) \right) Y_{t,\Delta,j} (\bar{a}_{t+\Delta-1,-j}, (\bar a_{t-1,j},a, a_{t+1:(t+\Delta-1),j})) \given H_t \right]  \\
+ = \E &\left[ \left( W_{t,\Delta, j} (\bar a_{t+\Delta-1}) \prod_{s=t}^{t+\Delta-1} p_s(a_s |H_s(\bar a_{s-1})) \right) Y_{t,\Delta,j} (\bar{a}_{t+\Delta-1,-j}, (\bar a_{t-1,j},a, a_{t+1:(t+\Delta-1),j})) \given H_{t}, A_{t,j} = a \right]
+\end{align*}
+It also implies that $\E \left[ 1[A_{t+k,j} = a] \mid H_{t+k} \right] \cdot \E \left[ Y_{t,\Delta,j} \mid H_{t+k} \right] = \E \left[ Y_{t,\Delta,j} 1[A_{t+k,j} = a] \mid H_{t+k} \right]$.
+Summing over all potential outcomes yields
+\begin{align*}
+\E &\bigg [ \sum_{\bar{a}_{t-1}, \bar a_{t+1:(t+\Delta-1)}} \left(\prod_{s=1}^{t-1} p_s(a_s|H_s) \right) \left( \prod_{j^\prime \neq j} p_t(a_{t,j^\prime} \mid H_t \right)  {\bf 1}_{S_t(\bar a_t) = s} \\
+&\times \E \left[ \left( \prod_{s=t}^{t+\Delta-1} \pi_s(a_{s,j} \mid H_t \right) Y_{t,\Delta,j} (\bar{a}_{t+\Delta-1,-j}, (\bar a_{t-1,j},a, a_{t+1:(t+\Delta-1),j})) \given H_t, A_{t,j} = a \right] \, \bigg] \\
+ = \E &\bigg [ \sum_{\bar{a}_{t-1}, \bar a_{t+1:(t+\Delta-1)}} \left(\prod_{s=1}^{t-1} p_s(a_s|H_s) \right) \left( \prod_{j^\prime \neq j} p_t(a_{t,j^\prime} \mid H_t \right)  {\bf 1}_{S_t = s} \\
+ &\times
+ \E \bigg[ \left( \prod_{s=t}^{t+\Delta-1} p_s(a_{s} \mid H_t) \right) \times W_{t,\Delta,j} (\bar a_{t+\Delta-1}) \\ 
+ &\times Y_{t,\Delta,j} (\bar{a}_{t+\Delta-1,-j}, (\bar a_{t-1,j},a, a_{t+1:(t+\Delta-1),j})) \given H_t, A_{t,j} = a \bigg]
+ \given S_t = s \bigg] \\ 
+ \Rightarrow
+ \E_{{\bf p}, \pi} &\left[ Y_{t,\Delta,j} (\bar A_{t+\Delta-1, -j}, (\bar A_{t-1,j}, a, \tilde A_{t+1:t+\Delta-1}) \mid S_t (\bar A_{t-1}) = s \right] =
+ \E \left[ \E \left[ W_{t,\Delta,j} Y_{t,\Delta,j}  \given H_t, A_t = a \right] \given S_t = s \right].
+\end{align*}
+% In the final equation, the outer expectation is with respect to the history~$H_t$ conditional on~$S_t=s$.  That is, over \emph{both} past treatments~$A_s$
+% and past observations~$O_s$ for $s < t$ as well as over current treatments for $A_{t,j^\prime}$ for $j^\prime \neq j$. The above shows
+% $$
+% \E \left[ Y_{t+1} (\bar{A}_{t,-j}, (\bar A_{t-1,j},a)) \mid S_t (\bar a_t) = s \right] = \E \left[ \E \left[Y_{t+1, j}  \given H_t, A_{t,j} = a \right] \given S_t = s \right].
+% $$
+Averaging over individuals in the group $j \in [G]$ group size completes the proof.
+The proof for the indirect effect follows the exact same structure.
+\end{proof}
+
+
+\section{Lemma~\ref{lemma:asymnorm}}
+\label{app:asymptotics}
+
+We next provide a detailed proof of asymptotic normality and consistency
+for the weighted-centered least squares estimator.
+
+\begin{proof}[Consistency for direct and indirect effects]
+The solutions~$(\hat \alpha,\hat \beta)$ that minimize equation~\eqref{eq:directwcls} are consistent estimators for the
+solutions that minimize the following
+\[
+\E \left[ \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T W_{t,j} \times W_{t,\Delta,j} \left( Y_{t,\Delta,j} - g_t(H_t)^\top \alpha
+-  (A_{t,j} - \tilde{p}_t (1 \given S_t) ) f_t (S_t)^\top \beta \right)^2 \right]
+\]
+Differentiating the above equation with respect to~$\alpha$
+yields a set of~$p$ estimating equations.
+\begin{align*}
+0_{q^\prime}&= \E \left[ \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T W_{t,j} \times W_{t,\Delta,j} \left( Y_{t,\Delta,j} - g_t(H_t)^\top \alpha -  (A_{t,j} - \tilde{p}_t (1 \given S_t) ) f_t (S_t)^\top \beta \right) g_t(H_t) \right]
+\end{align*}
+We note that
+$$
+\E \left[ W_{t,J} W_{t,\Delta, J} (A_{t,J} - \tilde{p}_t (1 \given S_t) )
+f_t (S_t)^\top \beta \given H_t \right] = 0.
+$$
+Therefore, we have,
+\begin{align*}
+0_{p}&= \E \left[ \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T (g_t(H_t) \E \left[ W_{t,j} W_{t,\Delta, j} Y_{t,\Delta, j} \mid H_t \right] - g_t(H_t)  g_t(H_t)^\top \alpha) \right] \\
+\Rightarrow \alpha  &= \E \left[ \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T g_t(H_t)  g_t(H_t)^\top  \right]^{-1} E \left[ \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T g_t(H_t) \E \left[ W_{t,j} W_{t,\Delta, j} Y_{t,\Delta, j} \mid H_t \right] \right]
+\end{align*}
+We note that
+\begin{align*}
+&\E \left[ W_{t,J} W_{t,\Delta, J} (A_{t,J} - \tilde{p}_t (1 \given S_t) )
+g_t (H_t)^\top \alpha \right] = 0, \quad \text{and} \\
+&\E \left[ W_{t,J} W_{t,\Delta, J} (A_{t,J} - \tilde{p}_t (1 \given S_t) )
+Y_{t,\Delta,J} \right] =
+\tilde{p}_t (1 \given S_t) (1- \tilde{p}_t (1 \given S_t)) \beta_{{\bf p}, \pi, \Delta} (t; S_t) , \quad \text{and} \\
+&\E \left[ W_{t,J} W_{t,\Delta, J} (A_{t,J} - \tilde{p}_t (1 \given S_t) )^2 \mid S_t
+\right] =
+\tilde{p}_t (1 \given S_t) (1- \tilde{p}_t (1 \given S_t))
+\end{align*}
+Now differentiating with respect to~$\beta$ yields
+\begin{align*}
+0_{q}&= \E \left[ \sum_{t=1}^T W_{t,J} \left( Y_{t,\Delta,J} - g_t(H_t)^\top \alpha
+-  (A_{t,J} - \tilde{p}_t (1 \given S_t) ) f_t (S_t)^\top \beta \right) (A_{t,J} - \tilde{p}_t(1 \given S_t)) f_t (S_t) \right] \\
+0_{q}&= \E \left[ \sum_{t=1}^T \tilde{p}_t (1 \given S_t) (1- \tilde{p}_t (1 \given S_t)) \left( \beta_{{\bf p}, \pi, \Delta} (t; S_t) - f_t (S_t)^\top \beta^\star \right) f_t (S_t) \right]
+\end{align*}
+Then we have
+\begin{align*}
+\beta^\star &= \E\left[ \sum_{t=1}^T  \tilde{p}_t (1 \given S_t) (1- \tilde{p}_t (1 \given S_t)) f_t(S_t) f_t(S_t)^\top \right]^{-1} \E\left[ \sum_{t=1}^T  \tilde{p}_t (1 \given S_t) (1- \tilde{p}_t (1 \given S_t)) f_t(S_t) \beta_{{\bf p}, \pi, \Delta} (t;S_t) \right]
+\end{align*}
+Under assumption~\ref{ass:directeffect}, we have that $\beta = \beta^\star$ which guarantees consistency.
+
+We next consider the indirect effect estimator.  Recall that
+$$
+\tilde{p}^\star_t (1 \given S_t) = \frac{\tilde{p}_t (0,1 \given S_t)}{\tilde{p}_t (0,0 \given S_t)+\tilde{p}_t (0,1 \given S_t)}
+$$
+is the replacement for $\tilde p(1 \mid S_t)$ in the direct effect for centering.  If we make the assumption that $\tilde p_t (0,1 \mid S_t) = \tilde p_t (0 \mid S_t) \tilde p_t (1 \mid S_t)$ then $\tilde{p}^\star_t (1 \given S_t) = \tilde{p}_t (1 \given S_t)$; however, we provide the proof in complete generality. The estimates that minimize equation~\eqref{eq:indirectwcls} are consistent estimators for the solutions that minimize the following
+\[
+\E \left[ \sum_{t=1}^T W_{t,J, J^\prime} W_{t,\Delta, J,J^\prime} \left( Y_{t,\Delta,J} - g_t(H_t)^\top \alpha
+-  (1-A_{t,J}) (A_{t,J^\prime} - \tilde{p}^\star_t (1 \given S_t) ) f_t (S_t)^\top \beta \right)^2 \right]
+\]
+Differentiating the above equation with respect to~$\alpha$
+yields a set of~$p$ estimating equations.
+\begin{align*}
+0_{p}&= \E \left[ \sum_{t=1}^T W_{t,J,J^\prime} W_{t,\Delta, J,J^\prime} \left( Y_{t,\Delta,J} - g_t(H_t)^\top \alpha
+-  (1-A_{t,J}) (A_{t,J^\prime} - \tilde{p}_t^\star (1 \given S_t) ) f_t (S_t)^\top \beta \right) g_t(H_t) \right]
+\end{align*}
+We note that
+$$
+\E \left[ W_{t,J, J^\prime} W_{t,\Delta, J,J^\prime} (1-A_{t,J}) (A_{t,J^\prime} - \tilde{p}_t^\star (1 \given S_t) )
+f_t (S_t)^\top \beta \given H_t \right] = 0.
+$$
+Therefore, we have,
+\begin{align*}
+0_{p}&= \E \left[ \sum_{t=1}^T (g_t(H_t) \E \left[ W_{t,J,J^\prime} W_{t,\Delta, J,J^\prime} Y_{t,\Delta, J} \mid H_t \right] - g_t(H_t)  g_t(H_t)^\top \alpha) \right] \\
+\Rightarrow \alpha  &= \E \left[ \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T g_t(H_t)  g_t(H_t)^\top  \right]^{-1} E \left[ \sum_{t=1}^T g_t(H_t) \E \left[ W_{t,J, J^\prime} W_{t,\Delta, J,J^\prime} Y_{t,\Delta, J} \mid H_t \right] \right]
+\end{align*}
+First, we show that
+\begin{align*}
+&\E \left[ W_{t,J, J^\prime} W_{t,\Delta, J,J^\prime} (1-A_{t,J}) (A_{t,J^\prime} - \tilde{p}_t^\star (1 \given S_t) )
+\mid H_t \right] \\
+= & \E \left[ W_{t,J, J^\prime} (1-A_{t,J}) (A_{t,J^\prime} - \tilde{p}_t^\star (1 \given S_t) )
+\mid H_t \right] \\
+= &\sum_{a^\prime \in \{0,1\}} \E \left[ \tilde{p}_t (0,a^\prime \mid S_t)  (a^\prime - \tilde{p}_t^\star (1 \given S_t) )
+\mid H_t, A_t = 0, A_{t,J^\prime} = a^\prime \right]\\
+=& \tilde{p}_t (0,1 \mid S_t)  (1 - \frac{\tilde{p}_t (0,1 \given S_t)}{\tilde{p}_t (0,0 \given S_t)+\tilde{p}_t (0,1 \given S_t)} ) -  \tilde{p}_t (0,0 \mid S_t) \frac{\tilde{p}_t (0,1 \given S_t)}{\tilde{p}_t (0,0 \given S_t)+\tilde{p}_t (0,1 \given S_t)} = 0
+\end{align*}
+and
+\begin{align*}
+&\E \left[ W_{t,J, J^\prime} W_{t,\Delta, J,J^\prime} (1-A_{t,J}) (A_{t,J^\prime} - \tilde{p}_t^\star (1 \given S_t) )^2
+\mid H_t \right] \\
+= &\E \left[ W_{t,J, J^\prime} (1-A_{t,J}) (A_{t,J^\prime} - \tilde{p}_t^\star (1 \given S_t) )^2
+\mid H_t \right] \\
+=& \tilde{p}_t (0,1 \mid S_t) \left( \frac{\tilde{p}_t (0,0 \given S_t)}{\tilde{p}_t (0,0 \given S_t) +\tilde{p}_t (0,1 \given S_t)} \right)^2 + \tilde{p}_t (0,0 \mid S_t) \left( \frac{\tilde{p}_t (0,1 \given S_t)}{\tilde{p}_t (0,0 \given S_t)+\tilde{p}_t (0,1 \given S_t)} \right)^2 \\
+=& ( \tilde{p}_t (0,0 \mid S_t) + \tilde{p}_t (0,1 \mid S_t) ) \tilde{p}_t^\star (1 \mid S_t) (1- \tilde{p}_t^\star (1 \mid S_t)).
+\end{align*}
+This implies that
+\begin{align*}
+&\E \left[ W_{t,J, J^\prime} W_{t,\Delta, J,J^\prime} (1-A_{t,J}) (A_{t,J^\prime} - \tilde{p}_t^\star (1 \given S_t) )
+g_t (H_t)^\top \alpha \right] = 0, \quad \text{and} \\
+&\frac{\E \left[ W_{t,J, J^\prime}  W_{t,\Delta, J,J^\prime} (1-A_{t,J}) (A_{t,J^\prime} - \tilde{p}_t^\star (1 \given S_t) )
+Y_{t,\Delta,J} \right]}{\tilde{p}_t (0,0 \mid S_t) + \tilde{p}_t (0,1 \mid S_t)} = \tilde{p}_t^\star (1 \mid S_t) (1- \tilde{p}_t^\star (1 \mid S_t)) \beta^{(IE)}_{{\bf p}, \pi, \Delta} (t; S_t).
+\end{align*}
+Now differentiating with respect to~$\beta$ yields
+\begin{align*}
+0_{q}&= \E \left[ \sum_{t=1}^T ( \tilde{p}_t (0,0 \mid S_t) + \tilde{p}_t (0,1 \mid S_t) ) \tilde{p}_t^\star (1 \mid S_t) (1- \tilde{p}_t^\star (1 \mid S_t)) \left( \beta^{(IE)}_{{\bf p}, \pi, \Delta} (t; S_t) - f_t (S_t)^\top \beta^{\star \star} \right) f_t (S_t) \right]
+\end{align*}
+Under assumption~\ref{ass:indirecteffect}, we have that $\beta = \beta^{\star \star}$ which guarantees consistency.
+\end{proof}
+
+\begin{proof}[Asymptotic Normality]
+We now consider the issue of asymptotic normality.  First, let
+\[
+\epsilon_{t,\Delta,j} = Y_{t,\Delta,j} - g_t(H_t)^\top \alpha^\star - (A_{t,j}-\tilde{p}_t(1 \mid S_t)) f_t(S_t)^{\top} \beta^\star,
+\]
+$\hat{\theta} = (\hat{\alpha}, \hat{\beta})$, and $\theta^\star = (\alpha^\star, \beta^\star)$.
+Since $S_t \subset H_t$ define $h_{t,j}(H_t)^\top = (g_t(H_t)^\top, (A_{t,j}-\tilde{p}_t(1 \given S_t)) f_t(S_t)^\top)$. Then
+\begin{align*}
+\sqrt{M} ( \hat{\theta} - \theta^\star )
+  &= \sqrt{M} \bigg \{ \mathbb{P}_M \bigg( \frac{1}{G_m} \sum_{j=1}^{G_m} \sum_{t=1}^T W_{t,j} W_{t,\Delta, j} h_{t,j}(H_t) h_{t,j}(H_t)^\top \bigg)^{-1} \\
+  \bigg[
+    &\mathbb{P}_M \bigg( \frac{1}{G_m} \sum_{j=1}^{G_m} \sum_{t=1}^T W_{t,j}
+    W_{t,\Delta,j} Y_{t,\Delta,j} h_{t,j}(H_t) \bigg) \\
+  &- \mathbb{P}_M \bigg( \frac{1}{G_m} \sum_{j=1}^{G_m}
+  \sum_{t=1}^T W_{t,j} W_{t,\Delta,j} h_{t,j}(H_t) h_{t,j}(H_t)^\top \bigg)
+    \theta^\star \bigg] \bigg \} \\
+  &= \sqrt{M} \bigg \{ E \bigg[
+  \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T W_{t,j} W_{t,\Delta,j} h_{t,j}(H_t)
+  h_{t,j}(H_t)^\top \bigg]^{-1} \\
+  &\bigg[ \mathbb{P}_M \bigg( \frac{1}{G_m} \sum_{j=1}^{G_m} \sum_{t=1}^T
+    W_{t,j} W_{t,\Delta,j} \epsilon_{t,\Delta, j} h_{t,j}(H_t) \bigg) \bigg] \bigg \} + o_p ( {\bf 1} )
+\end{align*}
+By definitions of $\alpha^\star$ and $\beta^\star$ and the previous consistency argument
+\[
+E \bigg[
+  \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T W_{t,j} W_{t,\Delta, j} h_{t,j}(H_t)
+  h_{t,j}(H_t)^\top \bigg]  = 0
+\]
+Then under moments conditions, we have asymptotic normality with variance $\Sigma_{\theta}$ given by
+\begin{align*}
+\Sigma_{\theta} &= E \left[ \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T W_{t,j} W_{t,\Delta,j} h_{t,j}(H_t) h_{t,j}(H_t)^\top \right]^{-1} \\
+                &E \left[ \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T W_{t,j} W_{t,\Delta,j} \epsilon_{t,\Delta,j} h_{t,j}(H_t)
+                  \times  \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T W_{t,j} W_{t,\Delta,j}  \epsilon_{t,\Delta, j} h_{t,j}(H_t)^\top \right] \\
+                &E \left[ \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T W_{t,j} W_{t,\Delta,j}  h_{t,j}(H_t) h_{t,j}(H_t)^\top \right]^{-1}
+\end{align*}
+Due to centering, the expectation of the matrix
+$W_{t,J} h_{t,J}(H_t) h_{t,J} (H_t)^\top$ is block diagonal and
+the sub-covariance matrix~$\Sigma_{\beta}$ can be extracted and is equal to
+\begin{align*}
+ \Sigma_{\beta} &=  \left[ \sum_{t=1}^T E[ (A_{t,J} - \tilde{p}_t (1 \mid S_t)
+                  )^2 W_{t,J} W_{t,\Delta,J} f_t (S_t) f_t (S_t)^\top ] \right]^{-1} \\
+  &\cdot E \bigg[ \sum_{t=1}^T W_{t,J} W_{t,\Delta,J} \epsilon_{t,\Delta, J}
+                  (A_{t,J} - \tilde{p}_t( 1 \mid S_t)) f_t(S_t)
+          \times  \sum_{t=1}^T W_{t,J}
+          W_{t,\Delta,J} \epsilon_{t,\Delta, J}
+                  (A_{t,J} - \tilde{p}_t( 1 \mid S_t)) f_t(S_t)^\top
+                  \bigg] \\
+ &\, \cdot \left[ \sum_{t=1}^T E[ (A_{t,J} - \tilde{p}_t (1 \mid S_t)
+                  )^2 W_{t,J} W_{t,\Delta,J} f_t (S_t) f_t (S_t)^\top ] \right]^{-1}
+\end{align*}
+The outer terms are equal to $\left[ \sum_{t=1}^T E[ \tilde{p}_t (1 \mid S_t) (1-\tilde{p}_t (1 \mid S_t)) f_t (S_t) f_t (S_t)^\top ] \right]$, which gives us the covariance as desired.
+
+We next consider asymptotic normality in the indirect setting.  First, let
+\[
+\epsilon_{t,\Delta, j,j^\prime} = Y_{t,\Delta,j} - g_t(H_t)^\top \alpha^{\star \star} - (1 - A_{t,j})(A_{t,j^\prime}-\tilde{p}^\star_t(1 \mid S_t)) f_t(S_t)^{\top} \beta^{\star \star},
+\]
+$\hat{\theta} = (\hat{\alpha}, \hat{\beta})$, and $\theta^\star = (\alpha^{\star \star}, \beta^{\star \star})$.
+Since $S_t \subset H_t$ define $h_{t,j,j^\prime}(H_t)^\top = (g_t(H_t)^\top, (1-A_{t,j}) (A_{t,j^\prime}-\tilde{p}^\star_t(1 \given S_t)) f_t(S_t)^\top)$. Then $\sqrt{M} ( \hat{\theta} - \theta^{\star \star} )$ equals
+\begin{align*}
+  &\sqrt{M} \bigg \{ \mathbb{P}_M \bigg( \frac{1}{G_m \cdot (G_m-1)} \sum_{j=1}^{G_m} \sum_{j^\prime \neq j} \sum_{t=1}^T W_{t,j,j^\prime} W_{t,\Delta, j,j^\prime}  h_{t,j,j^\prime}(H_t) h_{t,j,j^\prime}(H_t)^\top \bigg)^{-1} \\
+  &\bigg[
+    \mathbb{P}_M \bigg( \frac{1}{G_m \cdot (G_m - 1)} \sum_{j=1}^{G_m} \sum_{j^\prime \neq j} \sum_{t=1}^T W_{t,j,j^\prime}
+    W_{t,\Delta,j,j^\prime} Y_{t,\Delta,j} h_{t,j,j^\prime}(H_t) \bigg)  \\
+  &- \mathbb{P}_M \bigg( \frac{1}{G_m \cdot (G_m - 1)} \sum_{j=1}^{G_m}\sum_{j^\prime \neq j}
+  \sum_{t=1}^T W_{t,j,j^\prime} W_{t,\Delta,j,j^\prime} h_{t,j, j^\prime}(H_t) h_{t,j, j^\prime}(H_t)^\top \bigg)
+    \theta^\star \bigg] \bigg \} \\
+  = &\sqrt{M} \bigg \{ E \bigg[
+  \frac{1}{G (G-1)} \sum_{j=1}^G \sum_{j^\prime \neq j} \sum_{t=1}^T W_{t,j,j^\prime} W_{t,\Delta,j,j^\prime} h_{t,j, j^\prime}(H_t) h_{t,j, j^\prime}(H_t)^\top \bigg]^{-1} \\
+  &\bigg[ \mathbb{P}_M \bigg( \frac{1}{G_m \cdot (G_m-1)} \sum_{j=1}^{G_m} \sum_{j^\prime \neq j} \sum_{t=1}^T W_{t,j,j^\prime} W_{t,\Delta,j,j^\prime} \epsilon_{t,\Delta, j, j^\prime} h_{t,j,j^\prime}(H_t) \bigg) \bigg] \bigg \} + o_p ( {\bf 1} )
+\end{align*}
+By definitions of $\alpha^{\star \star}$ and $\beta^{\star \star}$  and the previous consistency argument
+\[
+E \bigg[
+  \frac{1}{G \cdot (G-1)} \sum_{j=1}^G \sum_{j^\prime \neq j} \sum_{t=1}^T W_{t,j,j^\prime} W_{t,\Delta,j,j^\prime} h_{t,j,j^\prime}(H_t)
+  h_{t,j,j^\prime}(H_t)^\top \bigg]  = 0
+\]
+Then under moments conditions, we have asymptotic normality with variance $\Sigma_{\theta}$ given by
+\begin{align*}
+\Sigma_{\theta} &= E \left[ \frac{1}{G \cdot (G-1)} \sum_{j=1}^G \sum_{j^\prime \neq j} \sum_{t=1}^T W_{t,j,j^\prime}
+W_{t,\Delta,j,j^\prime} h_{t,j,j^\prime}(H_t) h_{t,j,j^\prime}(H_t)^\top \right]^{-1} \\
+                &E \bigg[ \frac{1}{G (G-1)} \sum_{j=1}^G \sum_{j^\prime \neq j} \sum_{t=1}^T W_{t,j, j^\prime} W_{t,\Delta,j,j^\prime} \epsilon_{t, \Delta,j, j^\prime} h_{t,j, j^\prime}(H_t) \\
+            &\times  \frac{1}{G(G-1)} \sum_{j=1}^G \sum_{j^\prime \neq j} \sum_{t=1}^T W_{t,j} W_{t,\Delta,j,j^\prime}
+                  \epsilon_{t,\Delta, j, j^\prime} h_{t,j, j^\prime}(H_t)^\top \bigg] \\
+                &E \left[ \frac{1}{G \cdot (G-1)} \sum_{j=1}^G \sum_{j^\prime \neq j} \sum_{t=1}^T W_{t,j,j^\prime} W_{t,\Delta,j,j^\prime} h_{t,j,j^\prime}(H_t)
+  h_{t,j,j^\prime}(H_t)^\top  \right]^{-1}
+\end{align*}
+Due to centering, the expectation of the matrix
+$W_{t,J, J^\prime} h_{t,J,J^\prime}(H_t) h_{t,J, J^\prime} (H_t)^\prime$ is block diagonal and
+the sub-covariance matrix~$\Sigma_{\beta}$ can be extracted and is equal to
+\begin{align*}
+ \Sigma_{\beta} &=  \left[ \sum_{t=1}^T E[ (1- A_{t,J}) (A_{t,J^\prime} - \tilde{p}_t^\star (1 \mid S_t)
+                  )^2 W_{t,J, J^\prime} W_{t,\Delta, J, J^\prime} f_t (S_t) f_t (S_t)^\top ] \right]^{-1} \\
+  &\cdot E \bigg[ \sum_{t=1}^T W_{t,J, J^\prime} W_{t,\Delta, J, J^\prime} \epsilon_{t, \Delta, J, J^\prime}
+                  (1-A_{t,J}) (A_{t,J^\prime} - \tilde{p}_t( 1 \mid S_t)) f_t(S_t) \\
+          &\times  \sum_{t=1}^T W_{t,\tilde  J, \tilde J^\prime} W_{t,\Delta, \tilde J, \tilde J^\prime} \epsilon_{t, \Delta,  \tilde J, \tilde J^\prime}
+                  (1-A_{t,\tilde J}) (A_{t,\tilde J^\prime} - \tilde{p}_t^\star( 1 \mid S_t)) f_t(S_t)^\top
+                  \bigg] \\
+ &\, \cdot \left[ \sum_{t=1}^T E[ (1-A_{t,J}) (A_{t,J^\prime} - \tilde{p}_t (1 \mid S_t)
+                  )^2 W_{t,J,J^\prime} W_{t,\Delta, J, J^\prime} f_t (S_t) f_t (S_t)^\top ] \right]^{-1}
+\end{align*}
+as desired.
+\end{proof}
+
+\newpage
+
+\section{Additional simulation details}
+\label{app:simdetails}
+
+% Different scenarios were devised by setting $\beta_{11}^*$ to one of 0.2, 0.5, 0.8, giving respectively a small, medium, or large degree of moderation by $S_t$. Since $\eta_1$ and $\eta_2$ are nonzero, the treatment $A_t$ is assigned with a probability depending on both $S_t$ and past treatment $A_{t-1}$, for each $t$.
+
+% In the weighted and centered analysis, we parameterize and estimate $\tilde{p}_t$. In particular, $\tilde{p}_t(a;\hat{p}) = \hat{p}^a(1-\hat{p})^{1-a}$ where $\hat{p} = \P_n \sum_{t=1}^T A_t/T$. The weights are set to $W_t = \hat{p}^{A_t}(1-\hat{p})^{1-A_t}/p_t(A_t|H_t)$ and the working model for $\E \left[W_tY_{t+1}|H_t \right]$ is $a_{10}+a_{11}S_t$ (i.e., $g_t(H_t)= (1, S_t)^T$). Thus the estimating function is given by: \hs{Is this necessary?}
+% % $$
+% %     \sum_{t=1}^T (Y_{t+1} - (a_{10}+a_{11}S_t) - (A_t - \hat{p})\beta_1)W_t
+% %     \left( \begin{array}{c}
+% %          (1,S_t)^T \\
+% %          A_t -\hat{p}
+% %     \end{array}  \right) =0
+% % $$
+
+
+% \hs{2.  Show under-coverage when $b_g$ interacts with centered treatments - provide intuition; Show under different group size the difference in estimation}
+
+% Unlike the above scenarios, the definition of indirect effect here excludes the observations with $A_{t,j} = 1$. Hence, we can make references on how interactions will influence the response $Y_{t+1,j}$ when treatment is absent. Weights are set to be $w'_{t,j,j'} = w_{t,j} \times w_{t,j'}$, and the corresponding estimation function is:
+% \begin{align*}
+%      \frac{1}{M} \sum_{m=1}^{M}  \binom{G_m}{2}^{-1}\sum_{j=1}^{G_m} \sum_{t=1}^T (&Y_{t+1,j} - (a_{10}+a_{11}S_{t,j}) - (1-A_{t,j}) \times \sum_{j^\prime \neq j} (A_{t,j^\prime} - \tilde p_{t, j^\prime} ( 1 \mid H_t) )\beta_2) \\
+%      &W'_t \left( \begin{array}{cc}
+%          (1,\bar S_{t,g})^T\\
+%          (1-A_{t,j}) \times \sum_{j^\prime \neq j} (A_{t,j^\prime} - \tilde p_{t, j^\prime} ( 1 \mid H_t) )
+%     \end{array}  \right) =0
+% \end{align*}
+
+\begin{table}[!th]
+\def~{\hphantom{0}}
+\tbl{\it Additional simulation results: cluster-based weighted-centered least squares (C-WCLS) and weighted-least squares estimator (WCLS) comparison for Scenarios I, II, III, and IV.}{%
+\begin{tabular}{lccccccc}
+\\
+% \hline
+Scenario & Estimator & \# of Clusters & Cluster Size & Estimate & SE & RMSE & CP \\ %\hline
+\multirow{12}{*}{I} 
+& C-WCLS & \multirow{2}{*}{25} & \multirow{2}{*}{10} & -0.198 & 0.035 & 0.036	 & 0.945 \\
+& WCLS & & &  -0.200 & 0.036 & 0.035 & 0.956 \\  %\cdashline{2-8}
+& C-WCLS & \multirow{2}{*}{25} & \multirow{2}{*}{25} & -0.199 & 0.022 & 0.023 & 0.948 \\
+& WCLS & & &  -0.199 & 0.023 & 0.022 & 0.958 \\ %\cdashline{2-8}
+& C-WCLS & \multirow{2}{*}{50} & \multirow{2}{*}{10} & -0.198 & 0.025 & 0.027 & 0.935 \\
+& WCLS & & &  -0.198 & 0.026 & 0.026 & 0.944 \\ %\cdashline{2-8}
+& C-WCLS & \multirow{2}{*}{50} & \multirow{2}{*}{25} & -0.198 & 0.016 & 0.016 & 0.950 \\
+& WCLS & & &  -0.198 & 0.016 & 0.017 & 0.937 \\ %\cdashline{2-8}
+& C-WCLS & \multirow{2}{*}{100} & \multirow{2}{*}{10} & -0.199 & 0.018 & 0.018 & 0.949 \\
+& WCLS & & &  	-0.198& 0.018 & 0.019 & 0.949 \\ %\cdashline{2-8}
+& C-WCLS & \multirow{2}{*}{100} & \multirow{2}{*}{25} &  -0.198 & 0.011 & 0.012  & 0.941 \\
+& WCLS & & &  -0.199 & 0.011 & 	0.012 & 0.944 \\ %\hline
+& &&& & & & \\
+\multirow{12}{*}{II} 
+& C-WCLS & \multirow{2}{*}{25} & \multirow{2}{*}{10} & -0.199 & 0.070 & 0.076 & 0.935 \\
+& WCLS & & &  -0.201 & 0.041 & 0.076 & 0.710 \\  %\cdashline{2-8}
+& C-WCLS & \multirow{2}{*}{25} & \multirow{2}{*}{25} & -0.196 & 0.065 & 0.071 & 	0.933 \\
+& WCLS & & &  -0.200 & 0.026 & 0.065 & 0.557 \\ %\cdashline{2-8}
+& C-WCLS & \multirow{2}{*}{50} & \multirow{2}{*}{10} & -0.200 & 0.051 & 0.049 & 0.957 \\
+& WCLS & & &  -0.200 & 0.029 & 0.052 & 0.723 \\ %\cdashline{2-8}
+& C-WCLS & \multirow{2}{*}{50} & \multirow{2}{*}{25} & -0.200 & 0.047 & 0.049 & 0.947 \\
+& WCLS & & &  -0.199 & 0.019 & 0.048 & 0.555 \\ %\cdashline{2-8}
+& C-WCLS & \multirow{2}{*}{100} & \multirow{2}{*}{10} & -0.198  & 0.036 & 0.035 & 0.955 \\
+& WCLS & & &  -0.198 & 0.021 & 0.037 & 0.718 \\ %\cdashline{2-8}
+& C-WCLS & \multirow{2}{*}{100} & \multirow{2}{*}{25} & -0.198  & 0.033 & 0.035 & 0.942 \\
+& WCLS & & &  -0.199 & 0.013 & 0.032 & 0.583 \\ %\hline
+& &&& & & & \\
+\multirow{12}{*}{III} 
+& C-WCLS & \multirow{2}{*}{25} & \multirow{2}{*}{10} & -0.199 & 0.070 & 0.073 & 0.948 \\
+& WCLS & & &  -0.202 & 0.041 & 0.074 & 0.734 \\  %\cdashline{2-8}
+& C-WCLS & \multirow{2}{*}{25} & \multirow{2}{*}{25} & -0.196 & 0.066 & 0.069 & 0.931 \\
+& WCLS & & &  -0.200 & 0.026 & 0.068 & 0.563 \\ %\cdashline{2-8}
+& C-WCLS & \multirow{2}{*}{50} & \multirow{2}{*}{10} & -0.198 & 0.051 & 0.052 & 0.941 \\
+& WCLS & & &  -0.199 & 	0.029 & 0.052 & 0.742 \\ %\cdashline{2-8}
+& C-WCLS & \multirow{2}{*}{50} & \multirow{2}{*}{25} & -0.199 & 0.047 & 0.048 & 0.946 \\
+& WCLS & & &  -0.200 & 0.018 & 0.048 & 0.561 \\ %\cdashline{2-8}
+& C-WCLS & \multirow{2}{*}{100} & \multirow{2}{*}{10} & -0.200 & 0.036 & 0.037 & 0.946 \\
+& WCLS & & &  	-0.200 & 0.021 & 0.037 & 0.740 \\ %\cdashline{2-8}
+& C-WCLS & \multirow{2}{*}{100} & \multirow{2}{*}{25} & -0.201 & 0.034 & 0.033 & 0.956 \\
+& WCLS & & &  -0.198 & 0.013 & 0.034 & 0.555 \\ %\hline
+\end{tabular}}
+\label{tab:simresults_appendix}
+%\begin{tabnote}
+%U.S., United States of America; R, respondent.
+%\end{tabnote}
+\end{table}
+
+\begin{table}[!th]
+\def~{\hphantom{0}}
+\tbl{\it Simulations show strong finite sample estimation and accurate coverage for indirect effects.}{%
+\begin{tabular}{lcccccc}
+\\
+% \hline
+Scenario & \# of Clusters & Cluster Size & Estimate & SD & RMSE & CP \\ %\hline
+\multirow{6}{*}{IV} & 25 & 10 & -0.097 & 0.028 & 0.029 & 0.958 \\
+& 25 & 25 & -0.101 & 0.017 &  0.019 & 0.942 \\
+& 50 & 10 & -0.097 & 0.020 & 0.021 & 0.953 \\
+& 50 & 25 & -0.100 & 0.013 & 0.013 & 0.942 \\
+& 100 & 10 & -0.097 & 0.015 & 0.015 & 0.943 \\
+& 100 & 25 &  -0.100 & 0.009 & 0.009 & 0.944 \\ %\hline
+\end{tabular}}
+\label{tab:simresults_indirect}
+\end{table}
+
+\section{Simulation for Lag Effect estimation}
+\label{app:lagsimulation}
+\subsection{Simulation setup}
+
+To evaluate the proposed estimator with $\Delta > 1$, we extend the simulation setup in the main paper. Consider an MRT with the same setting, in addition to $\beta_{\Delta 0} =-0.1$ and $\beta_{\Delta 1} = 0.2$, thus, $\Delta = 2$ and the proximal response is: 
+\begin{equation}
+\label{eq:laggenerativemodel}
+\begin{array}{r@{}l}
+    Y_{t,2} =  \theta_1 \{S_{t+1}&{} - \E \left[ S_{t+1}|A_{t},H_{t}\right]\} + \{A_{t}-p_{t}(1|H_{t})\} (\beta_{\Delta 0}+\beta_{\Delta 1} S_{t}) \\
+    &{}+ \{A_{t+1} - p_{t+1}(1|H_{t+1})\}(\beta_{10} + \beta_{11} S_{t+1})+  e_{t+2}.
+\end{array}
+\end{equation}
+% \begin{equation}
+% \label{eq:laggenerativemodel}
+% \begin{array}{r@{}l}
+% Y_{t+1,j} = (-0.2 + 0.2 \cdot S_{t,j})&{} \times (A_{t,j} -p_t(1|H_{t,j})) + (-0.1 + 0.2 \cdot S_{t-1,j})  \times \\ (A_{t-1,j} &{}-p_{t-1}(1|H_{t-1,j})) + 0.8 S_{t,j} + e_g +e_{t+1,j}
+% \end{array}
+% \end{equation}
+
+Here we identify two prespecified future (after time t) "reference" treatment regimes that define the distribution for $A_{t+1},\dots,A_{t+\Delta-1}$. The first one assigns treatment with probabilities between zero and one and corresponds to the treatment assignment distribution, and the second one chooses the reference regime $A_u = 1$ for $u>t$, with probability one. In this case, the lag $\Delta$ treatment effect represents the impact of a sequential treatments on the proximal response $\Delta$ time units later.  
+
+
+\noindent {\bf Simulation Scenario I}. The first scenario estimates $\beta_\Delta^*$ when an individual-level moderator exists and proximal responses share a random cluster-level intercept term that does not interact with treatment. The data generative model~\eqref{eq:laggenerativemodel} incorporates a cluster-level random-intercept $e_g \sim \mathcal{N}(0,0.5)$.
+% , so that $
+% Y_{t+1,j} = (-0.2 + 0.2 \cdot S_{t,j}) \times (A_{t,j} -p_t(1|H_{t,j})) + 0.8 S_{t,j} + e_g +e_{t+1,j}$.
+Table~\ref{tab:lagsimresults} presents the results, which shows under both future treatment policies, the proposed C-WCLS approach achieve nearly unbiasedness and proper coverage. 
+% This demonstrates that the performance of the WCLS approach is not impacted by group-level correlation that does not interact with treatment.
+
+
+
+\noindent {\bf Simulation Scenario II}. In the second scenario, we extend scenario I to include a random cluster-level intercept term that interacts with the treatment by considering the linear model with the additional term~$b_g^\prime \times (A_{t,j} -p_{t}(1|H_{t,j}))$
+%\begin{equation}
+%Y_{t+1,j} = (-0.2 + b_g +  0.2 \cdot S_{t,j}) \times (A_{t,j} -p_t(1|H_{t,j})) + 0.8 \cdot S_{t,j} + e_g + e_{t+1,j}
+%\end{equation}
+where $b_g^\prime \sim \mathcal{N}(0,0.1)$.
+% is a random-intercept term within the treatment effect per cluster. 
+Table~\ref{tab:lagsimresults} presents the results which demonstrate that if cluster-level random effects interact with the previous treatment, then both policies produce nearly unbiased estimates and the proposed method achieves the nominal 95\% coverage probability. 
+% This shows that the coverage probability of the WCLS method decays rapidly while the proposed method achieves the nominal 95\% coverage probability for all choices of the variance of $b_g$ and when the group size increases.  
+% In Figure~\ref{fig:undercoverage} (left panel), note that even when group size is $5$ (i.e., small groups), the nominal coverage drops to 80\%.
+
+\noindent {\bf Simulation Scenario III}.  In the third scenario, the lag treatment effect for an individual is assumed to depend on the average state of all individuals in the cluster, i.e., define the cluster-level moderator $\bar S_{t,g} = \frac{1}{G_g}\sum_{j=1}^{G_g} S_{t,j}$ and consider the linear model from Scenario II with the additional term~$\bar S_{t,g} \times (A_{t,j} -p_{t}(1|H_{t,j}))$.
+%\begin{equation*}
+% Y_{t+1,j} = (-0.2 + b_g +  0.2 \cdot \bar S_{t,g}) \times (A_{t,j} -p_t(1|H_{t,j})) + 0.8 S_{t,j} + e_g + e_{t+1,j}
+% \end{equation*}
+The proposed estimator again achieves the nominal 95\% coverage probability (see Scenario III, Table~\ref{tab:lagsimresults}).
+
+
+\subsection{Lag Treatment Effect Calculation}
+
+\noindent \textbf{Sequential Treatment Regime.}~As stated by the sequential treatment reference regime, we have the weight $W_{t,\Delta} = \frac{\pi(A_{t+1}\mid H_{t+1})}{p(A_{t+1}\mid H_{t+1})} = \frac{1[A_{t+1} = 1]}{p (A_{t+1} | H_{t+1} ) }  $. Thus, the true lag $\Delta=2$ treatment effect can simply be calculated as:
+\begin{equation}
+    \beta_{t,2}= E \left[ Y_{t,2} \frac{1[A_{t+1} = 1]}{p (A_{t+1} | H_{t+1} ) } \mid H_{t}, A_{t} = 1 \right]  -  E \left[ Y_{t,2} \frac{1[A_{t+1} = 1]}{p (A_{t+1} | H_{t+1} ) } \mid H_{t}, A_{t} = 0 \right]
+\end{equation}
+
+Under our simulation setting, the term $E \left[ Y_{t,2} \frac{1[A_{t+1} = 1]}{p (A_{t+1} | H_{t+1} ) } \mid H_{t}, A_{t} = a \right]$ is equal to:
+\begin{align*}
+    E \left[ \left( 0.8 S_{t+1} + (A_t - p_t(1| H_t)) (-0.1 + 0.2 S_{t}) + (A_{t+1} - p_{t+1}(1 | H_{t+1})) (-0.2 + 0.2 S_{t+1} ) \right) \frac{1[A_{t+1} = 1]}{p (A_{t+1} | H_{t+1} ) } \mid H_{t}, A_{t} = a \right]
+\end{align*}
+Splitting the expectation above to three terms, we have the following calculation:
+\begin{equation}
+\label{term1}
+    E \bigg[ 0.8 S_{t+1} \frac{1[A_{t+1} = 1]}{p (A_{t+1} | H_{t+1} ) } \mid H_{t}, A_{t} = a \bigg] = 0
+\end{equation}
+\begin{align}
+\label{term2}
+        &  E \left[(A_t - p_t(1| H_t)) (-0.1 + 0.2 S_{t})\frac{1[A_{t+1} = 1]}{p (A_{t+1} | H_{t+1} ) } \mid H_{t}, A_{t} = a \right] \nonumber \\
+        &= (a - p_t(1| H_t)) (-0.1 + 0.2 S_{t}) E \bigg[\frac{1[A_{t+1} = 1]}{p (A_{t+1} | H_{t+1} ) } \mid H_{t}, A_{t} = a \bigg] \nonumber \\
+        & = (a - p_t(1| H_t)) (-0.1 + 0.2 S_{t})
+\end{align}
+
+\begin{align}
+\label{term3}
+    & E \left[ (A_{t+1} - p_{t+1}(1 | H_{t+1})) (-0.2 + 0.2 S_{t+1} ) \frac{1[A_{t+1} = 1]}{p (A_{t+1} | H_{t+1} ) } \mid H_{t}, A_{t} = a \right] \nonumber \\
+    & = E \left[ (-0.2 + 0.2 S_{t+1} ) E \left[ (A_{t+1} - p_{t+1}(1 | H_{t+1})) \frac{1[A_{t+1} = 1]}{p (A_{t+1} | H_{t+1} ) } \mid H_{t+1} \right] \mid H_{t}, A_{t} = a \right] \nonumber \\
+    & = E \left[ (-0.2 + 0.2 S_{t+1}) (1- p_{t+1} (1 |H_{t+1}) ) \mid H_t, A_t = a \right] \nonumber \\
+    &=-0.2 + 0.2 \cdot E[(1- S_{t+1}) \cdot  \text{expit}(-0.8 A_{t}+0.8 S_{t+1}) \mid H_t, A_t = a] \nonumber \\
+    & = -0.2 + 0.2 \cdot \text{expit}(-0.8a-0.8)
+\end{align}
+
+Therefore,
+\begin{align*}
+    E \left[ Y_{t,2} \frac{1[A_{t+1} = 1]}{p (A_{t+1} | H_{t+1} ) } \mid H_{t}, A_{t} = a \right] & = \text{(\ref{term1})} + \text{(\ref{term2})} + \text{(\ref{term3})} \\
+    & = (a - p_t(1| H_t)) (-0.1 + 0.2 S_{t})-0.2 + 0.2 \cdot \text{expit}(-0.8a-0.8)
+\end{align*}
+and the true lag $\Delta=2$ treatment effect under sequential treatment regime is equal to:
+\begin{align}
+    \beta_{t,2}&= E \left[ Y_{t,2} \frac{1[A_{t+1} = 1]}{p (A_{t+1} | H_{t+1} ) } \mid H_{t}, A_{t} = 1 \right]  -  E \left[ Y_{t,2} \frac{1[A_{t+1} = 1]}{p (A_{t+1} | H_{t+1} ) } \mid H_{t}, A_{t} = 0 \right] \nonumber \\
+    & =-0.1 + 0.2S_t + 0.2 \cdot \text{expit}(-0.8-0.8)- 0.2 \cdot \text{expit}(-0.8) \nonumber \\
+    & = -0.128 +0.2S_t
+\end{align}
+
+\noindent \textbf{Observed Distribution Treatment Regime.}~As specified by this reference treatment regime, we have future treatment reference distribution the same with the distribution of treatments in the data we have at hand, i.e., $\pi(A_{t+1}\mid H_{t+1}) = p(A_{t+1}\mid H_{t+1})$ and $W_{t,\Delta} =1$. Thus, the true lag $\Delta=2$ treatment effect can be calculated as:
+\begin{equation}
+    \beta^\prime_{t,2} = E \left[ Y_{t,2} \mid H_{t}, A_{t} = 1 \right] - E \left[ Y_{t,2} \mid H_{t}, A_{t} = 0 \right]
+\end{equation}
+Similar as above, under our simulation setting, the term $E \left[ Y_{t,2} \mid H_{t}, A_{t} = a \right]$ is equal to:
+\begin{align*}
+    E &\left[ \left( 0.8 S_{t+1} + (A_t - p_t(1| H_t)) (-0.1 + 0.2 S_{t}) + (A_{t+1} - p_{t+1}(1 | H_{t+1})) (-0.2 + 0.2 S_{t+1} ) \right)   \mid H_{t}, A_{t} = a \right] \\
+    &= \text{(\ref{termb1})} + \text{(\ref{termb2})} + \text{(\ref{termb3})} 
+\end{align*}
+The three terms are calculated below:
+\begin{equation}
+\label{termb1}
+    E \left[ 0.8 S_{t+1}   \mid H_{t}, A_{t} = a \right] = 0
+\end{equation}
+\begin{align}
+\label{termb2}
+         E \left[(A_t - p_t(1| H_t)) (-0.1 + 0.2 S_{t})  \mid H_{t}, A_{t} = a \right] = (a - p_t(1| H_t)) (-0.1 + 0.2 S_{t}) 
+\end{align}
+
+\begin{align}
+\label{termb3}
+    & E \left[ (A_{t+1} - p_{t+1}(1 | H_{t+1})) (-0.2 + 0.2 S_{t+1} )   \mid H_{t}, A_{t} = a \right] \nonumber \\
+     = &E \left[ (-0.2 + 0.2 S_{t+1} ) E \left[ (A_{t+1} - p_{t+1}(1 | H_{t+1}))   \mid H_{t+1} \right] \mid H_{t}, A_{t} = a \right] \nonumber \\
+     = &0
+\end{align}
+
+Therefore, 
+\begin{equation*}
+    E \left[ Y_{t,2}   \mid H_{t}, A_{t} = a \right] =  (a - p_t(1| H_t)) (-0.1 + 0.2 S_{t})
+\end{equation*}
+and the true lag $\Delta=2$ treatment effect under observed treatment distribution regime is equal to:
+\begin{align}
+    \beta^\prime_{t,2}&= E \left[ Y_{t,2}   \mid H_{t}, A_{t} = 1 \right]  -  E \left[ Y_{t,2}   \mid H_{t}, A_{t} = 0 \right] \nonumber \\
+    & =-0.1 + 0.2S_t 
+\end{align}
+
+\subsection{Marginal Lag Treatment Effect Simulation Results}
+
+The choice for prespecified future reference treatment regimes is of vital importance and often time yields to different treatment effect estimations. Following the derivations above, the fully marginal lag $\Delta=2$ treatment effect is -0.128 for sequential treatment reference regime, and -0.1 for observed treatment distribution regime. Table~\ref{tab:lagsimresults} presents the simulation results. 
+
+\begin{table}[!th]
+\def~{\hphantom{0}}
+\tbl{\it Simulation: cluster-based weighted-centered least squares (C-WCLS) estimators for lag $\Delta =2$ effect, under the policy of observed treatment distribution (OTD) versus sequential treatment (ST), and comparison for Scenarios I, II, III.}{%
+\begin{tabular}{lccccccc}
+\\
+% \hline
+Scenario & Policy & \# of Clusters & Cluster Size & Estimate & SE & RMSE & CP \\ %\hline
+\multirow{4}{*}{I} 
+& OTD & \multirow{2}{*}{50} & \multirow{2}{*}{10} & -0.098 & 0.031 & 0.032 & 0.938 \\
+& ST & & &  -0.123 & 0.062 & 0.063 & 0.949 \\ %\cdashline{2-8}
+& OTD & \multirow{2}{*}{50} & \multirow{2}{*}{25} & -0.098 & 0.020 & 0.020 & 0.948 \\
+& ST & & &  -0.124 & 0.040 & 0.039 & 0.955 \\%\hline %\cdashline{2-8}
+& &&& & & & \\
+\multirow{4}{*}{II} 
+& OTD & \multirow{2}{*}{50} & \multirow{2}{*}{10} & -0.099 & 0.054 & 0.054 & 0.944 \\
+& ST & & &  -0.122 & 0.077 & 0.078 & 0.949 \\ %\cdashline{2-8}
+& OTD & \multirow{2}{*}{50} & \multirow{2}{*}{25} & -0.099 & 0.048 & 0.049 & 0.942 \\
+& ST & & &  -0.121 & 0.059 & 0.061 & 0.950 \\ %\hline %\cdashline{2-8}
+& &&& & & & \\
+\multirow{4}{*}{III} 
+& OTD & \multirow{2}{*}{50} & \multirow{2}{*}{10} & -0.096 & 0.054 & 0.056 & 0.942 \\
+& ST & & &  -0.122 & 	0.075 & 0.075 & 0.948 \\ %\cdashline{2-8}
+& OTD & \multirow{2}{*}{50} & \multirow{2}{*}{25} & -0.099 & 0.048 & 0.050 & 0.944 \\
+& ST & & &  -0.125 & 0.059 & 0.059 & 0.955 \\ %\hline %\cdashline{2-8}
+\end{tabular}}
+\label{tab:lagsimresults}
+%\begin{tabnote}
+%U.S., United States of America; R, respondent.
+%\end{tabnote}
+\end{table}
+
+\section{Proof of Lemma~\ref{lemma:samesies}}
+\label{app:samesies}
+
+\begin{proof}
+Consider the $W$-matrix for the direct effect asymptotic variance,
+\begin{align*}
+ &\frac{1}{G^2} \sum_{t, t^\prime} \sum_{j, j^\prime} \mathbb{E} \bigg[
+ W_{t,j} W_{t,\Delta, j} \epsilon_{t,\Delta, j} (A_{t,j} - \tilde{p}_t( 1 \mid S_t))
+ W_{t^\prime,j^\prime}
+ W_{t^\prime,\Delta, j^\prime} \epsilon_{t^\prime,\Delta, j^\prime} (A_{t^\prime,j^\prime} - \tilde{p}_t( 1 \mid S_{t^\prime}))
+ f_t(S_t) f_{t^\prime}(S_{t^\prime})^\top
+                  \bigg] 
+% =&\frac{1}{G^2} \sum_{t, t^\prime}\sum_{j, j^\prime} \mathbb{E} \bigg[
+%  W_{t,j} \epsilon_{t,j} (A_{t,J} - \tilde{p}_t( 1 \mid S_t))
+%  W_{t^\prime,j^\prime} \epsilon_{t^\prime,j^\prime} (A_{t^\prime,j^\prime} - \tilde{p}_t( 1 \mid S_{t^\prime}))
+%  f_t(S_t) f_{t^\prime}(S_{t^\prime})^\top
+%                   \bigg]
+\end{align*}
+Consider the cross-terms with $j \neq j^\prime$ and without loss of generality assume $t \geq t^\prime$, then
+\begin{align*}
+\mathbb{E} &\bigg[ \sum_{a, a^\prime}  \tilde p_t (a \mid S_t) (a - \tilde{p}_t( 1 \mid S_t))
+\tilde p_{t^\prime} (a^\prime \mid S_{t^\prime}) (a^\prime - \tilde p_{t^\prime} (1 \mid S_{t^\prime})) \\
+&\mathbb{E} \bigg[ \mathbb{E} \bigg[ W_{t,\Delta, j} \epsilon_{t,\Delta, j} W_{t^\prime,\Delta, j^\prime} \epsilon_{t^\prime,\Delta, j^\prime} \mid H_{t,j}, A_{t,j} = a, H_{t^\prime,j^\prime}, A_{t^\prime,j^\prime} = a^\prime \bigg] \mid S_t, S_{t^\prime} \bigg] f_t(S_t) f_{t^\prime}(S_{t^\prime})^\top
+                  \bigg].
+\end{align*}
+Under the assumption of the error cross-term being constant in $a$ and $a^\prime$ we can re-write the above as:
+\begin{align*}
+&= \mathbb{E} \left[ \sum_{a, a^\prime}  \tilde p_t (a \mid S_t) (a - \tilde{p}_t( 1 \mid S_t))
+\tilde p_{t^\prime} (a^\prime \mid S_{t^\prime}) (a^\prime - \tilde p_{t^\prime} (1 \mid S_{t^\prime})) \psi (S_t, S_{t^\prime}) f_t (S_t) f_{t^\prime} (S_{t^\prime})^\top \right] \\
+&= \mathbb{E} \bigg[ \psi (S_t, S_{t^\prime}) f_t (S_t) f_{t^\prime} (S_{t^\prime})^\top \underbrace{\left( \sum_{a, a^\prime}  \tilde p_t (a \mid S_t) (a - \tilde{p}_t( 1 \mid S_t))
+\tilde p_{t^\prime} (a^\prime \mid S_{t^\prime}) (a^\prime - \tilde p_{t^\prime} (1 \mid S_{t^\prime})) \right)}_{=0} \bigg] \\
+&= \mathbb{E} \left[ \psi (S_t, S_{t^\prime}) f_t (S_t) f_{t^\prime} (S_{t^\prime})^\top \cdot 0 \right] = 0.
+\end{align*}
+Therefore, we have that the $W$-matrix simplifies to
+\begin{align*}
+ &\mathbb{E} \bigg[ \sum_{t=1}^T W_{t,J} \epsilon_{t,J} (A_{t,J} - \tilde{p}_t( 1 \mid S_t)) f_t(S_t) \times \sum_{t=1}^T W_{t,J} \epsilon_{t,J} (A_{t,J} - \tilde{p}_t( 1 \mid S_t)) f_t(S_t)^\top
+                  \bigg] \\
+ =&\mathbb{E} \bigg[\frac{1}{G}  \sum_{j=1}^G \bigg[ \sum_{t=1}^T W_{t,J} \epsilon_{t,J} (A_{t,J} - \tilde{p}_t( 1 \mid S_t)) f_t(S_t) \times \sum_{t=1}^T W_{t,J} \epsilon_{t,J} (A_{t,J} - \tilde{p}_t( 1 \mid S_t)) f_t(S_t)^\top
+                  \bigg] \bigg] \\
+ =&\mathbb{E} \bigg[ \sum_{t=1}^T W_{t} \epsilon_{t} (A_{t} - \tilde{p}_t( 1 \mid S_t)) f_t(S_t) \times \sum_{t=1}^T W_{t} \epsilon_{t} (A_{t} - \tilde{p}_t( 1 \mid S_t)) f_t(S_t)^\top
+                  \bigg]
+\end{align*}
+which is the $W$ matrix as in the standard MRT analysis.
+\end{proof}
+
+\section{Small sample size adjustment for covariance estimation}
+\label{app:ssa}
+
+The robust sandwich covariance estimator~\cite{Mancl2001} for the entire variance matrix is given by $Q^{-1} \Lambda Q^{-1}$.  The first term,~$Q$, is given by
+\[
+ \sum_{m=1}^M \frac{1}{G_m}\sum_{j=1}^{G_m} D_{j,m}^\top W_{j,m} D_{j,m} 
+\]
+where $D_{j,m}$ is the model matrix for individual~$j$ in group $g$ associated with
+equation~\eqref{eq:directwcls}, and $W_{j,m}$ is a diagonal matrix of individual weights.
+The middle term~$\Lambda$ is given by
+\[
+\sum_{m=1}^M \frac{1}{G_m^2}\sum_{i,j=1}^{G_m} D_{i,m}^\top W_{i,m} (I_{i,m} - H_{i,m})^{-1}
+e_{i,m} e_{j,m}^\top (I_{j,m} - H_{j,m})^{-1} W_{j,m} D_{j,m}
+\]
+where $I_i$ is an identity matrix of correct dimension, $e_i$ is the individual-specific residual
+vector and
+\[
+H_{j,m} = D_{j,m}
+\left( \sum_{m=1}^M \frac{1}{G_m}\sum_{j=1}^{G_m} D_{j,m}^\top W_{j,m} D_{j,m} \right)^{-1}
+D_{j,m}^\top W_{j,m}
+\]
+From $Q^{-1} \Lambda Q^{-1}$ we extract $\hat{\Sigma}_{\beta}$.
+
+\section{Additional analysis of IHS}
+\label{app:IHSadditionalanalysis}
+
+%\subsection{Additional Information of Figure \ref{fig:wcls_moderation_IHS}}
+\subsection{Additional Information of Figure 3}
+\label{app:moreonFigure3}
+
+Figure 3 presented a visually comparison between WCLS and C-WCLS in terms of the moderation of average previous week's proximal outcomes on the effect of notifications on average weekly mood scores, log step counts, and log sleep counts respectively in IHS. Here we attach the table for numerical comparison. 
+
+\begin{table}[!th]
+\def~{\hphantom{0}}
+\tbl{\it Moderation Analysis with $\beta(t; S_t) = \beta_0 + \beta_1 \cdot Y_{t,j} $ }{%
+\begin{tabular}{llccccc}
+\\
+%\hline
+Outcome & Setting & Variables & Estimate & Std. Error & t-value & p-value \\ %\hline
+\multirow{4}{*}{Mood} 
+& \multirow{2}{*}{WCLS} & $\beta_0$ & 0.369 & 0.086 & 4.267 & 0.000 \\
+& & $\beta_1$ & -0.055 & 0.011 & -4.822 & 0.000 \\ %\cline{2-7}
+& \multirow{2}{*}{C-WCLS} & $\beta_0$ & 0.421 & 0.214 & 1.968 & 0.053 \\
+& & $\beta_1$ & -0.061 & 0.028 & -2.181 & 0.032 \\ %\cline{2-7}
+% & \multirow{3}{*}{C-WCLS} & $\beta_0$ & 0.665  & 0.321 & 2.072 & 0.040 \\
+% & & $\beta_1$ & -0.067  &   0.037  &  -1.804  & 0.072 \\
+% & & $\beta_2$ & -0.027 & 0.019 &  -1.393 & 0.164\\ %\hline
+& & & & & & \\
+\multirow{4}{*}{Steps} 
+& \multirow{2}{*}{WCLS} & $\beta_0$ & 0.729 & 0.295 & 2.472 & 0.015 \\
+& & $\beta_1$ & -0.037 & 0.015 & -2.484 & 0.015 \\ %\cline{2-7}
+& \multirow{2}{*}{C-WCLS} & $\beta_0$ & 0.997 & 0.734 & 1.357 & 0.176 \\
+& & $\beta_1$ & -0.049 & 0.037 & -1.343 & 0.181 \\ %\cline{2-7}
+% & \multirow{3}{*}{C-WCLS} & $\beta_0$ & 0.234  &1.039 &  0.225 & 0.823 \\
+% & & $\beta_1$ & -0.011  &   0.045 &   -0.254 &    0.800 \\
+% & & $\beta_2$ & -0.007  &   0.021 &   -0.354 &  0.725 \\ %\hline
+& & & & & & \\
+\multirow{4}{*}{Sleep}
+& \multirow{2}{*}{WCLS} & $\beta_0$ & 1.325 & 0.350 & 3.782 & 0.000 \\
+& & $\beta_1$ & -0.068 & 0.017 & -3.916 & 0.000 \\ %\cline{2-7}
+& \multirow{2}{*}{C-WCLS} & $\beta_0$ & 1.543 & 0.767 & 2.012 & 0.046 \\
+& & $\beta_1$ & -0.081 & 0.039 & -2.082 & 0.039 \\ %\cline{2-7}
+% & \multirow{3}{*}{C-WCLS} & $\beta_0$ & -0.073 & 0.887 &-0.082  & 0.935  \\
+% & &$\beta_1$ & 0.002  &   0.043  &   0.049 & 0.961 \\
+% & &$\beta_2$ & 0.001 & 0.008  & 0.135 & 0.893 \\ %\hline
+\end{tabular}}
+\label{tab:IHS_Figure3}
+\end{table}
+
+
+\subsection{Lag Treatment Effect}
+
+We implement an extended investigation on the lag $\Delta=2$ treatment effect of the targeted mobile notifications. The same two models:
+$\beta_{2}(t; S_t) = \beta_0 + \beta_1 \cdot Y_{t,j} + \beta_2 \bar Y_{t,-j}$ are applied to moderation analyses.
+
+The first set of moderation analyses considers the standard moderation analysis where only individual-level moderators are included (i.e., $\beta_2 = 0$), with or without accounting for cluster-level moderation effect heterogeneity. Figure~\ref{fig:wcls_heterogeneity1} and Figure~\ref{fig:wcls_heterogeneity2} visualize the estimates across the range of prior week's proximal response for both our proposed approach and the WCLS approach from~\cite{Boruvkaetal}. In this case, the effects do not change too much for all the analysis;
+
+
+\begin{figure}
+  \figuresize{.5}
+  \figurebox{15pc}{20pc}{}[all1.eps]
+  \caption{Moderation analysis of lag $\Delta=2$ effect of notifications on average weekly mood scores, log step counts, and log sleep counts respectively under the sequential treatment policy. }
+  \label{fig:wcls_heterogeneity1}
+\end{figure}
+
+
+\begin{figure}
+  \figuresize{.5}
+  \figurebox{15pc}{20pc}{}[Boruvkas.eps]
+  \caption{Moderation analysis of lag $\Delta=2$ effect of notifications on average weekly mood scores, log step counts, and log sleep counts respectively under the observed treatment distribution. }
+  \label{fig:wcls_heterogeneity2}
+\end{figure}
+
+The second moderation analysis lets $\beta_2$ be a free parameter.  Table~\ref{tab:IHS_direct4} and Table~\ref{tab:IHS_direct5} present the results.  Here, we see that the constant term $\beta_0$ in the mood analysis becomes significant, while the new term $\beta_2$ is insignificant.  The results suggest the average proximal outcomes of others in the cluster have a limited moderate effect on notifications, however, the lag impact of a notification on mood is positive and significant.  
+
+% \begin{table}[!th]
+% \centering
+% \begin{tabular}{c | crrrr}
+% \hline
+% Setting & Variables & Estimate & Std. Error & t-value & p-value \\ \hline
+% \multirow{2}{*}{WCLS} & $\beta_0$ & 0.729 & 0.295 & 2.472 & 0.015 \\
+% & $\beta_1$ & -0.037 & 0.015 & -2.484 & 0.015 \\ \hline
+% \multirow{2}{*}{C-WCLS} & $\beta_0$ & 0.622 & 0.384 & 1.618 & 0.108 \\
+% & $\beta_1$ & -0.031 & 0.019 & -1.580 & 0.117 \\ \hline
+% \multirow{3}{*}{C-WCLS} & $\beta_0$ & -2.095 & 1.248 & -1.678 & 0.094 \\
+% & $\beta_1$ & -0.034 & 0.019 & -1.745 & 0.083 \\
+% & $\beta_2$ & 0.143 & 0.062 &2.330 & 0.020 \\ \hline
+% \end{tabular}
+% \caption{Moderation analysis for the effect of notifications on average weekly log step counts in IHS. WCLS estimates use the estimator in~\cite{Boruvkaetal}, while the C-WCLS estimates use our proposed estimator.}
+% \label{tab:IHS_directstep}
+% \end{table}
+
+
+
+% \begin{table}[!th]
+% \centering
+% \begin{tabular}{c | crrrr}
+% \hline
+% Setting & Variables & Estimate & Std. Error & t-value & p-value \\ \hline
+% \multirow{2}{*}{WCLS} & $\beta_0$ & 1.325 & 0.350 & 3.782 & 0.000 \\
+% & $\beta_1$ & -0.068 & 0.017 & -3.916 & 0.000 \\ \hline
+% \multirow{2}{*}{C-WCLS} & $\beta_0$ & 1.193 & 0.454 & 2.627 & 0.011 \\
+% & $\beta_1$ & -0.061 & 0.023 & -2.696 & 0.009 \\ \hline
+% \multirow{3}{*}{C-WCLS} & $\beta_0$ & -1.912 & 1.379 & -1.386 & 0.171  \\
+% & $\beta_1$ & -0.067 & 0.023 & -2.948 & 0.004 \\
+% & $\beta_2$ & 0.162 & 0.065 & 2.487 & 0.015 \\ \hline
+% \end{tabular}
+% \caption{Moderation analysis for the effect of notifications on average weekly log sleep minutes in IHS. WCLS estimates use the estimator in~\cite{Boruvkaetal}, while the C-WCLS estimates use our proposed estimator.}
+% \label{tab:IHS_directsleep}
+% \end{table}
+
+
+\begin{table}[!th]
+\def~{\hphantom{0}}
+\tbl{\it Moderation analysis for lag $\Delta =2$ treatment effect with cluster-level moderators, under the policy of sequential weeks of treatment}{%
+\begin{tabular}{llccccc}
+\\
+%\hline
+Outcome & Setting & Variables & Estimate & Std. Error & t-value & p-value \\ %\hline
+\multirow{3}{*}{Mood} 
+% & \multirow{2}{*}{WCLS} & $\beta_0$ & 0.369 & 0.086 & 4.268 & 0.000 \\
+% & & $\beta_1$ & -0.055 & 0.011 & -4.822 & 0.000 \\ \cline{2-7}
+% & \multirow{2}{*}{C-WCLS} & $\beta_0$ & 0.350 & 0.103 & 3.401 & 0.001 \\
+% & & $\beta_1$ & -0.053 & 0.014 & -3.868 & 0.000 \\ \cline{2-7}
+& \multirow{3}{*}{C-WCLS} & $\beta_0$ & 0.665  & 0.321 & 2.072 & 0.040 \\
+& & $\beta_1$ & -0.067  &   0.037  &  -1.804  & 0.072 \\
+& & $\beta_2$ & -0.027 & 0.019 &  -1.393 & 0.164\\ %\hline
+& & & & & & \\
+\multirow{3}{*}{Steps} 
+% & \multirow{2}{*}{WCLS} & $\beta_0$ & 0.729 & 0.295 & 2.472 & 0.015 \\
+% & & $\beta_1$ & -0.037 & 0.015 & -2.484 & 0.015 \\ \cline{2-7}
+% & \multirow{2}{*}{C-WCLS} & $\beta_0$ & 0.622 & 0.384 & 1.618 & 0.108 \\
+% & & $\beta_1$ & -0.031 & 0.019 & -1.580 & 0.117 \\ \cline{2-7}
+& \multirow{3}{*}{C-WCLS} & $\beta_0$ & 0.234  &1.039 &  0.225 & 0.823 \\
+& & $\beta_1$ & -0.011  &   0.045 &   -0.254 &    0.800 \\
+& & $\beta_2$ & -0.007  &   0.021 &   -0.354 &  0.725 \\ %\hline
+& & & & & & \\
+\multirow{3}{*}{Sleep}
+& \multirow{3}{*}{C-WCLS} & $\beta_0$ & -0.073 & 0.887 &-0.082  & 0.935  \\
+& &$\beta_1$ & 0.002  &   0.043  &   0.049 & 0.961 \\
+& &$\beta_2$ & 0.001 & 0.008  & 0.135 & 0.893 \\ %\hline
+\end{tabular}}
+\label{tab:IHS_direct4}
+\end{table}
+
+
+\begin{table}[!th]
+\def~{\hphantom{0}}
+\tbl{\it Moderation analysis for lag $\Delta =2$ treatment effect with cluster-level moderators, under the policy of observed treatment distribution}{%
+\begin{tabular}{llccccc}
+\\
+%\hline
+Outcome & Setting & Variables & Estimate & Std. Error & t-value & p-value \\ %\hline
+\multirow{3}{*}{Mood} 
+% & \multirow{2}{*}{WCLS} & $\beta_0$ & 0.369 & 0.086 & 4.268 & 0.000 \\
+% & & $\beta_1$ & -0.055 & 0.011 & -4.822 & 0.000 \\ \cline{2-7}
+% & \multirow{2}{*}{C-WCLS} & $\beta_0$ & 0.350 & 0.103 & 3.401 & 0.001 \\
+% & & $\beta_1$ & -0.053 & 0.014 & -3.868 & 0.000 \\ \cline{2-7}
+& \multirow{3}{*}{C-WCLS} & $\beta_0$ & 0.585& 0.292  & 2.002 &  0.046 \\
+& & $\beta_1$ & -0.061 & 0.036  &  -1.702 &  0.090 \\
+& & $\beta_2$ & -0.022  &   0.021  &  -1.038  & 0.299 \\ %\hline
+& & & & & & \\
+\multirow{3}{*}{Steps} 
+% & \multirow{2}{*}{WCLS} & $\beta_0$ & 0.729 & 0.295 & 2.472 & 0.015 \\
+% & & $\beta_1$ & -0.037 & 0.015 & -2.484 & 0.015 \\ \cline{2-7}
+% & \multirow{2}{*}{C-WCLS} & $\beta_0$ & 0.622 & 0.384 & 1.618 & 0.108 \\
+% & & $\beta_1$ & -0.031 & 0.019 & -1.580 & 0.117 \\ \cline{2-7}
+& \multirow{3}{*}{C-WCLS} & $\beta_0$ & 0.107 & 0.951  & 0.113  & 0.911 \\
+& & $\beta_1$ & -0.001 & 0.041 & -0.033  & 0.974 \\
+& & $\beta_2$ & -0.011 &  0.018 &   -0.629  &  0.531  \\ %\hline
+& & & & & & \\
+\multirow{3}{*}{Sleep}
+& \multirow{3}{*}{C-WCLS} & $\beta_0$ & -0.211 & 0.802 & -0.263 &  0.793   \\
+& &$\beta_1$ & 0.009 & 0.040 & 0.233 & 0.816 \\
+& &$\beta_2$ & 0.001 & 0.007 & 0.193 & 0.848 \\ %\hline
+\end{tabular}}
+\label{tab:IHS_direct5}
+\end{table}
+
+
+\section{Additional on the indirect effect}
+\label{app:addindirect}
+
+Weights used in the estimation of the indirect effect is a natural extension of~\cite{Boruvkaetal}. As in Section~\ref{section:indirect}, the weight~$W_{t,j, j^\prime}$ at decision time $t$ for the $j$th individual is equal to $\frac{\tilde p (A_{t,j}, A_{t,j^\prime} \mid S_t)}{p_t (A_{t,j}, A_{t,j^\prime} \mid H_t)}$ where $\tilde p_t (a, a^\prime \mid S_t)\in (0,1)$ is arbitrary as long as it does not depend on terms in $H_t$ other than $S_t$, and $p(A_{t,j}, A_{t,j^\prime} \mid H_t)$ is the marginal probability that individuals $j$ and $j^\prime$ receive treatments $A_{t,j}$ and $A_{t,j^\prime}$ respectively given $H_t$.
+
+In the simulation, the treatment individuals $j$ and $j^\prime$ receive $A_{t,j}$ and $A_{t,j^\prime}$ are mutually independent conditioning on the previous history. thus, the denominator of $W_{t,j,j\prime}$ can be factorized into:
+\[ p(A_{t,j}, A_{t,j^\prime} \mid H_t)= p(A_{t,j} \mid H_t)p(A_{t,j^\prime} \mid H_t) \]
+Besides, the numerator of  $W_{t,j,j\prime}$ is defined as the empirical frequency of the treatment pair $ (a, a^\prime)$, which takes the value from $\{(0,0),(0,1),(1,0),(1,1)\}$. Here we denote it as \[\tilde p_t (A_{t,j}, A_{t,j^\prime} \mid S_t) = \hat p_t (A_{t,j}, A_{t,j^\prime} \mid S_t)\]
+
+Therefore, the weight we used in the simulation is constructed as:
+\[
+W_{t,j,j\prime} = \frac{\hat p_t (A_{t,j}, A_{t,j^\prime} \mid S_t)}{p(A_{t,j} \mid H_t)p(A_{t,j^\prime} \mid H_t)}
+\]
+
+When the numerators are estimated using the observed data, the variance-covariance must account for this. Throughout we allow for the setting in which individuals are not always available. For completeness we provide results for a more general estimating function which can be used with observational (non-randomized $A_t$) treatments, under the assumption of sequential ignorability and assuming the data analyst is able to correctly model and estimate the treatment probability $p\left(A_{t,j}, A_{t,j^\prime}| H_t\right)$. We indicate how the results are simplified by use of data from an MRT.
+
+Denote the parameterized treatment probability by $p_t(a,a' | H_t;\eta)$ (with parameter $\eta$); note $\eta$ is known in an MRT. Denote the parameterized numerator of the weights by $\tilde p_t(a,a'| S_t;\rho)$ (with parameter $\rho$). The proof below allows the data analyst to use a  $\tilde p_t$ with an estimated parameter $\tilde \rho$ or to pre-specify $\rho$ as desired. We use a superscript of $\star$ to denote limiting values of estimated parameters (e.g. $\eta^\star, \rho^\star$). Then the more general version of the estimating equation $U_W(\alpha,\beta;\hat\eta,\hat\rho)$ is:
+\begin{align*}
+    \sum_{t=1}^T \left( Y_{t+1,J} - g_t(H_t)^\top \alpha -  (1-A_{t,J}) (A_{t,J^\prime} - \tilde p_t^\star (1 \given S_t;\hat \rho) ) f_t (S_t)^\top \beta \right)
+	&I_{t,J}I_{t,J^\prime}W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \hat\eta,\hat\rho) \times \\
+    &\begin{pmatrix}
+  g_t(H_t) \\
+  (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t;\hat\rho) ) f_t (S_t)
+\end{pmatrix}
+\end{align*}
+
+Note $W_{t,J, J^\prime}$ in the body of the paper is replaced here by $W_{t,J, J^\prime}(A_t,H_t; \hat\eta,\hat\rho)$, and $\hat\eta$, $\hat\rho$ are estimators.
+
+\textbf{Treatment Probability Model:} If the data is observational then we assume: $p_t(a,a'\given{H_t;\eta})$ is a correctly specified model for $\P(a,a'\given{H_t,I_{t,J}=1,I_{t,J^\prime}=1})$. Let $\eta^\star$ be the true value of $\eta$; that is, $Pr(A_{t,J},A_{t,J^\prime}|H_t,I_{t,J}=1,I_{t,J^\prime}=1) = p_t(a,a' \given{H_t;\eta^\star})$ Assume that the estimator of $\eta$, say $\hat\eta$, satisfies $\P_n U_D(\hat\eta)=0$ and $\sqrt{n}(\hat\eta-\eta^\star) =\E \left[\dot U_D (\eta^\star) \right]^{-1}\P_n U_D (\eta^\star) + o_P(1)$. Thus $\sqrt{n}(\hat\eta-\eta^\star)$ converges in distribution to a mean zero, normal random vector with variance-covaraince matrix given by $\E \left[\dot U_D (\eta^\star) \right]^{-1} \E \left[U_D(\eta^\star)^ {\otimes 2} \right]    \left(\E \left[\dot U_D (\eta^\star) \right]^{-1} \right)^\top$, which has finite entries. Assume that $\P_n(\dot U_D(\hat\eta))$ is a consistent estimator of $\E(\dot U_D(\eta^\star))$. Assume there exists finite constants, $b_D>0$ and $B_D<1$ such that each $b_D < p_t (a,a'|H_t;\eta^\star)<B_D$ a.s.
+
+
+If the data analyst elects to use a parameterized and estimated $\tilde p_t(1|S_t,\hat \rho)$, then we assume:
+
+\textbf{Numerator of Weights Probability Model}: Suppose the estimator $\hat\rho$ solves an estimating equation: $\P_n U_N(\rho)=0$. Assume that, for a finite value of $\rho$, say $\rho^\star$ and $\sqrt{n}(\hat\rho-\rho^\star)= \E \left[\dot U_N (\rho^\star) \right]^{-1}\sqrt{n}(\P_n-P) U_N (\rho^\star) + o_P(1)$ where the matrix, $\E \left[\dot U_N (\rho^\star) \right]$ is positive definite. Assume $\sqrt{n}(\P_n-P) U_N (\rho^\star)$ converges in distribution to a mean zero, normal random vector with variance-covariance matrix given by $\E[U_N(\rho^\star)^ {\otimes 2}]$ which has finite entries. Assume that $\P_n \dot U_N(\hat\rho)$ is a consistent estimator of $\E[\dot U_N(\rho^\star)]$. Assume $0 <\rho^\star <1$.
+
+
+\begin{proof}
+The solution to $\P_n U_W(\alpha,\beta;\hat\eta,\hat\rho) = 0$ gives the estimator:
+\begin{align*}
+    \begin{pmatrix}
+  \hat \alpha \\
+  \hat \beta
+\end{pmatrix} =
+\left\{ \P_n \dot U_W(\hat\eta,\hat\rho) \right \}^{-1} \P_n \sum_{t=1}^T &I_{t,J}I_{t,J^\prime} W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \hat \eta,\hat \rho) Y_{t+1,J} \times \\
+&\begin{pmatrix}
+  g_t(H_t) \\
+  (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t) ) f_t (S_t)
+\end{pmatrix}
+\end{align*}
+
+
+where
+
+\[
+\dot U_W(\hat\eta,\hat\rho) = \sum_{t=1}^T I_{t,J}I_{t,J^\prime}W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \hat\eta,\hat\rho) \begin{pmatrix}
+  g_t(H_t) \\
+  (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t) ) f_t (S_t)
+\end{pmatrix}^ {\otimes 2}
+\]
+
+Define
+
+\begin{align*}
+    \begin{pmatrix}
+  \alpha^\prime \\
+  \beta^\prime
+\end{pmatrix} = \left\{ \E \left[ \dot U_W(\eta^\star,\rho^\star) \right]\right\}^{-1}  \E \Bigg[ \sum_{t=1}^T I_{t,J}I_{t,J^\prime} W_{t,J, J^\prime}(A_{t,J},&A_{t,J^\prime},H_t; \eta^\star,\rho^\star) Y_{t+1,J} \nonumber \\
+&\begin{pmatrix}
+  g_t(H_t) \\
+  (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t) ) f_t (S_t)
+\end{pmatrix} \Bigg]
+\end{align*}
+
+
+Then standard statistical arguments can be used to show that $\sqrt{n}(\hat\alpha-\alpha^\prime, \hat\beta-\beta^\prime)$ converges in distribution to a normal, mean zero, random vector with variance-covariance matrix given by:
+\begin{equation*}
+    \left\{ \E \left[\dot U_W(\eta^\star, \rho^\star) \right]\right\}^{-1} \Sigma_W(\alpha^\prime,\beta^\prime;\eta^\star, \rho^\star) \left\{ \E \left[\dot U_W(\eta^\star, \rho^\star) \right]\right\}^{-1}
+\end{equation*}
+where
+\begin{align*}
+    \Sigma_W(\alpha,\beta;\eta, \rho) = \E \Big[\Big(U_W(\alpha,\beta;\eta, \rho) + &\Sigma_{W,D}(\alpha,\beta;\eta, \rho) \left\{\E[\dot U_D(\eta)] \right\}^{-1} U_D(\eta) + \nonumber \\ &\Sigma_{W,N}(\alpha,\beta;\eta, \rho)\left\{\E[\dot U_N(\rho)] \right\}^{-1} U_N(\rho) \Big)^ {\otimes 2} \Big]
+\end{align*}
+with
+\begin{align*}
+    \Sigma_{W,D}&(\alpha,\beta ; \eta, \rho)
+    = \E \Big[ \sum_{t=1}^T \left( Y_{t+1,J} - g_t(H_t)^\top \alpha -  (1-A_{t,J})(A_{t,J^\prime} - \tilde p_t^\star (1 \given S_t;\rho) ) f_t (S_t)^\top \beta \right)I_{t,J}I_{t,J^\prime} \nonumber \\ &W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta,\rho)
+    \begin{pmatrix}
+  g_t(H_t) \\
+  (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t;\rho) ) f_t (S_t)
+\end{pmatrix}\left(\frac{d \log p^\star_t(A_{t,J^\prime}|H_t;\eta)}{d \eta} \right)^\top \Big],
+\end{align*}
+and
+\begin{align*}
+    \Sigma_{W,N}&(\alpha,\beta;\eta, \rho)
+    = \E \Big[ \sum_{t=1}^T \left( Y_{t+1,J} - g_t(H_t)^\top \alpha -  (1-A_{t,J})(A_{t,J^\prime} - \tilde p_t^\star (1 \given S_t;\rho) ) f_t (S_t)^\top \beta \right)I_{t,J}I_{t,J^\prime} \nonumber \\ &W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta,\rho)
+    \begin{pmatrix}
+  g_t(H_t) \\
+  (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t;\rho) ) f_t (S_t)
+\end{pmatrix}\left(\frac{d \log \tilde p^\star_t(A_{t,J^\prime}|S_t;\rho)}{d \rho} \right)^\top \Big] \nonumber \\
+&+\E \Big[ \sum_{t=1}^T \left( Y_{t+1,J} - g_t(H_t)^\top \alpha -  (1-A_{t,J})(A_{t,J^\prime} - \tilde p_t^\star (1 \given S_t;\rho) ) f_t (S_t)^\top \beta \right)I_{t,J}I_{t,J^\prime} \nonumber \\ &W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta,\rho)
+    \begin{pmatrix}
+  \textbf{0} \\
+  -(1-A_{t,J})\tilde {p}^\star_t (1 \given S_t;\rho)  f_t (S_t)
+\end{pmatrix}\left(\frac{d \log \tilde p^\star_t(1|S_t;\rho)}{d \rho} \right)^\top \Big] \nonumber \\
+&+\E \Big[ \sum_{t=1}^T (1-A_{t,J}) \tilde p_t^\star (1 \given S_t;\rho)  f_t (S_t)^\top \beta I_{t,J}I_{t,J^\prime}W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta,\rho)  \nonumber \\ &\begin{pmatrix}
+  g_t(H_t) \\
+  (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t;\rho) ) f_t (S_t)
+\end{pmatrix}\left(\frac{d \log \tilde p^\star_t(1|S_t;\rho)}{d \rho} \right)^\top \Big]
+\end{align*}
+
+In our simulation, an individual's randomization probabilities only depends on their observed history, then $\tilde p_t^\star (1 \mid S_{t,j^\prime}) = \tilde p_t (1 \mid S_{t,j^\prime})$. Since the data is from an MRT (we know $p_t$) and we pre-specify (not estimate) $\tilde p_t$, then $\Sigma_W = \E \left[ \left(U_W(\alpha,\beta)  \right)^ {\otimes 2} \right] $ greatly simplifying the variance-covaraince matrix.
+
+A consistent estimator of the variance-covariance matrix is given by:
+\begin{equation}
+    \left\{ \P_n \left[\dot U_W(\hat\eta, \hat\rho) \right]\right\}^{-1} \hat\Sigma_W(\hat\alpha,\hat\beta;\hat\eta, \hat\rho) \left\{ \P_n \left[\dot U_W(\hat\eta, \hat\rho) \right]\right\}^{-1}
+\end{equation}
+where
+\begin{align*}
+    \hat\Sigma_W(\alpha,\beta;\eta, \rho) = \P_n \Big[\Big(U_W(\alpha,\beta;\eta, \rho) + &\hat\Sigma_{W,D}(\alpha,\beta;\eta, \rho) \left\{\P_n[\dot U_D(\eta)] \right\}^{-1} U_D(\eta) + \nonumber \\ &\hat\Sigma_{W,N}(\alpha,\beta;\eta, \rho)\left\{\P_n[\dot U_N(\rho)] \right\}^{-1} U_N(\rho) \Big)^ {\otimes 2} \Big]
+\end{align*}
+with
+\begin{align*}
+    \hat\Sigma_{W,D}(\alpha,\beta &; \eta, \rho)
+    = \P_n \Big[ \sum_{t=1}^T \left( Y_{t+1,J} - g_t(H_t)^\top \alpha -  (1-A_{t,J})(A_{t,J^\prime} - \tilde p_t^\star (1 \given S_t;\rho) ) f_t (S_t)^\top \beta \right)I_{t,J}I_{t,J^\prime} \nonumber \\ &W_{t,J, J^\prime}(A_t,H_t; \eta,\rho)
+    \begin{pmatrix}
+  g_t(H_t) \\
+  (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t;\rho) ) f_t (S_t)
+\end{pmatrix}\left(\frac{d \log p^\star_t(A_{t,J^\prime}|H_t;\eta)}{d \eta} \right)^\prime \Big],
+\end{align*}
+and
+\begin{align*}
+    \hat\Sigma_{W,N}&(\alpha,\beta;\eta, \rho)
+    = \P_n \Big[ \sum_{t=1}^T \left( Y_{t+1,J} - g_t(H_t)^\top \alpha -  (1-A_{t,J})(A_{t,J^\prime} - \tilde p_t^\star (1 \given S_t;\rho) ) f_t (S_t)^\top \beta \right)I_{t,J}I_{t,J^\prime} \nonumber \\ &W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta,\rho)
+    \begin{pmatrix}
+  g_t(H_t) \\
+  (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t;\rho) ) f_t (S_t)
+\end{pmatrix}\left(\frac{d \log \tilde p^\star_t(A_{t,J^\prime}|S_t;\rho)}{d \rho} \right)^\top \Big] \nonumber \\
+&+\P_n \Big[ \sum_{t=1}^T \left( Y_{t+1,J} - g_t(H_t)^\top \alpha -  (1-A_{t,J})(A_{t,J^\prime} - \tilde p_t^\star (1 \given S_t;\rho) ) f_t (S_t)^\top \beta \right)I_{t,J}I_{t,J^\prime} \nonumber \\ &W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta,\rho)
+    \begin{pmatrix}
+  \textbf{0} \\
+  -(1-A_{t,J})\tilde {p}^\star_t (1 \given S_t;\rho)  f_t (S_t)
+\end{pmatrix}\left(\frac{d \log \tilde p^\star_t(1|S_t;\rho)}{d \rho} \right)^\top \Big] \nonumber \\
+&+\P_n \Big[ \sum_{t=1}^T (1-A_{t,J}) \tilde p_t^\star (1 \given S_t;\rho)  f_t (S_t)^\top \beta I_{t,J}I_{t,J^\prime}W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta,\rho)  \nonumber \\ &\begin{pmatrix}
+  g_t(H_t) \\
+  (1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t;\rho) ) f_t (S_t)
+\end{pmatrix}\left(\frac{d \log \tilde p^\star_t(1|S_t;\rho)}{d \rho} \right)^\top \Big]
+\end{align*}
+
+It remains to show that $\beta^\prime = \beta^{\star\star}$. Since $\E [U_W(\alpha^\prime,\beta^\prime;\eta^\star,\rho^\star)]=0$,
+\begin{align*}
+    0 &= \E \sum_{t=1}^T \left( Y_{t+1,J} - g_t(H_t)^\top\alpha^\prime -  (1-A_{t,J}) (A_{t,J^\prime} - \tilde p_t^\star (1 \given S_t;\rho^\star) ) f_t (S_t)^\top \beta^\prime \right) I_{t,J}I_{t,J^\prime} \nonumber \\
+    &  ~~~~~~~~~~~~~~~~~~~~  W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta^\star,\rho^\star)(1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t;\rho^\star) ) f_t (S_t) \nonumber \\
+    &=  \E \sum_{t=1}^T \left(\E \left[Y_{t+1} \given{A_{t,J},A_{t,J^\prime}, H_t ,I_{t,J}I_{t,J^\prime}=1} \right]- g_t(H_t)^\top\alpha^\prime-(1-A_{t,J}) (A_{t,J^\prime} - \tilde p_t^\star (1 \given S_t;\rho^\star) ) f_t (S_t)^\top \beta^\prime \right) \nonumber \\
+    &  ~~~~~~~~~~~~~~~~~~~~  I_{t,J}I_{t,J^\prime}W_{t,J, J^\prime}(A_{t,J},A_{t,J^\prime},H_t; \eta^\star,\rho^\star)(1-A_{t,J})(A_{t,J^\prime} - \tilde {p}^\star_t (1 \given S_t;\rho^\star) ) f_t (S_t) \nonumber \\
+    &= \E \sum_{t=1}^T \sum_{a^\prime \in \{0,1\}} \Big(\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=a^\prime, H_t ,I_{t,J}I_{t,J^\prime}=1} \right]- g_t(H_t)^\top\alpha^\prime- \nonumber \\
+    &  ~~~~~~~~~~~~~~~~~~~~  (a^\prime - \tilde p_t^\star (1 \given S_t;\rho^\star) ) f_t (S_t)^\top \beta^\prime \Big) I_{t,J}I_{t,J^\prime}\tilde p_t (0,a^\prime \given S_t;\rho^\star)(a^\prime - \tilde {p}^\star_t (1 \given S_t;\rho^\star) ) f_t (S_t)
+\end{align*}
+
+where the last equality averages out over $A_{t,J^\prime}$. The above simplifies to:
+
+\begin{align*}
+    0 &= \E \sum_{t=1}^T \sum_{a^\prime \in \{0,1\}} \Big(\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=a^\prime, H_t ,I_{t,J}I_{t,J^\prime}=1} \right]- g_t(H_t)^\top\alpha^\prime- \nonumber \\
+    &  ~~~~~~~~~~~~~~~~~~~~  (a^\prime - \tilde p_t^\star (1 \given S_t;\rho^\star) ) f_t (S_t)^\top \beta^\prime \Big) I_{t,J}I_{t,J^\prime}\tilde p_t (0,a^\prime \given S_t;\rho^\star)(a^\prime - \tilde {p}^\star_t (1 \given S_t;\rho^\star) ) f_t (S_t) \nonumber \\
+    &= \E \sum_{t=1}^T  \Big(\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=1, H_t ,I_{t,J}I_{t,J^\prime}=1} \right]- g_t(H_t)^\top\alpha^\prime- \nonumber \\
+    &  ~~~~~~~~~~~~~~~~~~~~  (1 - \tilde p_t^\star (1 \given S_t;\rho^\star) ) f_t (S_t)^\top \beta^\prime \Big) I_{t,J}I_{t,J^\prime}\tilde p_t (0,1 \given S_t;\rho^\star)(1 - \tilde {p}^\star_t (1 \given S_t;\rho^\star) ) f_t (S_t) \nonumber \\
+    & ~~~~ +\E \sum_{t=1}^T \Big(\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=0, H_t ,I_{t,J}I_{t,J^\prime}=1} \right]- g_t(H_t)^\top\alpha^\prime- \nonumber \\
+    &  ~~~~~~~~~~~~~~~~~~~~  ( - \tilde p_t^\star (1 \given S_t;\rho^\star) ) f_t (S_t)^\top \beta^\prime \Big) I_{t,J}I_{t,J^\prime}\tilde p_t (0,0 \given S_t;\rho^\star)( - \tilde {p}^\star_t (1 \given S_t;\rho^\star) ) f_t (S_t) \nonumber \\
+    &= \E \sum_{t=1}^T \Big(\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=1, H_t ,I_{t,J}I_{t,J^\prime}=1} \right] - \E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=0, H_t ,I_{t,J}I_{t,J^\prime}=1} \right]\nonumber \\
+    &  ~~~~~~~~~~~~~~~~~~~~  -f_t (S_t)^\top \beta^\prime \Big)  f_t (S_t) \gamma(\eta^\star,\rho^\star) I_{t,J}I_{t,J^\prime}
+\end{align*}
+
+where $\gamma(\eta^\star,\rho^\star) = \tilde{p}_t (0,1 \mid S_t)(1- \tilde {p}^\star_t (1 \given S_t;\rho^\star)) = \tilde{p}_t (0,0 \mid S_t) \tilde {p}^\star_t (1 \given S_t;\rho^\star) $. From this we obtain:
+\begin{align*}
+   0 = \E \sum_{t=1}^T  f_t (S_t) &\gamma(\eta^\star,\rho^\star) I_{t,J}I_{t,J^\prime}   \Big(\E \Big[\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=1, H_t ,I_{t,J}I_{t,J^\prime}=1} \right] - \nonumber \\
+   &\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=0, H_t ,I_{t,J}I_{t,J^\prime}=1} \right] \mid S_t,I_{t,J}I_{t,J^\prime}=1\Big]  -f_t (S_t)^\top \beta^\prime \Big)
+\end{align*}
+
+Thus
+\begin{align}
+\label{eq:estimand_beta}
+    \beta^\prime =\left[\E \dot U_W(\eta^\star,\rho^\star) \right]_{(2,2)}^{-1} \E \Bigg[\sum_{t=1}^T  f_t (S_t) &\gamma(\eta^\star,\rho^\star) I_{t,J}I_{t,J^\prime}  \E \Big[\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=1, H_t ,I_{t,J}I_{t,J^\prime}=1} \right] - \nonumber \\
+   &\E \left[Y_{t+1} \given{A_{t,J}=0,A_{t,J^\prime}=0, H_t ,I_{t,J}I_{t,J^\prime}=1} \right] \mid S_t,I_{t,J}I_{t,J^\prime}=1\Big]  \Bigg]
+\end{align}
+
+where
+\[
+\left[\E \dot U_W(\eta^\star,\rho^\star) \right]_{(2,2)} =\E \sum_{t=1}^T  f_t (S_t)f_t (S_t)^\top \gamma(\eta^\star,\rho^\star) I_{t,J}I_{t,J^\prime}
+\]
+\end{proof}
+
+\section{Semiparametric Efficiency}
+\label{app:semipareff}
+
+In this section, we assume lack of interference and therefore the potential outcomes can be written to only depend on one's observed history.  Then we consider a semiparametric model characterized by the following assumptions:
+\begin{assumption}
+For all $1 \leq t \leq T$, $E[ Y_{t+1,J} (\bar A_{t-1,J}, 0) \mid H_{t,J}, A_{t,J} ] = E[ Y_{t+1,J} (\bar A_{t-1,J}, 0) \mid H_{t,J} ]$
+\end{assumption}
+\begin{assumption}
+Assume that there exists a function $\gamma()$ and a true parameter $\psi_0 \in \mathbb{R}^p$, such that for any $1 \leq t \leq T$,
+$$
+\mathbb{E} \left[ Y_{t+1,J} (\bar A_{t-1,J}, a_t) \mid \bar z_t, \bar a_t \right] - \mathbb{E} \left[ Y_{t+1,J} (\bar A_{t-1,J}, 0) \mid \bar z_t, \bar a_t \right] = \gamma(t+1, \bar z_t, \bar a_t; \psi)
+$$
+\end{assumption}
+We next gather the definitions necessary for defining the semiparametric efficient score:
+\begin{itemize}
+\item The longitudinal data is $O_1, A_1, Y_{2}, O_2, A_2, \ldots, O_T, A_T, Y_{T+1}$ where $O_t$ is the time-varying covariates on all individuals in the cluster, $A_t$ is the treatment assignments for the cluster, and $Y_{t+1}$ is the set of proximal outcomes on the cluster
+\item $Z_{t,j} = (Y_{t,j}, O_{t,j})$
+\item $H_{t,j} = (\bar A_{t-1,j}, \bar Z_{t,j})$
+\item $V_{t,j} = (H_{t,j}, A_{t,j})$
+\item $U_{t+1,j} (\psi) = Y_{t+1,j} - \gamma(t+1, \bar z_t, \bar a_t; \psi)$
+\item $\dot{U}_{t+1,j} (\psi) = U_{t+1,j} - \mathbb{E} \left[ U_{t+1, j} \mid H_{t,j} \right]$
+\item $W_{t,j} = \text{Var} \left( U_{t+1,j} (\psi_0) \mid V_{t,j} \right)^{-1}$
+\end{itemize}
+
+Then by~\cite[Lemma I.8]{Qian2021}, a general form of the efficient score is
+$$
+S_{\text{eff}} (\psi_0) = - \frac{1}{G} \sum_{j=1}^G \sum_{t=1}^T \rho_{t,j} \dot{U}_{t+1,j} (\psi_0)
+$$
+where
+$$
+\rho_{t,j} = \left[ \mathbb{E} \left[ \frac{\partial U_{t+1,j}}{\partial \psi} \mid V_{t,j} \right] - \mathbb{E} \left[ \frac{\partial U_{t+1,j}}{\partial \psi} \mid H_{t,j} \right] \mathbb{E} \left( W_{t,j} \mid H_{t,j} \right)^{-1} \right] W_{t,j}
+$$
+Note that $\mathbb{E} \left[ \rho_{t,j} \mid H_t \right] = 0$.  Therefore by~\cite[Lemma I.1]{Qian2021} we have
+$$
+\rho_{t,j} = \left( \rho(A_{t,j} = 1) - \rho(A_{t,j} = 1) \right) (A_{t,j} - p_t (1 \mid H_{t,j}))
+$$
+where  $\rho(A_{t,j} = a)$ denotes $\rho_{t,j}$ evaluated at $A_{t,j} = a$.
+
+We now calculate these terms based on the above notation. Under $\gamma(t+1, \bar z_t, \bar a_t; \psi_0) = A_{t,j} f(H_{t,j})^\top \psi$, we have
+$$
+\frac{\partial U_{t+1,j} (\psi_0)}{\partial \psi} = - A_{t,j} f(H_t), \quad \text{and} \quad
+\dot{U}_{t+1,j} (\psi) = Y_{t+1,j} - \mu_t (H_t) + (A_{t,j}-p_t(1 \mid H_t)) f_t(H_{t,j})^\top \psi
+$$
+and hence we have
+\begin{align*}
+\mathbb{E} \left[ \frac{\partial U_{t+1,j} (\psi_0)}{\partial \psi} \mid H_{t,j}, A_{t,j} = 1 \right] &= - f(H_{t,j}) \\
+\mathbb{E} \left[ \frac{\partial U_{t+1,j} (\psi_0)}{\partial \psi} \mid H_{t,j}, A_{t,j} = 0 \right] &= 0 \\
+\text{Var} \left( U_{t+1,j} (\psi_0) \mid V_{t,j} \right) &=
+\text{Var} \left( Y_{t+1,j} \mid V_{t,j} \right) =: \sigma^2_{t+1,j} (H_{t,j}, A_{t,j}) \\
+\end{align*}
+Then
+$$
+\mathbb{E} \left[ W_{t,j} \mid H_{t,j} \right] = \frac{p_t (1 \mid H_{t,j} )}{\sigma^2_{t+1,j} (H_{t,j}, 1)} + \frac{1-p_t (1 \mid H_{t,j} )}{\sigma^2_{t+1,j} (H_{t,j}, 0)}
+$$
+and we can express
+\begin{align*}
+\rho(A_{t,j} = 1) &= - \left( 1 -p_t ( 1 \mid H_{t,j}) \left[  \frac{p_t (1 \mid H_{t,j} )}{\sigma^2_{t+1,j} (H_{t,j}, 1)} + \frac{1-p_t (1 \mid H_{t,j} )}{\sigma^2_{t+1,j} (H_{t,j}, 0)} \right] \right) \frac{f(H_{t,j})}{\sigma^2_{t+1,j} (H_{t,j}, 1)} \\
+\rho(A_{t,j} = 0) &= - \left( 0 -p_t ( 1 \mid H_{t,j}) \left[  \frac{p_t (1 \mid H_{t,j} )}{\sigma^2_{t+1,j} (H_{t,j}, 1)} + \frac{1-p_t (1 \mid H_{t,j} )}{\sigma^2_{t+1,j} (H_{t,j}, 0)} \right] \right) \frac{f(H_{t,j})}{\sigma^2_{t+1,j} (H_{t,j}, 1)}
+\end{align*}
+Therefore $\rho_{t,j}$ is given by
+\begin{align*}
+\bigg[ \frac{1}{\sigma^2_{t+1,j} (H_{t,j}, 1)} + p_t ( 1 \mid H_{t,j}) \left[  \frac{p_t (1 \mid H_{t,j} )}{\sigma^2_{t+1,j} (H_{t,j}, 1)} + \frac{1-p_t (1 \mid H_t )}{\sigma^2_{t+1,j} (H_{t,j}, 0)} \right] \times \\
+\left( \frac{1}{\sigma^2_{t+1,j} (H_{t,j}, 1)}  - \frac{1}{\sigma^2_{t+1,j} (H_{t,j}, 0)} \right)
+ \bigg] \times \left( A_{t,j} - p_t (1 \mid H_{t,j}) \right) f(H_{t,j}).
+\end{align*}
+Moreover, under the simplifying assumption $\sigma^2_{t+1,j} (H_{t,j}, a) = \sigma^2_{t+1,j} (H_{t,j})$ we have
+$$
+\rho_{t,j} = \frac{1}{\sigma^2_{t+1,j} (H_t)} \times \left( A_{t,j} - p_t (1 \mid H_{t,j}) \right) f(H_{t,j}).
+$$
+Under the even stronger assumption $\sigma^2_{t+1,j} (H_{t,j}) := \sigma^2$ we have
+\begin{align*}
+S_{\text{eff}} (\psi_0) =&  \frac{\sigma^2}{G} \sum_{j=1}^G \sum_{t=1}^T \left(Y_{t+1,j} - \mu_t (H_{t,j}) - (A_{t,j} - p_t (1 \mid H_{t,j})) f_t (H_{t,j})^\top \beta \right) \times \\
+&\times (A_{t,j} - p_t (1 \mid H_{t,j})) f_t (H_{t,j}).
+\end{align*}
+
+\section{Code to Replicate Simulation and Case Study Results}
+The R code used to generate the simulation experiments and case study results in this paper can be obtained at \verb"https://github.com/Herashi/MRT-mHealthModeration".
+
+\bibliographystyle{biometrika}
+\bibliography{paper-ref}
+
+\end{document}

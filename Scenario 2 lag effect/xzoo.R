@@ -1,5 +1,5 @@
 ## zoo extras
-
+library(zoo)
 ## take first recorded value
 baseline <- function(id, time, x) {
   s <- splitdata(id, time, x)
